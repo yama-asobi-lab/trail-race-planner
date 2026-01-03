@@ -2,7 +2,14 @@ race:
   name: "Tokyo Grand Trail 2026"
   distance_km: 160  # placeholder, update after loading GPX
   elevation_gain_m: 11000  # placeholder
-  gpx_file: "tgt_2026_course.gpx"
+  
+  # File paths (relative to project root)
+  gpx_file: "gpx_repo/TGT_2025.gpx"
+  output_file: "results/tgt_2026_segment_analysis.xlsx"
+  
+  # Analysis settings
+  resample_m: 10  # Resample course to 10m intervals
+  elevation_tolerance_m: 50  # Tolerance for elevation validation
 
 athlete:
   marathon_time: "3:30:00"   # example
@@ -14,55 +21,88 @@ athlete:
 aid_stations:
   - name: "START"
     distance_km: 0.0
+    elevation_m: 384   # reference
     stop_time_s: 0
     notes: "Race start"
 
-  - name: "大根山の神"
-    distance_km: 12.3   # placeholder
+  - name: "CP1 Daikon-yama no Kami"
+    distance_km: 7.5
+    elevation_m: 667   # reference
     stop_time_s: 60
     notes: "Water only"
+    jap_name: "大根山の神"
 
-  - name: "御岳エイド"
-    distance_km: 24.8   # placeholder
+  - name: "Kawai"
+    distance_km: 19.3
+    elevation_m: 300   # reference
     stop_time_s: 120
-    notes: "Food + water"
+    notes: "Vending machines here"
+    jap_name: "川井"
 
-  - name: "梅郷地区"
-    distance_km: 36.5   # placeholder
-    stop_time_s: 60
-    notes: "Quick refill"
+  - name: "A1 Mitake Aid"
+    distance_km: 28.0
+    elevation_m: 237   # reference
+    stop_time_s: 180
+    notes: "Famous Inner Fact Special Curry!"
+    jap_name: "御岳エイド"
 
-  - name: "十里木 (1)"
-    distance_km: 48.0   # placeholder
+  - name: "CP2 Umegou"
+    distance_km: 45
+    elevation_m: 227   # reference
+    stop_time_s: 180
+    notes: "Water only, 7-eleven 500 m later"
+    jap_name: "梅郷地区"
+
+  - name: "Hinode Oguno 7-eleven"
+    distance_km: 59.0
+    elevation_m: 196   # reference
+    stop_time_s: 120
+    notes: "Convenience store"
+
+  - name: "A2 Jurigi (1)"
+    distance_km: 71.0
+    elevation_m: 214   # reference
+    stop_time_s: 300
+    notes: "Depo bag access! Minestrone soup at aid"
+    jap_name: "十里木"
+
+  - name: "A3 Sanogawa"
+    distance_km: 88.5
+    elevation_m: 310   # reference
+    stop_time_s: 120
+    notes: "Rice and Hiyashi ramen"
+    jap_name: "佐野川"
+
+  - name: "A4 Fujimi chaya"
+    distance_km: 100.8
+    elevation_m: 212   # reference
     stop_time_s: 90
-    notes: "Major aid"
+    notes: "Somen"
+    jap_name: "富士見茶屋"
 
-  - name: "佐野川"
-    distance_km: 63.2   # placeholder
+  - name: "Wada-toge"
+    distance_km: 117.9
+    elevation_m: 693   # reference
     stop_time_s: 120
-    notes: "Hot food available"
+    notes: "Chicken kayu"
+    jap_name: "和田峠"
 
-  - name: "富士見茶屋"
-    distance_km: 78.7   # placeholder
+  - name: "A6 Jurigi (2)"
+    distance_km: 134.8
+    elevation_m: 214   # reference
     stop_time_s: 90
-    notes: "Water + snacks"
+    notes: "Depo bag access! Dashi chazuke"
+    jap_name: "十里木"
 
-  - name: "和田峠"
-    distance_km: 95.4   # placeholder
-    stop_time_s: 120
-    notes: "Cold section ahead"
-
-  - name: "十里木 (2)"
-    distance_km: 112.0  # placeholder
+  - name: "Tomin no mori"
+    distance_km: 152.9
+    elevation_m: 631   # reference
     stop_time_s: 90
-    notes: "Second pass"
-
-  - name: "都民の森"
-    distance_km: 132.5  # placeholder
-    stop_time_s: 120
-    notes: "Final big climb ahead"
+    notes: "Wagashi"
+    jap_name: "都民の森"
 
   - name: "FINISH"
-    distance_km: 160.0  # placeholder
+    distance_km: 158.8
+    elevation_m: 384   # reference
     stop_time_s: 0
     notes: "Goal!"
