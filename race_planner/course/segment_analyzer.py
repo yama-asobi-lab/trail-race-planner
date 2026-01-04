@@ -24,31 +24,54 @@ class SegmentAnalyzer:
 
     Args:
         course: Course object with loaded GPX data.
-        config_path: Path to YAML configuration file.
+        race_config_path: Path to race YAML configuration file.
         elevation_tolerance_m: Tolerance for elevation validation (default: 50m).
+        athlete_config: Athlete configuration dictionary (defaults to Yet Another Sato,
+            our reference baseline athlete).
 
     Attributes:
         course: The Course object.
-        config: Loaded configuration dictionary.
+        race_config: Loaded race configuration dictionary.
         aid_stations: List of aid station configurations.
+        athlete_config: Athlete configuration for pacing calculations.
     """
 
     def __init__(
         self,
         course: Course,
-        config_path: Path | str,
+        race_config_path: Path | str,
         elevation_tolerance_m: float = 50.0,
+        athlete_config: Dict = None,
     ):
         """Initialize SegmentAnalyzer with course and configuration."""
         self.course = course
         self.elevation_tolerance_m = elevation_tolerance_m
 
-        # Load configuration
-        config_path = Path(config_path)
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.config = yaml.safe_load(f)
+        # Load race configuration
+        race_config_path = Path(race_config_path)
+        with open(race_config_path, 'r', encoding='utf-8') as f:
+            self.race_config = yaml.safe_load(f)
 
-        self.aid_stations = self.config.get('aid_stations', [])
+        self.aid_stations = self.race_config.get('aid_stations', [])
+
+        # Load default athlete config if not provided
+        if athlete_config is None:
+            default_athlete_path = Path('config/athletes/yet_another_sato.yaml')
+            logger.info(
+                f"No athlete config provided, using default: {default_athlete_path}"
+            )
+            with open(default_athlete_path, 'r', encoding='utf-8') as f:
+                self.athlete_config = yaml.safe_load(f)
+        else:
+            self.athlete_config = athlete_config
+
+        # Log athlete info
+        athlete_info = self.athlete_config.get('athlete', {})
+        athlete_name = athlete_info.get('name', 'Unknown')
+        marathon_pb = athlete_info.get('marathon_pb', 'N/A')
+        logger.info(
+            f"Using athlete profile: {athlete_name} (Marathon PB: {marathon_pb})"
+        )
 
         # Run validations on initialization
         logger.info("Validating course...")
@@ -246,7 +269,7 @@ class SegmentAnalyzer:
 
         # Generate elevation profile plot
         plot_path = output_path.parent / f"{output_path.stem}_elevation_profile.html"
-        race_name = self.config.get('race', {}).get('name', 'Race Course')
+        race_name = self.race_config.get('race', {}).get('name', 'Race Course')
         logger.info("Generating elevation profile plot...")
         plot_course_profile(
             course=self.course,
@@ -258,18 +281,21 @@ class SegmentAnalyzer:
 
 def analyze_race(
     gpx_path: Path | str,
-    config_path: Path | str,
+    race_config_path: Path | str,
     output_path: Path | str,
     resample_m: Optional[float] = 10.0,
+    athlete_config: Optional[Dict] = None,
 ) -> SegmentAnalyzer:
     """
     Convenience function to analyze a race course.
 
     Args:
         gpx_path: Path to GPX file.
-        config_path: Path to YAML configuration file.
+        race_config_path: Path to race YAML configuration file.
         output_path: Path to output Excel file.
         resample_m: Resampling interval for course data (default: 10m).
+        athlete_config: Optional athlete configuration dict (defaults to Yet Another Sato,
+            the reference baseline athlete, if None).
 
     Returns:
         SegmentAnalyzer instance with analysis results.
@@ -278,8 +304,8 @@ def analyze_race(
     logger.info(f"Loading course from: {gpx_path}")
     course = Course(gpx_path, resample_m=resample_m)
 
-    # Create analyzer
-    analyzer = SegmentAnalyzer(course, config_path)
+    # Create analyzer (will load default athlete config if None provided)
+    analyzer = SegmentAnalyzer(course, race_config_path, athlete_config=athlete_config)
 
     # Generate report
     analyzer.generate_report(output_path)

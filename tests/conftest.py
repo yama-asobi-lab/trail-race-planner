@@ -4,8 +4,5 @@ import pytest
 
 @pytest.fixture
 def sample_gpx_path():
-    return (
-        pathlib.Path(__file__).parent.parent
-        / "gpx_repo"
-        / "Okumusashi_Long_Trail_Race_105K_2025.gpx"
-    )
+    """Return path to TGT GPX file used in actual race config."""
+    return pathlib.Path(__file__).parent.parent / "gpx_repo" / "TGT_2025.gpx"

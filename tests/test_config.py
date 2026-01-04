@@ -1,0 +1,68 @@
+"""
+Tests for configuration file structure validation.
+"""
+
+from pathlib import Path
+import yaml
+
+
+def test_athlete_config_structure():
+    """Test that all athlete configs have consistent structure."""
+    athlete_config_dir = Path("config/athletes")
+    athlete_configs = list(athlete_config_dir.glob("*.yaml"))
+
+    assert len(athlete_configs) > 0, "No athlete config files found"
+
+    required_fields = ['name', 'marathon_pb', 'itra_points', 'model_parameters']
+
+    for config_path in athlete_configs:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+
+        # Check structure
+        assert 'athlete' in config, f"'athlete' key missing in {config_path}"
+        athlete_info = config['athlete']
+
+        for field in required_fields:
+            assert field in athlete_info, f"{field} missing in {config_path}"
+
+        # Check model_parameters structure
+        assert 'flat_pace_factor' in athlete_info['model_parameters']
+        assert 'climb_factor' in athlete_info['model_parameters']
+        assert 'descent_factor' in athlete_info['model_parameters']
+
+
+def test_race_config_structure():
+    """Test that all race configs have correct structure."""
+    race_config_dir = Path("config/races")
+    race_configs = list(race_config_dir.glob("*.yaml"))
+
+    assert len(race_configs) > 0, "No race config files found"
+
+    for config_path in race_configs:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+
+        # Check top-level structure
+        assert 'race' in config, f"'race' key missing in {config_path}"
+        assert 'aid_stations' in config, f"'aid_stations' key missing in {config_path}"
+
+        # Check race info
+        race_info = config['race']
+        assert 'name' in race_info, f"'name' missing in race info for {config_path}"
+        assert (
+            'gpx_file' in race_info
+        ), f"'gpx_file' missing in race info for {config_path}"
+        assert (
+            'output_file' in race_info
+        ), f"'output_file' missing in race info for {config_path}"
+
+        # Check aid stations
+        aid_stations = config['aid_stations']
+        assert len(aid_stations) > 0, f"No aid stations defined in {config_path}"
+
+        for station in aid_stations:
+            assert 'name' in station, f"Aid station missing 'name' in {config_path}"
+            assert (
+                'distance_km' in station
+            ), f"Aid station missing 'distance_km' in {config_path}"

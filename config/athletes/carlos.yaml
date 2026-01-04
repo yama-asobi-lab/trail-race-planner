@@ -1,0 +1,25 @@
+athlete:
+  name: "Carlos"
+  
+  # Performance metrics
+  marathon_pb: "3:30:00"  # Personal best marathon time
+  itra_points: 650  # ITRA performance index
+  
+  # Pacing model parameters
+  model_parameters:
+    flat_pace_factor: 1.00   # Multiplier for flat terrain pace
+    climb_factor: 1.15       # Speed reduction on climbs
+    descent_factor: 0.90     # Speed increase on descents
+    
+  # Individualized Grade Adjusted Pace (GAP) curve
+  # This will be used to predict speed adjustments based on grade
+  gap_curve:
+    # Placeholder - will be implemented in future versions
+    # Format: grade (%) -> pace_factor (relative to flat pace)
+    enabled: false
+    custom_points: []
+  
+  # Preferences
+  preferences:
+    target_finish_time: null  # Optional target time (e.g., "24:00:00")
+    max_elevation_gain_per_hour: 600  # meters
