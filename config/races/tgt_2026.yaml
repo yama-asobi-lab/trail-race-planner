@@ -4,7 +4,7 @@ race:
   elevation_gain_m: 11000  # placeholder
   
   # File paths (relative to project root)
-  gpx_file: "gpx_repo/TGT_2025.gpx"
+  gpx_file: "config/gpx_repo/TGT_2025.gpx"
   output_file: "results/tgt_2026_segment_analysis.xlsx"
   
   # Analysis settings
