@@ -44,24 +44,31 @@ class CourseProfilePlotter:
         # Get course data
         df = self.course.df
 
+        # Calculate gradient percentage for hover (already in percent in 'grade' column)
+        df_gradient = df.copy()
+        df_gradient['gradient_pct'] = df_gradient['grade']
+
         # Create figure
         fig = go.Figure()
 
         # Add elevation profile trace with fill
         fig.add_trace(
             go.Scatter(
-                x=df['cum_dist_m'] / 1000,  # Convert to km
-                y=df['ele_m'],
+                x=df_gradient['cum_dist_m'] / 1000,  # Convert to km
+                y=df_gradient['ele_m'],
                 mode='lines',
                 name='Elevation',
-                line=dict(color='#1f77b4', width=2.5),
+                line=dict(color='#2563eb', width=2.5),  # Sleek blue
                 fill='tozeroy',  # Fill area under curve
-                fillcolor='rgba(31, 119, 180, 0.15)',  # Light blue with transparency
-                customdata=df['cum_ele_gain_m'],  # Add cumulative gain data
+                fillcolor='rgba(37, 99, 235, 0.12)',  # Light blue with transparency
+                customdata=list(
+                    zip(df_gradient['cum_ele_gain_m'], df_gradient['gradient_pct'])
+                ),  # Add cumulative gain and gradient
                 hovertemplate=(
                     '<b>Distance:</b> %{x:.2f} km<br>'
                     '<b>Elevation:</b> %{y:.0f} m<br>'
-                    '<b>Accum. Elevation Gain:</b> %{customdata:.0f} m<br>'
+                    '<b>Gradient:</b> %{customdata[1]:.1f}%<br>'
+                    '<b>Accum. Elevation Gain:</b> %{customdata[0]:.0f} m<br>'
                     '<extra></extra>'
                 ),
             )
@@ -85,8 +92,8 @@ class CourseProfilePlotter:
             # Format name with Japanese
             full_name = f"{name} ({jap_name})" if jap_name else name
 
-            # Create detailed hover text
-            hover_text = (
+            # Create detailed click text (shows on click, not hover)
+            click_text = (
                 f"<b>{full_name}</b><br>"
                 f"<b>Distance:</b> {distance_km:.1f} km<br>"
                 f"<b>Elevation:</b> {elevation_m:.0f} m<br>"
@@ -95,7 +102,7 @@ class CourseProfilePlotter:
                 f"<b>Stop Time:</b> {stop_time_s}s<br>"
             )
             if notes:
-                hover_text += f"<b>Notes:</b> {notes}<br>"
+                click_text += f"<b>Notes:</b> {notes}<br>"
 
             # Add marker for aid station
             fig.add_trace(
@@ -105,12 +112,13 @@ class CourseProfilePlotter:
                     mode='markers',
                     name=name,
                     marker=dict(
-                        size=12,
-                        color='#e74c3c',  # Modern red
-                        symbol='triangle-up',
+                        size=16,
+                        color='#f59e0b',  # Sleek gold/amber
+                        symbol='diamond',
                         line=dict(width=2, color='white'),
                     ),
-                    hovertemplate=hover_text + '<extra></extra>',
+                    customdata=[[click_text]],
+                    hovertemplate='<extra></extra>',  # Make clickable but show nothing on hover
                     showlegend=False,
                 )
             )
@@ -122,13 +130,13 @@ class CourseProfilePlotter:
                 text=name,
                 showarrow=False,
                 yshift=15,  # Position above marker
-                bgcolor='rgba(255, 255, 255, 0.7)',  # White with 85% opacity
-                bordercolor='#e0e0e0',
+                bgcolor='rgba(255, 251, 235, 0.75)',  # Light gold background
+                bordercolor='#f59e0b',  # Gold border
                 borderwidth=1,
                 borderpad=4,
                 font=dict(
-                    size=10,
-                    color='#2c3e50',
+                    size=11,
+                    color='#78350f',  # Dark gold text
                     family='Inter, system-ui, sans-serif',
                     weight=600,
                 ),
@@ -140,7 +148,7 @@ class CourseProfilePlotter:
                 text=title,
                 font=dict(
                     size=24,
-                    color='#2c3e50',
+                    color='#1e3a8a',  # Deep blue
                     family='Inter, system-ui, sans-serif',
                     weight=600,
                 ),
@@ -151,41 +159,66 @@ class CourseProfilePlotter:
                 title=dict(
                     text='Distance (km)',
                     font=dict(
-                        size=14, family='Inter, system-ui, sans-serif', weight=500
+                        size=16,
+                        family='Inter, system-ui, sans-serif',
+                        weight=500,
+                        color='#1e40af',
                     ),
                 ),
                 showgrid=True,
                 gridwidth=1,
-                gridcolor='#e0e0e0',
-                minor=dict(showgrid=True, gridcolor='#f5f5f5', griddash='dot'),
+                gridcolor='#dbeafe',  # Light blue grid
+                minor=dict(
+                    showgrid=True,
+                    gridcolor='#bfdbfe',
+                    gridwidth=0.5,
+                    griddash='dot',
+                    ticklen=4,
+                ),
                 zeroline=False,
-                tickfont=dict(size=11, family='Inter, system-ui, sans-serif'),
+                tickfont=dict(
+                    size=11, family='Inter, system-ui, sans-serif', color='#374151'
+                ),
+                minor_ticks="inside",
             ),
             yaxis=dict(
                 title=dict(
                     text='Elevation (m)',
                     font=dict(
-                        size=14, family='Inter, system-ui, sans-serif', weight=500
+                        size=16,
+                        family='Inter, system-ui, sans-serif',
+                        weight=500,
+                        color='#1e40af',
                     ),
                 ),
                 showgrid=True,
                 gridwidth=1,
-                gridcolor='#e0e0e0',
-                minor=dict(showgrid=True, gridcolor='#f5f5f5', griddash='dot'),
+                gridcolor='#dbeafe',  # Light blue grid
+                minor=dict(
+                    showgrid=True,
+                    gridcolor='#bfdbfe',
+                    gridwidth=0.5,
+                    griddash='dot',
+                    ticklen=4,
+                ),
                 zeroline=False,
-                tickfont=dict(size=11, family='Inter, system-ui, sans-serif'),
+                tickfont=dict(
+                    size=11, family='Inter, system-ui, sans-serif', color='#374151'
+                ),
+                minor_ticks="inside",
             ),
             hovermode='x unified',  # Vertical line across plot
             hoverlabel=dict(
-                bgcolor='white',
-                font_size=12,
+                bgcolor='#fffbeb',  # Light gold background
+                font_size=14,
                 font_family='Inter, system-ui, sans-serif',
-                bordercolor='#ddd',
+                bordercolor='#f59e0b',  # Gold border
             ),
+            clickmode='event',  # Enable click events without selection
             template='plotly_white',
             height=600,
             showlegend=False,
-            plot_bgcolor='#fafafa',
+            plot_bgcolor='#f8fafc',  # Very light blue-gray
             paper_bgcolor='white',
             margin=dict(l=80, r=40, t=80, b=60),
         )
@@ -208,21 +241,148 @@ class CourseProfilePlotter:
             x=0.02,
             y=0.98,
             showarrow=False,
-            bgcolor="rgba(255, 255, 255, 0.95)",
-            bordercolor="#ddd",
+            bgcolor="rgba(239, 246, 255, 0.95)",  # Light blue background
+            bordercolor="#2563eb",  # Blue border
             borderwidth=1.5,
             borderpad=10,
             align="left",
             xanchor="left",
             yanchor="top",
-            font=dict(size=12, family='Inter, system-ui, sans-serif', color='#2c3e50'),
+            font=dict(size=13, family='Inter, system-ui, sans-serif', color='#1e3a8a'),
         )
 
         # Save to file if output path provided
         if output_path:
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            fig.write_html(str(output_path))
+
+            # Add custom JavaScript for click-to-show aid station info
+            click_js = """
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var gd = document.getElementsByClassName('plotly-graph-div')[0];
+                var infoDiv = null;
+                
+                // Store aid station data for proximity detection
+                var aidStations = [];
+                gd.data.forEach(function(trace, idx) {
+                    if (idx > 0) { // Skip first trace (elevation line)
+                        aidStations.push({
+                            x: trace.x[0],
+                            y: trace.y[0],
+                            customdata: trace.customdata[0],
+                            traceIdx: idx
+                        });
+                    }
+                });
+                
+                // Click handler with proximity detection
+                gd.on('plotly_click', function(data) {
+                    var clickedPoint = data.points[0];
+                    
+                    // If clicked on elevation line, try to find nearby aid station
+                    if (clickedPoint.curveNumber === 0) {
+                        var xaxis = gd._fullLayout.xaxis;
+                        var yaxis = gd._fullLayout.yaxis;
+                        var clickX = clickedPoint.x;
+                        var clickY = clickedPoint.y;
+                        
+                        // Convert click tolerance from pixels to data units
+                        var tolerancePixels = 40; // 40 pixel radius for mobile-friendly clicking
+                        var xRange = xaxis.range[1] - xaxis.range[0];
+                        var yRange = yaxis.range[1] - yaxis.range[0];
+                        var plotWidth = gd._fullLayout.width;
+                        var plotHeight = gd._fullLayout.height;
+                        
+                        var xTolerance = (tolerancePixels / plotWidth) * xRange;
+                        var yTolerance = (tolerancePixels / plotHeight) * yRange;
+                        
+                        // Find nearest aid station within tolerance
+                        var nearest = null;
+                        var minDist = Infinity;
+                        
+                        aidStations.forEach(function(station) {
+                            var dx = (station.x - clickX) / xTolerance;
+                            var dy = (station.y - clickY) / yTolerance;
+                            var dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (dist < 1 && dist < minDist) {
+                                minDist = dist;
+                                nearest = station;
+                            }
+                        });
+                        
+                        if (nearest) {
+                            clickedPoint = { customdata: [nearest.customdata] };
+                        } else {
+                            return; // No nearby aid station, ignore click
+                        }
+                    } else if (clickedPoint.curveNumber > 0) {
+                        // Direct click on aid station marker - data is already in correct format
+                        // clickedPoint.customdata is already correct
+                    } else {
+                        return;
+                    }
+                    
+                    // Remove existing info div if any
+                    if (infoDiv) {
+                        infoDiv.remove();
+                    }
+                    
+                    // Create info popup
+                    infoDiv = document.createElement('div');
+                    infoDiv.style.position = 'absolute';
+                    infoDiv.style.left = (data.event.pageX + 10) + 'px';
+                    infoDiv.style.top = (data.event.pageY - 10) + 'px';
+                    infoDiv.style.backgroundColor = 'rgba(255, 251, 235, 0.98)';
+                    infoDiv.style.border = '2px solid #f59e0b';
+                    infoDiv.style.borderRadius = '6px';
+                    infoDiv.style.padding = '12px 16px';
+                    infoDiv.style.fontFamily = 'Inter, system-ui, sans-serif';
+                    infoDiv.style.fontSize = '13px';
+                    infoDiv.style.color = '#78350f';
+                    infoDiv.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                    infoDiv.style.zIndex = '1000';
+                    infoDiv.style.maxWidth = '300px';
+                    infoDiv.innerHTML = clickedPoint.customdata[0];
+                    
+                    // Add close button
+                    var closeBtn = document.createElement('span');
+                    closeBtn.innerHTML = '×';
+                    closeBtn.style.position = 'absolute';
+                    closeBtn.style.right = '8px';
+                    closeBtn.style.top = '4px';
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.style.fontSize = '20px';
+                    closeBtn.style.fontWeight = 'bold';
+                    closeBtn.style.color = '#f59e0b';
+                    closeBtn.onclick = function() {
+                        infoDiv.remove();
+                        infoDiv = null;
+                    };
+                    infoDiv.appendChild(closeBtn);
+                    
+                    document.body.appendChild(infoDiv);
+                });
+                
+                // Close on click outside
+                document.addEventListener('click', function(e) {
+                    if (infoDiv && !infoDiv.contains(e.target) && !e.target.closest('.plotly')) {
+                        infoDiv.remove();
+                        infoDiv = null;
+                    }
+                });
+            });
+            </script>
+            """
+
+            # Write HTML with custom JavaScript
+            html_str = fig.to_html(include_plotlyjs='cdn')
+            html_str = html_str.replace('</body>', click_js + '</body>')
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(html_str)
+
             logger.success(f"Elevation profile saved to: {output_path}")
 
         return fig
