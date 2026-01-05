@@ -65,10 +65,10 @@ class CourseProfilePlotter:
                     zip(df_gradient['cum_ele_gain_m'], df_gradient['gradient_pct'])
                 ),  # Add cumulative gain and gradient
                 hovertemplate=(
-                    '<b>Distance:</b> %{x:.2f} km<br>'
-                    '<b>Elevation:</b> %{y:.0f} m<br>'
-                    '<b>Gradient:</b> %{customdata[1]:.1f}%<br>'
-                    '<b>Accum. Elevation Gain:</b> %{customdata[0]:.0f} m<br>'
+                    '<b style="color:#92400e">Distance:</b> <span style="color:#92400e">%{x:.2f} km</span><br>'
+                    '<b style="color:#92400e">Elevation:</b> <span style="color:#92400e">%{y:.0f} m</span><br>'
+                    '<b style="color:#92400e">Gradient:</b> <span style="color:#92400e">%{customdata[1]:.1f}%</span><br>'
+                    '<b style="color:#92400e">Accum. Elevation Gain:</b> <span style="color:#92400e">%{customdata[0]:.0f} m</span><br>'
                     '<extra></extra>'
                 ),
             )
@@ -80,14 +80,13 @@ class CourseProfilePlotter:
             jap_name = aid.get('jap_name', '')
             distance_km = aid.get('distance_km', 0)
             notes = aid.get('notes', '')
-            stop_time_s = aid.get('stop_time_s', 0)
+            gmaps_link = aid.get('gmaps_link', '')
 
             # Get point data from course
             distance_m = distance_km * 1000
             point = self.course.get_point_at_distance(distance_m)
             elevation_m = float(point['ele_m'])
             cum_gain_m = float(point['cum_ele_gain_m'])
-            cum_loss_m = float(point['cum_ele_loss_m'])
 
             # Format name with Japanese
             full_name = f"{name} ({jap_name})" if jap_name else name
@@ -98,11 +97,11 @@ class CourseProfilePlotter:
                 f"<b>Distance:</b> {distance_km:.1f} km<br>"
                 f"<b>Elevation:</b> {elevation_m:.0f} m<br>"
                 f"<b>Cumulative Gain:</b> {cum_gain_m:.0f} m<br>"
-                f"<b>Cumulative Loss:</b> {cum_loss_m:.0f} m<br>"
-                f"<b>Stop Time:</b> {stop_time_s}s<br>"
             )
             if notes:
                 click_text += f"<b>Notes:</b> {notes}<br>"
+            if gmaps_link:
+                click_text += f"<b>Google Maps:</b> <a href='{gmaps_link}' target='_blank'>Open</a><br>"
 
             # Add marker for aid station
             fig.add_trace(
@@ -180,6 +179,12 @@ class CourseProfilePlotter:
                     size=11, family='Inter, system-ui, sans-serif', color='#374151'
                 ),
                 minor_ticks="inside",
+                showspikes=True,
+                spikemode='across',
+                spikesnap='cursor',
+                spikedash='solid',
+                spikecolor='#94a3b8',
+                spikethickness=1,
             ),
             yaxis=dict(
                 title=dict(
@@ -207,12 +212,13 @@ class CourseProfilePlotter:
                 ),
                 minor_ticks="inside",
             ),
-            hovermode='x unified',  # Vertical line across plot
+            hovermode='closest',  # Show hover without unified x-label
             hoverlabel=dict(
                 bgcolor='#fffbeb',  # Light gold background
                 font_size=14,
                 font_family='Inter, system-ui, sans-serif',
                 bordercolor='#f59e0b',  # Gold border
+                namelength=0,  # Hide trace names
             ),
             clickmode='event',  # Enable click events without selection
             template='plotly_white',
@@ -279,16 +285,16 @@ class CourseProfilePlotter:
                 // Click handler with proximity detection
                 gd.on('plotly_click', function(data) {
                     var clickedPoint = data.points[0];
+                    var xaxis = gd._fullLayout.xaxis;
+                    var yaxis = gd._fullLayout.yaxis;
                     
                     // If clicked on elevation line, try to find nearby aid station
                     if (clickedPoint.curveNumber === 0) {
-                        var xaxis = gd._fullLayout.xaxis;
-                        var yaxis = gd._fullLayout.yaxis;
                         var clickX = clickedPoint.x;
                         var clickY = clickedPoint.y;
                         
-                        // Convert click tolerance from pixels to data units
-                        var tolerancePixels = 40; // 40 pixel radius for mobile-friendly clicking
+                        // Larger tolerance for mobile - 60 pixel radius
+                        var tolerancePixels = 60;
                         var xRange = xaxis.range[1] - xaxis.range[0];
                         var yRange = yaxis.range[1] - yaxis.range[0];
                         var plotWidth = gd._fullLayout.width;
@@ -313,13 +319,16 @@ class CourseProfilePlotter:
                         });
                         
                         if (nearest) {
-                            clickedPoint = { customdata: [nearest.customdata] };
+                            clickedPoint = { 
+                                customdata: [nearest.customdata],
+                                x: nearest.x,
+                                y: nearest.y
+                            };
                         } else {
                             return; // No nearby aid station, ignore click
                         }
                     } else if (clickedPoint.curveNumber > 0) {
-                        // Direct click on aid station marker - data is already in correct format
-                        // clickedPoint.customdata is already correct
+                        // Direct click on aid station marker
                     } else {
                         return;
                     }
@@ -329,21 +338,40 @@ class CourseProfilePlotter:
                         infoDiv.remove();
                     }
                     
-                    // Create info popup
+                    // Get plot container position and dimensions
+                    var plotBounds = gd.getBoundingClientRect();
+                    
+                    // Convert data coordinates to pixel coordinates relative to plot
+                    var xaxis = gd._fullLayout.xaxis;
+                    var yaxis = gd._fullLayout.yaxis;
+                    var l = gd._fullLayout.margin.l;
+                    var t = gd._fullLayout.margin.t;
+                    
+                    // Calculate pixel position within the plot area
+                    var plotAreaWidth = plotBounds.width - l - gd._fullLayout.margin.r;
+                    var plotAreaHeight = plotBounds.height - t - gd._fullLayout.margin.b;
+                    
+                    var xFraction = (clickedPoint.x - xaxis.range[0]) / (xaxis.range[1] - xaxis.range[0]);
+                    var yFraction = (yaxis.range[1] - clickedPoint.y) / (yaxis.range[1] - yaxis.range[0]);
+                    
+                    var pixelX = l + xFraction * plotAreaWidth;
+                    var pixelY = t + yFraction * plotAreaHeight;
+                    
+                    // Create info popup with fixed positioning for better mobile behavior
                     infoDiv = document.createElement('div');
-                    infoDiv.style.position = 'absolute';
-                    infoDiv.style.left = (data.event.pageX + 10) + 'px';
-                    infoDiv.style.top = (data.event.pageY - 10) + 'px';
+                    infoDiv.style.position = 'fixed';
                     infoDiv.style.backgroundColor = 'rgba(255, 251, 235, 0.98)';
                     infoDiv.style.border = '2px solid #f59e0b';
-                    infoDiv.style.borderRadius = '6px';
-                    infoDiv.style.padding = '12px 16px';
+                    infoDiv.style.borderRadius = '8px';
+                    infoDiv.style.padding = '14px 18px';
                     infoDiv.style.fontFamily = 'Inter, system-ui, sans-serif';
-                    infoDiv.style.fontSize = '13px';
+                    infoDiv.style.fontSize = '14px';
                     infoDiv.style.color = '#78350f';
-                    infoDiv.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                    infoDiv.style.zIndex = '1000';
-                    infoDiv.style.maxWidth = '300px';
+                    infoDiv.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.15)';
+                    infoDiv.style.zIndex = '10000';
+                    infoDiv.style.maxWidth = '90vw';
+                    infoDiv.style.maxHeight = '80vh';
+                    infoDiv.style.overflow = 'auto';
                     infoDiv.innerHTML = clickedPoint.customdata[0];
                     
                     // Add close button
@@ -353,25 +381,58 @@ class CourseProfilePlotter:
                     closeBtn.style.right = '8px';
                     closeBtn.style.top = '4px';
                     closeBtn.style.cursor = 'pointer';
-                    closeBtn.style.fontSize = '20px';
+                    closeBtn.style.fontSize = '24px';
                     closeBtn.style.fontWeight = 'bold';
                     closeBtn.style.color = '#f59e0b';
-                    closeBtn.onclick = function() {
+                    closeBtn.style.lineHeight = '1';
+                    closeBtn.style.padding = '4px 8px';
+                    closeBtn.onclick = function(e) {
+                        e.stopPropagation();
                         infoDiv.remove();
                         infoDiv = null;
                     };
                     infoDiv.appendChild(closeBtn);
                     
                     document.body.appendChild(infoDiv);
+                    
+                    // Position popup after adding to DOM to get actual dimensions
+                    var infoWidth = infoDiv.offsetWidth;
+                    var infoHeight = infoDiv.offsetHeight;
+                    var viewportWidth = window.innerWidth;
+                    var viewportHeight = window.innerHeight;
+                    
+                    // Calculate position relative to viewport
+                    var left = plotBounds.left + pixelX + 10;
+                    var top = plotBounds.top + pixelY - 10;
+                    
+                    // Keep popup within viewport bounds
+                    if (left + infoWidth > viewportWidth - 10) {
+                        left = plotBounds.left + pixelX - infoWidth - 10;
+                    }
+                    if (left < 10) {
+                        left = 10;
+                    }
+                    
+                    if (top + infoHeight > viewportHeight - 10) {
+                        top = viewportHeight - infoHeight - 10;
+                    }
+                    if (top < 10) {
+                        top = 10;
+                    }
+                    
+                    infoDiv.style.left = left + 'px';
+                    infoDiv.style.top = top + 'px';
                 });
                 
-                // Close on click outside
-                document.addEventListener('click', function(e) {
-                    if (infoDiv && !infoDiv.contains(e.target) && !e.target.closest('.plotly')) {
-                        infoDiv.remove();
-                        infoDiv = null;
-                    }
-                });
+                // Close on click outside (with delay to prevent immediate closing)
+                setTimeout(function() {
+                    document.addEventListener('click', function(e) {
+                        if (infoDiv && !infoDiv.contains(e.target) && !e.target.closest('.plotly')) {
+                            infoDiv.remove();
+                            infoDiv = null;
+                        }
+                    });
+                }, 100);
             });
             </script>
             """

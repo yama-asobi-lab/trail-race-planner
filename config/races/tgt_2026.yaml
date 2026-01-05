@@ -18,6 +18,8 @@ aid_stations:
     elevation_m: 384   # reference
     stop_time_s: 0
     notes: "Race start"
+    jap_name: "奥多摩運動公園"
+    gmaps_link: "https://maps.app.goo.gl/yFzLWtDt8DASVbFi7"
 
   - name: "CP1 Daikon-yama no Kami"
     distance_km: 7.5
@@ -25,13 +27,15 @@ aid_stations:
     stop_time_s: 60
     notes: "Water only"
     jap_name: "大根山の神"
+    gmaps_link: "https://maps.app.goo.gl/pVpMf4e4CHF1MbrW9"
 
   - name: "Kawai"
     distance_km: 19.3
     elevation_m: 300   # reference
     stop_time_s: 120
-    notes: "Vending machines here"
+    notes: "Vending machines: 100 m detour towards Kawai station"
     jap_name: "川井"
+    gmaps_link: "https://maps.app.goo.gl/mRWETr2MK5gvJ7fTA"
 
   - name: "A1 Mitake Aid"
     distance_km: 28.0
@@ -39,26 +43,30 @@ aid_stations:
     stop_time_s: 180
     notes: "Famous Inner Fact Special Curry!"
     jap_name: "御岳エイド"
+    gmaps_link: "https://maps.app.goo.gl/9KCFviW9vkiWuE7C9"
 
   - name: "CP2 Umegou"
     distance_km: 45
     elevation_m: 227   # reference
     stop_time_s: 180
-    notes: "Water only, 7-eleven 500 m later"
+    notes: "Water only, 7-eleven and famima shortly before arriving"
     jap_name: "梅郷地区"
+    gmaps_link: "https://maps.app.goo.gl/mSckttx7yYLFxYyh8"
 
   - name: "Hinode Oguno 7-eleven"
     distance_km: 59.0
     elevation_m: 196   # reference
     stop_time_s: 120
-    notes: "Convenience store"
+    notes: "Convenience store!"
+    gmaps_link: "https://maps.app.goo.gl/EnoRtMv31Qk9uGEZ8"
 
   - name: "A2 Jurigi (1)"
     distance_km: 71.0
     elevation_m: 214   # reference
     stop_time_s: 300
-    notes: "Depo bag access! Minestrone soup at aid"
+    notes: "Dropbag access! Minestrone soup at aid"
     jap_name: "十里木"
+    gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
 
   - name: "A3 Sanogawa"
     distance_km: 88.5
@@ -66,6 +74,7 @@ aid_stations:
     stop_time_s: 120
     notes: "Rice and Hiyashi ramen"
     jap_name: "佐野川"
+    gmaps_link: "https://maps.app.goo.gl/8rQu4mRhLZ7AxtA49"
 
   - name: "A4 Fujimi chaya"
     distance_km: 100.8
@@ -73,6 +82,7 @@ aid_stations:
     stop_time_s: 90
     notes: "Somen"
     jap_name: "富士見茶屋"
+    gmaps_link: "https://maps.app.goo.gl/tibMETRJcN3bsK7y7"
 
   - name: "Wada-toge"
     distance_km: 117.9
@@ -80,13 +90,15 @@ aid_stations:
     stop_time_s: 120
     notes: "Chicken kayu"
     jap_name: "和田峠"
+    gmaps_link: "https://maps.app.goo.gl/gjXf43aMxvDZKTySA"
 
   - name: "A6 Jurigi (2)"
     distance_km: 134.8
     elevation_m: 214   # reference
     stop_time_s: 90
-    notes: "Depo bag access! Dashi chazuke"
+    notes: "Dropbag access! Dashi chazuke"
     jap_name: "十里木"
+    gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
 
   - name: "Tomin no mori"
     distance_km: 152.9
@@ -94,9 +106,12 @@ aid_stations:
     stop_time_s: 90
     notes: "Wagashi"
     jap_name: "都民の森"
+    gmaps_link: "https://maps.app.goo.gl/W8oppstGke3ejteU9"
 
   - name: "FINISH"
     distance_km: 158.8
     elevation_m: 384   # reference
     stop_time_s: 0
     notes: "Goal!"
+    jap_name: "奥多摩運動公園"
+    gmaps_link: "https://maps.app.goo.gl/yFzLWtDt8DASVbFi7"
