@@ -9,6 +9,7 @@ from typing import Tuple
 import numpy as np
 
 from race_planner.models.itra_score_ratios import SCORE_TIME_RATIOS
+from race_planner.models.tools import hours_to_hms, hms_to_hours
 
 
 class ItraScorePredictor:
@@ -19,24 +20,28 @@ class ItraScorePredictor:
     the time for any other score by using empirically-derived ratios.
 
     Args:
-        reference_time_hours: The known finish time in hours
+        reference_time: Known finish time as "HH:MM:SS" string or hours (float)
         reference_score: The ITRA score corresponding to the reference time
     """
 
-    def __init__(self, reference_time_hours: float, reference_score: int):
+    def __init__(self, reference_time: str | float, reference_score: int):
         """Initialize predictor with a reference datapoint."""
         if reference_score not in SCORE_TIME_RATIOS:
             raise ValueError(
                 f"Reference score {reference_score} not in available ratios "
                 f"(range: {min(SCORE_TIME_RATIOS.keys())}-{max(SCORE_TIME_RATIOS.keys())})"
             )
+        # Convert reference time to hours if needed
+        if isinstance(reference_time, str):
+            self.reference_time_hours = hms_to_hours(reference_time)
+        else:
+            self.reference_time_hours = reference_time
 
-        self.reference_time_hours = reference_time_hours
         self.reference_score = reference_score
         self.reference_ratio = SCORE_TIME_RATIOS[reference_score]
 
         # Calculate the base time for score 1000 for this race
-        self.base_time_1000 = reference_time_hours / self.reference_ratio
+        self.base_time_1000 = self.reference_time_hours / self.reference_ratio
 
     def predict_time(self, target_score: int) -> float:
         """
@@ -65,7 +70,7 @@ class ItraScorePredictor:
             Predicted time in HH:MM:SS format
         """
         hours = self.predict_time(target_score)
-        return self._hours_to_hms(hours)
+        return hours_to_hms(hours)
 
     def _get_ratio(self, score: int) -> float:
         """
@@ -106,21 +111,6 @@ class ItraScorePredictor:
         fraction = (score - lower_score) / (upper_score - lower_score)
         return lower_ratio + fraction * (upper_ratio - lower_ratio)
 
-    @staticmethod
-    def _hours_to_hms(hours: float) -> str:
-        """Convert hours to HH:MM:SS format."""
-        total_seconds = int(hours * 3600)
-        h = total_seconds // 3600
-        m = (total_seconds % 3600) // 60
-        s = total_seconds % 60
-        return f"{h}:{m:02d}:{s:02d}"
-
-    @staticmethod
-    def _hms_to_hours(time_str: str) -> float:
-        """Convert HH:MM:SS to hours."""
-        h, m, s = map(int, time_str.split(':'))
-        return h + m / 60 + s / 3600
-
 
 def predict_times_from_reference(
     reference_time: str | float, reference_score: int, target_scores: list[int]
@@ -138,7 +128,7 @@ def predict_times_from_reference(
     """
     # Convert reference time to hours if needed
     if isinstance(reference_time, str):
-        reference_time_hours = ItraScorePredictor._hms_to_hours(reference_time)
+        reference_time_hours = hms_to_hours(reference_time)
     else:
         reference_time_hours = reference_time
 

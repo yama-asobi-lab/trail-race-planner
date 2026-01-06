@@ -11,6 +11,7 @@ sys.path.insert(0, str(project_root))
 
 import numpy as np
 import matplotlib.pyplot as plt
+from race_planner.models.tools import time_to_seconds, hours_to_hms
 
 reference_races = {
     "oku_long": {
@@ -169,16 +170,6 @@ reference_races = {
     },
 }
 
-# Solve for the equation score(t) = A − B * ln(t)
-
-
-# Convert time strings to seconds
-def time_to_seconds(time_str):
-    """Convert HH:MM:SS to seconds"""
-    h, m, s = map(int, time_str.split(':'))
-    return h * 3600 + m * 60 + s
-
-
 # Save plot references
 oku_long_fig = None
 oku_long_ax = None
@@ -187,7 +178,7 @@ for race, data in reference_races.items():
     times_seconds = np.array([time_to_seconds(t) for t in data["times"]])
 
     # (a) Calculate A and B using two datapoints
-    # Given score = A - B * ln(t), we need two equations to solve for two unknowns
+    # Given score(t) = A - B * ln(t), we need two equations to solve for two unknowns
     # Using the first and last datapoints:
     t1, s1 = times_seconds[0], data["scores"][0]
     t2, s2 = times_seconds[-1], data["scores"][-1]
@@ -366,10 +357,7 @@ print("TESTING THE PREDICTOR (UTMB ratios on Oku Long data)")
 print("=" * 60)
 
 # Import the predictor
-from race_planner.models.itra_predictor import (
-    ItraScorePredictor,
-    predict_times_from_reference,
-)
+from race_planner.models.itra_predictor import ItraScorePredictor
 
 # Test with a reference datapoint from the Okumusashi Long race
 test_reference_time = reference_races["oku_long"]["times"][10]
@@ -382,24 +370,24 @@ print(
 print("Using UTMB-derived ratios to predict times for various scores:")
 
 target_scores = range(1000, 350, -50)
-predictions = predict_times_from_reference(
-    test_reference_time, test_reference_score, target_scores
+# Create predictor (with okukumsashi race reference times, but which uses UTMB reference ratios)
+predictor = ItraScorePredictor(
+    reference_time=test_reference_time, reference_score=test_reference_score
 )
+
+predictions = {score: predictor.predict_time(score) for score in target_scores}
 
 print(f"\n{'Score':<8} {'Predicted Time':<15}")
 print("-" * 25)
 for score in target_scores:
-    print(f"{score:<8} {predictions[score]:<15}")
+    print(f"{score:<8} {hours_to_hms(predictions[score]):<15}")
 
 # Add predictor results to the Okumusashi Long plot
 if oku_long_fig is not None and oku_long_ax is not None:
 
-    # Create predictor using the saved UTMB ratios
-    predictor = ItraScorePredictor(test_reference_time_hours, test_reference_score)
-
     # Predict times for all scores in range
-    predicted_scores = range(1000, 350, -50)
-    predicted_times_hours = [predictor.predict_time(s) for s in predicted_scores]
+    predicted_scores = list(predictions.keys())
+    predicted_times_hours = list(predictions.values())
 
     # Plot predictions on the saved oku_long axes
     oku_long_ax.plot(
