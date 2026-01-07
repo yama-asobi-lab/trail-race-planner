@@ -72,6 +72,32 @@ class ItraScorePredictor:
         hours = self.predict_time(target_score)
         return hours_to_hms(hours)
 
+    def predict_score(self, target_time: str | float) -> int:
+        """
+        Predict the ITRA score for a given finish time.
+
+        Args:
+            target_time: Finish time as "HH:MM:SS" string or hours (float)
+
+        Returns:
+            Predicted ITRA score (int)
+        """
+        # Convert target time to hours if needed
+        if isinstance(target_time, str):
+            target_time_hours = hms_to_hours(target_time)
+        else:
+            target_time_hours = target_time
+
+        # Calculate ratio for target time
+        target_ratio = target_time_hours / self.base_time_1000
+
+        # Find closest score for this ratio
+        scores = sorted(SCORE_TIME_RATIOS.keys())
+        closest_score = min(
+            scores, key=lambda s: abs(SCORE_TIME_RATIOS[s] - target_ratio)
+        )
+        return closest_score
+
     def _get_ratio(self, score: int) -> float:
         """
         Get the ratio for a score, using linear interpolation if needed.
@@ -110,30 +136,3 @@ class ItraScorePredictor:
 
         fraction = (score - lower_score) / (upper_score - lower_score)
         return lower_ratio + fraction * (upper_ratio - lower_ratio)
-
-
-def predict_times_from_reference(
-    reference_time: str | float, reference_score: int, target_scores: list[int]
-) -> dict[int, str]:
-    """
-    Convenience function to predict multiple target times.
-
-    Args:
-        reference_time: Known time as "HH:MM:SS" string or hours (float)
-        reference_score: ITRA score for the reference time
-        target_scores: List of scores to predict times for
-
-    Returns:
-        Dictionary mapping target scores to predicted times (HH:MM:SS)
-    """
-    # Convert reference time to hours if needed
-    if isinstance(reference_time, str):
-        reference_time_hours = hms_to_hours(reference_time)
-    else:
-        reference_time_hours = reference_time
-
-    # Create predictor
-    predictor = ItraScorePredictor(reference_time_hours, reference_score)
-
-    # Generate predictions
-    return {score: predictor.predict_time_formatted(score) for score in target_scores}
