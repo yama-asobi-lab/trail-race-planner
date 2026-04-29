@@ -283,7 +283,7 @@ def analyze_race(
     gpx_path: Path | str,
     race_config_path: Path | str,
     output_path: Path | str,
-    resample_m: Optional[float] = 10.0,
+    resample_m: Optional[float] = 5.0,
     athlete_config: Optional[Dict] = None,
 ) -> SegmentAnalyzer:
     """
@@ -293,7 +293,7 @@ def analyze_race(
         gpx_path: Path to GPX file.
         race_config_path: Path to race YAML configuration file.
         output_path: Path to output Excel file.
-        resample_m: Resampling interval for course data (default: 10m).
+        resample_m: Resampling interval for course data (default: 5 sm).
         athlete_config: Optional athlete configuration dict (defaults to Yet Another Sato,
             the reference baseline athlete, if None).
 
