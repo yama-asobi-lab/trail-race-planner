@@ -1,25 +1,30 @@
 athlete:
   name: "Carlos"
-  
-  # Performance metrics
-  marathon_pb: "3:30:00"  # Personal best marathon time
-  itra_points: 650  # ITRA performance index
-  
-  # Pacing model parameters
-  model_parameters:
-    flat_pace_factor: 1.00   # Multiplier for flat terrain pace
-    climb_factor: 1.15       # Speed reduction on climbs
-    descent_factor: 0.90     # Speed increase on descents
-    
-  # Individualized Grade Adjusted Pace (GAP) curve
-  # This will be used to predict speed adjustments based on grade
+
+  # ITRA performance index (used by ItraScorePredictor)
+  itra_points: 650
+
+  # Reference flat performance used for Riegel's formula.
+  # Should be a road/flat race result (half marathon, marathon, etc.).
+  # The pace calculator uses this to derive the baseline flat pace for the course.
+  reference_performance:
+    distance_km: 42.195
+    time: "3:30:00"
+    notes: "Road marathon PB"
+
+  # Grade Adjusted Pace (GAP) correction curve.
+  # Format: list of [grade_decimal, correction_factor] pairs.
+  #   grade_decimal  : slope as rise/run decimal (e.g. 0.10 = 10% uphill, -0.06 = 6% downhill)
+  #   correction_factor: pace multiplier relative to flat pace (>1 = slower, <1 = faster)
+  # Leave 'points' empty ([]) to use the built-in default trail-running table.
+  # The default table is:
+  #   [ 0.01,  1.08 ]   +1%  grade: 8% slower  (linear slope used for steeper uphills)
+  #   [ 0.00,  1.00 ]   flat: no correction
+  #   [-0.01,  0.965]   -1%  grade: 3.5% faster
+  #   [-0.06,  0.79 ]   -6%  grade: 21% faster  (optimal descent speed)
+  #   [-0.07,  0.86 ]   -7%  grade: 14% faster  (braking effect begins beyond -6%)
   gap_curve:
-    # Placeholder - will be implemented in future versions
-    # Format: grade (%) -> pace_factor (relative to flat pace)
-    enabled: false
-    custom_points: []
-  
-  # Preferences
+    points: []
+
   preferences:
-    target_finish_time: null  # Optional target time (e.g., "24:00:00")
-    max_elevation_gain_per_hour: 600  # meters
+    target_finish_time: null  # Optional target time override (e.g. "28:00:00")

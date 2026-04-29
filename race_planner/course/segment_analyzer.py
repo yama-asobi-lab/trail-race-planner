@@ -68,9 +68,12 @@ class SegmentAnalyzer:
         # Log athlete info
         athlete_info = self.athlete_config.get('athlete', {})
         athlete_name = athlete_info.get('name', 'Unknown')
-        marathon_pb = athlete_info.get('marathon_pb', 'N/A')
+        ref_perf = athlete_info.get('reference_performance', {})
+        ref_time = ref_perf.get('time', 'N/A')
+        ref_dist = ref_perf.get('distance_km', 'N/A')
         logger.info(
-            f"Using athlete profile: {athlete_name} (Marathon PB: {marathon_pb})"
+            f"Using athlete profile: {athlete_name} "
+            f"(Reference: {ref_dist} km in {ref_time})"
         )
 
         # Run validations on initialization

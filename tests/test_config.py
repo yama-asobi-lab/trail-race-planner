@@ -13,7 +13,7 @@ def test_athlete_config_structure():
 
     assert len(athlete_configs) > 0, "No athlete config files found"
 
-    required_fields = ['name', 'marathon_pb', 'itra_points', 'model_parameters']
+    required_fields = ['name', 'itra_points', 'reference_performance', 'gap_curve']
 
     for config_path in athlete_configs:
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -26,10 +26,17 @@ def test_athlete_config_structure():
         for field in required_fields:
             assert field in athlete_info, f"{field} missing in {config_path}"
 
-        # Check model_parameters structure
-        assert 'flat_pace_factor' in athlete_info['model_parameters']
-        assert 'climb_factor' in athlete_info['model_parameters']
-        assert 'descent_factor' in athlete_info['model_parameters']
+        # Check reference_performance structure
+        ref = athlete_info['reference_performance']
+        assert (
+            'distance_km' in ref
+        ), f"reference_performance.distance_km missing in {config_path}"
+        assert 'time' in ref, f"reference_performance.time missing in {config_path}"
+
+        # Check gap_curve structure
+        assert (
+            'points' in athlete_info['gap_curve']
+        ), f"gap_curve.points missing in {config_path}"
 
 
 def test_race_config_structure():

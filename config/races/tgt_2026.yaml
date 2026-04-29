@@ -8,7 +8,7 @@ race:
   output_file: "results/tgt_2026_segment_analysis.xlsx"
   
   # Analysis settings
-  resample_m: 10  # Resample course to 10m intervals
+  resample_m: 10  # Resample course to 5 m intervals
   elevation_tolerance_m: 50  # Tolerance for elevation validation
 
 

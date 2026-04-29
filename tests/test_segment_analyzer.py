@@ -25,7 +25,7 @@ def test_analyze_race_with_carlos_athlete(tmp_path, sample_gpx_path):
 
     # Verify carlos-specific config
     assert athlete_config['athlete']['name'] == 'Carlos'
-    assert athlete_config['athlete']['marathon_pb'] == '3:30:00'
+    assert athlete_config['athlete']['reference_performance']['time'] == '3:30:00'
     assert athlete_config['athlete']['itra_points'] == 650
 
     # Create temporary output
