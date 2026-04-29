@@ -1,15 +1,15 @@
 athlete:
   name: "Carlos"
 
-  # ITRA performance index (used by ItraScorePredictor)
-  itra_points: 650
+  # ITRA performance index
+  itra_points: 720
 
   # Reference flat performance used for Riegel's formula.
   # Should be a road/flat race result (half marathon, marathon, etc.).
   # The pace calculator uses this to derive the baseline flat pace for the course.
   reference_performance:
     distance_km: 42.195
-    time: "3:30:00"
+    time: "3:10:00"
     notes: "Road marathon PB"
 
   # Grade Adjusted Pace (GAP) correction curve.
@@ -17,19 +17,13 @@ athlete:
   #   grade_decimal  : slope as rise/run decimal (e.g. 0.10 = 10% uphill, -0.06 = 6% downhill)
   #   correction_factor: pace multiplier relative to flat pace (>1 = slower, <1 = faster)
   # Leave 'points' empty ([]) to use the built-in default trail-running table.
-  # The default table is:
-  #   [ 0.01,  1.08 ]   +1%  grade: 8% slower  (linear slope used for steeper uphills)
-  #   [ 0.00,  1.00 ]   flat: no correction
-  #   [-0.01,  0.965]   -1%  grade: 3.5% faster
-  #   [-0.06,  0.79 ]   -6%  grade: 21% faster  (optimal descent speed)
-  #   [-0.07,  0.86 ]   -7%  grade: 14% faster  (braking effect begins beyond -6%)
   gap_curve:
-    points: [0.01, 1.075],  # +1 %: 7.5 % slower (linear extrapolation above this)
-            [0.00, 1.00],  # flat
-            [-0.01, 0.965],  # −1 %: 3.5 % faster
-            [-0.06, 0.8],  # −6 %: 20 % faster (optimal descent)
-            [-0.07, 0.865],  # −7 %: braking effect starts
-        ],
+    points: 
+      - [ 0.01, 1.075 ]  # +1 %: 7.5 % slower (linear extrapolation above this)
+      - [ 0.00, 1.00  ]  # flat
+      - [-0.01, 0.965 ]  # −1 %: 3.5 % faster
+      - [-0.06, 0.8   ]  # −6 %: 20 % faster (optimal descent)
+      - [-0.07, 0.865 ]  # −7 %: braking effect starts
 
   preferences:
     target_finish_time: null  # Optional target time override (e.g. "28:00:00")
