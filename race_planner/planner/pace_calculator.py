@@ -322,7 +322,6 @@ class PaceCalculator:
         """
         g = self.gap_curve[:, 0]  # sorted ascending
         c = self.gap_curve[:, 1]
-        n = len(g)
 
         grades = np.asarray(grades, dtype=float)
         result = np.empty_like(grades)
@@ -366,8 +365,8 @@ class PaceCalculator:
         gradient corrections determine the *distribution* of time across
         segments but the *sum* of all segment running times equals
         ``riegel_fed()``.  When ``use_fed=False`` the raw-distance Riegel
-        result is used as the flat-pace reference (MATLAB-faithful); the
-        gradient corrections then scale the total away from that baseline.
+        result is used as the flat-pace reference; the gradient corrections
+        then scale the total away from that baseline.
 
         Args:
             course:       ``Course`` object with loaded GPX data.
@@ -419,7 +418,7 @@ class PaceCalculator:
             point_times_s = weights * time_per_weight
             riegel_method = 'FED'
         else:
-            # MATLAB approach: flat pace from raw-distance Riegel.
+            # Flat pace from raw-distance Riegel.
             flat_time_s = self.predict_riegel_race_time_sec(
                 target_distance_km=course.total_distance_km,
                 use_flat_equivalent_distance=False,
