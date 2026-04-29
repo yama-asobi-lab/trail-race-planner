@@ -8,8 +8,14 @@ race:
   output_file: "results/tgt_2026_segment_analysis.xlsx"
   
   # Analysis settings
-  resample_m: 10  # Resample course to 5 m intervals
+  resample_m: 5  # Resample course to 5 m intervals
   elevation_tolerance_m: 50  # Tolerance for elevation validation
+
+  # ITRA score reference points for this race.
+  itra_reference_points:
+    - reference_time: "30:00:00"   # estimated; calibrate with actual race data
+      reference_score: 750
+      notes: "Estimated based on online tool for new (2026) course"
 
 
 aid_stations:

@@ -94,16 +94,7 @@ import numpy as np
 import pandas as pd
 
 from race_planner.course.course import Course
-from race_planner.models.tools import time_to_seconds
-
-
-def _seconds_to_hms(seconds: float) -> str:
-    """Convert seconds to H:MM:SS string."""
-    total = int(round(seconds))
-    h = total // 3600
-    m = (total % 3600) // 60
-    s = total % 60
-    return f"{h}:{m:02d}:{s:02d}"
+from race_planner.models.tools import seconds_to_hms, time_to_seconds
 
 
 class PaceCalculator:
@@ -139,9 +130,9 @@ class PaceCalculator:
         [
             [0.01, 1.08],  # +1 %: 8 % slower (linear extrapolation above this)
             [0.00, 1.00],  # flat
-            [-0.01, 0.965],  # −1 %: 3.5 % faster
-            [-0.06, 0.79],  # −6 %: 21 % faster (optimal descent)
-            [-0.07, 0.86],  # −7 %: braking effect starts
+            [-0.01, 0.97],  # −1 %: 3 % faster
+            [-0.05, 0.85],  # −5 %: 15 % faster (optimal descent)
+            [-0.06, 0.9],  # −6 %: braking effect starts
         ],
         dtype=float,
     )
@@ -347,6 +338,7 @@ class PaceCalculator:
         course: Course,
         aid_stations: List[Dict],
         use_fed: bool = True,
+        override_total_running_time_s: Optional[float] = None,
     ) -> pd.DataFrame:
         """
         Calculate a per-segment pacing plan.
@@ -372,6 +364,12 @@ class PaceCalculator:
             course:       ``Course`` object with loaded GPX data.
             aid_stations: List of aid-station dicts from the race YAML.
             use_fed:      Use FED-adjusted Riegel (default ``True``).
+                          Ignored when *override_total_running_time_s* is set.
+            override_total_running_time_s:
+                          If given, skip Riegel entirely and use this value as
+                          the total running time (seconds).  Grade corrections
+                          still distribute the time across segments.  Use this
+                          for ``target_time`` and ``target_itra`` planning modes.
 
         Returns:
             DataFrame with one row per aid station and columns:
@@ -401,7 +399,16 @@ class PaceCalculator:
         corrections = self.grade_correction(grades_decimal)
         dist_km_per_point = full_df['dist_m'].values / 1000.0
 
-        if use_fed:
+        if override_total_running_time_s is not None:
+            total_running_time_s = float(override_total_running_time_s)
+            riegel_method = 'target-override'
+            weights = dist_km_per_point * corrections
+            total_weight = weights.sum()
+            time_per_weight = (
+                total_running_time_s / total_weight if total_weight > 0 else 0.0
+            )
+            point_times_s = weights * time_per_weight
+        elif use_fed:
             # Total running time anchored by FED-Riegel.
             # Gradient corrections distribute this total across segments.
             total_running_time_s = self.predict_riegel_race_time_sec(
@@ -476,9 +483,9 @@ class PaceCalculator:
                     'Segment Distance (km)': round(seg_dist_km, 2),
                     'Segment Elevation Gain (m)': round(seg_gain_m, 0),
                     'Segment Elevation Loss (m)': round(seg_loss_m, 0),
-                    'Segment Running Time': _seconds_to_hms(running_time_s),
-                    'Stop Time': _seconds_to_hms(stop_time_s),
-                    'Elapsed Time': _seconds_to_hms(cumulative_time_s),
+                    'Segment Running Time': seconds_to_hms(running_time_s),
+                    'Stop Time': seconds_to_hms(stop_time_s),
+                    'Elapsed Time': seconds_to_hms(cumulative_time_s),
                 }
             )
 
