@@ -7,6 +7,8 @@ directions (time prediction and score prediction).  The resulting error
 distributions are saved as PNG figures under analysis/results/analyze_itra_predictor/.
 """
 
+import sys
+
 import numpy as np
 import matplotlib
 
@@ -15,6 +17,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from loguru import logger
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from race_planner.models.itra_predictor import ItraScorePredictor
 from race_planner.models.tools import hms_to_hours, hours_to_hms
 

@@ -47,12 +47,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-try:
-    from race_planner.models.tools import hms_to_hours
-except ModuleNotFoundError:
-    # Support direct execution: python analysis/validate_ultra_fatigue_model.py
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from race_planner.models.tools import hms_to_hours
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from race_planner.models.tools import hms_to_hours
 
 DATA_FILE = Path(__file__).with_name("ultra_records_2026.json")
 OUT_DIR = Path(__file__).parent / "results" / "validate_ultra_fatigue_model"

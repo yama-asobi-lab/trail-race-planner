@@ -11,12 +11,14 @@ This script generates one figure only:
 """
 
 from pathlib import Path
+import sys
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from race_planner.models.nutrition import caffeine_concentration_mg_per_kg
 from race_planner.models.tools import race_offset_to_clock_hhmm, hhmm_to_hours
 

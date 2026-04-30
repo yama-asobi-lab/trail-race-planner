@@ -25,25 +25,15 @@ import numpy as np
 import pandas as pd
 import yaml
 
-try:
-    from race_planner.models.tools import (
-        pace_from_constant_vertical_speed,
-        pace_to_seconds_per_km,
-        seconds_per_km_to_pace,
-        pace_to_speed_kmh,
-        vertical_speed_m_per_h,
-    )
-    from race_planner.planner import PaceCalculator
-except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from race_planner.models.tools import (
-        pace_from_constant_vertical_speed,
-        pace_to_seconds_per_km,
-        seconds_per_km_to_pace,
-        pace_to_speed_kmh,
-        vertical_speed_m_per_h,
-    )
-    from race_planner.planner import PaceCalculator
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from race_planner.models.tools import (
+    pace_from_constant_vertical_speed,
+    pace_to_seconds_per_km,
+    seconds_per_km_to_pace,
+    pace_to_speed_kmh,
+    vertical_speed_m_per_h,
+)
+from race_planner.planner import PaceCalculator
 
 
 ATHLETE_CONFIG = Path(__file__).resolve().parents[1] / "config" / "athletes" / "carlos.yaml"
