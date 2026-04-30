@@ -1,0 +1,156 @@
+[
+    {
+        "sex": "men",
+        "event": "5k",
+        "distance_km": 5.0,
+        "time_hms": "0:12:44",
+        "source": "World Athletics road 5k world record (as of 2026)"
+    },
+    {
+        "sex": "men",
+        "event": "10k",
+        "distance_km": 10.0,
+        "time_hms": "0:26:24",
+        "source": "World Athletics road 10k world record (as of 2026)"
+    },
+    {
+        "sex": "men",
+        "event": "half_marathon",
+        "distance_km": 21.0975,
+        "time_hms": "0:56:42",
+        "source": "World Athletics half marathon world record (as of 2026)"
+    },
+    {
+        "sex": "men",
+        "event": "marathon",
+        "distance_km": 42.195,
+        "time_hms": "2:00:35",
+        "source": "World Athletics marathon world record (as of 2026)"
+    },
+    {
+        "sex": "men",
+        "event": "50k",
+        "distance_km": 50.0,
+        "time_hms": "2:38:43",
+        "source": "IAU/World Athletics (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "men",
+        "event": "50mi",
+        "distance_km": 80.467,
+        "time_hms": "4:48:21",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "men",
+        "event": "100k",
+        "distance_km": 100.0,
+        "time_hms": "6:05:35",
+        "source": "IAU/World Athletics (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "men",
+        "event": "100mi",
+        "distance_km": 160.934,
+        "time_hms": "10:51:39",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "men",
+        "event": "12h",
+        "distance_km": 177.410,
+        "time_hms": "12:00:00",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "men",
+        "event": "24h",
+        "distance_km": 319.614,
+        "time_hms": "24:00:00",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "men",
+        "event": "48h",
+        "distance_km": 485.099,
+        "time_hms": "48:00:00",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "5k",
+        "distance_km": 5.0,
+        "time_hms": "0:14:13",
+        "source": "World Athletics road 5k world record (as of 2026)"
+    },
+    {
+        "sex": "women",
+        "event": "10k",
+        "distance_km": 10.0,
+        "time_hms": "0:28:46",
+        "source": "World Athletics road 10k world record (as of 2026)"
+    },
+    {
+        "sex": "women",
+        "event": "half_marathon",
+        "distance_km": 21.0975,
+        "time_hms": "1:02:52",
+        "source": "World Athletics half marathon world record (as of 2026)"
+    },
+    {
+        "sex": "women",
+        "event": "marathon",
+        "distance_km": 42.195,
+        "time_hms": "2:09:56",
+        "source": "World Athletics marathon world record (as of 2026)"
+    },
+    {
+        "sex": "women",
+        "event": "50k",
+        "distance_km": 50.0,
+        "time_hms": "2:59:54",
+        "source": "IAU/World Athletics (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "50mi",
+        "distance_km": 80.467,
+        "time_hms": "5:31:57",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "100k",
+        "distance_km": 100.0,
+        "time_hms": "6:33:11",
+        "source": "IAU/World Athletics (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "100mi",
+        "distance_km": 160.934,
+        "time_hms": "12:42:40",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "12h",
+        "distance_km": 153.600,
+        "time_hms": "12:00:00",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "24h",
+        "distance_km": 278.621,
+        "time_hms": "24:00:00",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    },
+    {
+        "sex": "women",
+        "event": "48h",
+        "distance_km": 436.371,
+        "time_hms": "48:00:00",
+        "source": "IAU (via Wikipedia Ultramarathon Jan 2026 table)"
+    }
+]
