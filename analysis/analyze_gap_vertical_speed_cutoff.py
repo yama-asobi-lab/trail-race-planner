@@ -30,7 +30,7 @@ try:
         pace_from_constant_vertical_speed,
         pace_to_seconds_per_km,
         seconds_per_km_to_pace,
-        speed_kmh_from_pace,
+        pace_to_speed_kmh,
         vertical_speed_m_per_h,
     )
     from race_planner.planner import PaceCalculator
@@ -40,7 +40,7 @@ except ModuleNotFoundError:
         pace_from_constant_vertical_speed,
         pace_to_seconds_per_km,
         seconds_per_km_to_pace,
-        speed_kmh_from_pace,
+        pace_to_speed_kmh,
         vertical_speed_m_per_h,
     )
     from race_planner.planner import PaceCalculator
@@ -111,11 +111,11 @@ def build_cutoff_curve(
     return {
         "correction_extrap": correction_extrap,
         "pace_extrap": pace_extrap,
-        "speed_extrap": speed_kmh_from_pace(pace_extrap),
+        "speed_extrap": pace_to_speed_kmh(pace_extrap),
         "vspeed_extrap": vertical_speed_m_per_h(grades, pace_extrap),
         "correction_cutoff": correction_cutoff,
         "pace_cutoff": pace_cutoff,
-        "speed_cutoff": speed_kmh_from_pace(pace_cutoff),
+        "speed_cutoff": pace_to_speed_kmh(pace_cutoff),
         "vspeed_cutoff": vertical_speed_m_per_h(grades, pace_cutoff),
         "uphill_cutoff_pace": uphill_cutoff_pace,
         "downhill_cutoff_pace": downhill_cutoff_pace,

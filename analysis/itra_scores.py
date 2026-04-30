@@ -11,7 +11,7 @@ sys.path.insert(0, str(project_root))
 
 import numpy as np
 import matplotlib.pyplot as plt
-from race_planner.models.tools import time_to_seconds, hours_to_hms
+from race_planner.models.tools import hms_to_seconds, hours_to_hms
 
 OUT_DIR = Path(__file__).parent / "results" / "itra_scores"
 
@@ -197,7 +197,7 @@ oku_long_ax = None
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 for race, data in reference_races.items():
-    times_seconds = np.array([time_to_seconds(t) for t in data["times"]])
+    times_seconds = np.array([hms_to_seconds(t) for t in data["times"]])
 
     # (a) Calculate A and B using two datapoints
     # Given score(t) = A - B * ln(t), we need two equations to solve for two unknowns
@@ -394,7 +394,7 @@ from race_planner.models.itra_predictor import ItraScorePredictor
 # Test with a reference datapoint from the Okumusashi Long race
 test_reference_time = reference_races["oku_long"]["times"][10]
 test_reference_score = reference_races["oku_long"]["scores"][10]
-test_reference_time_hours = time_to_seconds(test_reference_time) / 3600
+test_reference_time_hours = hms_to_seconds(test_reference_time) / 3600
 
 print(
     f"\nTest case: Given one datapoint from Oku Long ({test_reference_time}, score {test_reference_score})"

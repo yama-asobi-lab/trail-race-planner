@@ -16,7 +16,7 @@ from typing import Optional
 
 import numpy as np
 
-from race_planner.models.tools import time_to_seconds
+from race_planner.models.tools import hms_to_seconds
 
 
 class PacingModel:
@@ -105,7 +105,7 @@ class PacingModel:
                 "'athlete.reference_performance.time'"
             )
 
-        ref_time_s = float(time_to_seconds(str(ref_time_str)))
+        ref_time_s = float(hms_to_seconds(str(ref_time_str)))
         custom_points = athlete.get('gap_curve', {}).get('points') or []
         gap_curve = np.array(custom_points, dtype=float) if custom_points else None
 
