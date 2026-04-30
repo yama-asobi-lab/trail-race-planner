@@ -1,0 +1,9 @@
+athlete:
+  name: "Yet Another Sato"
+  itra_points: 650
+  reference_performance:
+    distance_km: 42.195
+    time: "4:00:00"
+    notes: "Stable test marathon PB"
+  gap_curve:
+    points: []

@@ -9,7 +9,7 @@ athlete:
   # The pace calculator uses this to derive the baseline flat pace for the course.
   reference_performance:
     distance_km: 42.195
-    time: "3:10:00"
+    time: "2:50:00"
     notes: "Road marathon PB"
 
   # Grade Adjusted Pace (GAP) correction curve.
@@ -24,6 +24,3 @@ athlete:
       - [-0.01, 0.965 ]  # −1 %: 3.5 % faster
       - [-0.06, 0.8   ]  # −6 %: 20 % faster (optimal descent)
       - [-0.07, 0.865 ]  # −7 %: braking effect starts
-
-  preferences:
-    target_finish_time: null  # Optional target time override (e.g. "28:00:00")

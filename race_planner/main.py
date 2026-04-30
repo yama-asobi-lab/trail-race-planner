@@ -346,10 +346,20 @@ def main():
     logger.info("RACE PLAN SUMMARY")
     logger.info(f"  Mode:          {args.mode}")
     logger.info(f"  Athlete:       {athlete_display_name}")
-    logger.info(
-        f"  Running time:  "
-        f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
-    )
+    approx_running_s = pacing_df.attrs.get('riegel_running_time_approx_s')
+    if approx_running_s is not None:
+        logger.info(
+            f"  Riegel approx running time: {seconds_to_hms(float(approx_running_s))}"
+        )
+        logger.info(
+            f"  Grade-adjusted running time: "
+            f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
+        )
+    else:
+        logger.info(
+            f"  Running time:  "
+            f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
+        )
     logger.info(
         f"  Stop time:     " f"{seconds_to_hms(pacing_df.attrs['total_stop_time_s'])}"
     )

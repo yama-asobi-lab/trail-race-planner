@@ -5,7 +5,9 @@ Implements Peter Riegel's endurance formula combined with per-point grade-adjust
 pace (GAP) correction to produce a segment-by-segment pacing plan.
 
 -----------------------------------------------------------------------
-Piecewise Riegel (1.06 + sqrt update)
+Piecewise Riegel:
+Use 1.06 exponent from Riegel's formula for sub-marathon distance, 
+and update the exponent for longer distance based on sqrt of the distance beyond marathon.
 -----------------------------------------------------------------------
     k(D) = 1.06 + c * sqrt(max(D - D_ref, 0))
     T    = T_ref * (D / D_ref) ^ k(D)
@@ -364,17 +366,20 @@ class PaceCalculator:
         1. Extracts the GPS points from the course DataFrame.
         2. Computes per-point grade corrections (grade column is in %, converted
            to decimal).
-        3. Sums corrected pacing weights to produce segment running times.
+        3. Computes per-point running times from a baseline pace and inverse-GAP
+            adjustments.
         4. Adds the aid station stop time (``stop_time_s`` from race YAML,
            defaults to 0 if absent).
         5. Accumulates elapsed time throughout.
 
-        When ``use_fed=True`` the FED-based Riegel total is preserved exactly:
-        gradient corrections determine the *distribution* of time across
-        segments but the *sum* of all segment running times equals
-        ``riegel_fed()``.  When ``use_fed=False`` the raw-distance Riegel
-        result is used as the flat-pace reference; the gradient corrections
-        then scale the total away from that baseline.
+        When ``use_fed=True`` the method first computes an adjusted-Riegel total
+        on FED distance, converts it to a flat-equivalent average pace
+        (seconds per FED-km), then applies inverse-GAP factors point-by-point
+        along the full course. The resulting integrated running time is used as
+        the final total.
+
+        When ``use_fed=False`` the raw-distance Riegel result is used as the
+        baseline flat pace and the same per-point GAP process is applied.
 
         Args:
             course:       ``Course`` object with loaded GPX data.
@@ -407,6 +412,8 @@ class PaceCalculator:
             - ``total_stop_time_s``
             - ``total_time_s``
             - ``riegel_method``  (``'FED'`` or ``'flat-distance'``)
+            - ``riegel_running_time_approx_s`` (FED adjusted-Riegel approximation)
+            - ``grade_adjusted_running_time_s`` (integrated course running time)
         """
         full_df = course.df
 
@@ -414,6 +421,8 @@ class PaceCalculator:
         grades_decimal = full_df['grade'].values / 100.0
         corrections = self.grade_correction(grades_decimal)
         dist_km_per_point = full_df['dist_m'].values / 1000.0
+
+        riegel_running_time_approx_s: float | None = None
 
         if override_total_running_time_s is not None:
             total_running_time_s = float(override_total_running_time_s)
@@ -425,20 +434,28 @@ class PaceCalculator:
             )
             point_times_s = weights * time_per_weight
         elif use_fed:
-            # Total running time anchored by FED-Riegel.
-            # Gradient corrections distribute this total across segments.
-            total_running_time_s = self.predict_riegel_race_time_sec(
+            # 1) Adjusted-Riegel total approximation on FED distance.
+            riegel_running_time_approx_s = self.predict_riegel_race_time_sec(
                 target_distance_km=course.total_distance_km,
                 elevation_gain_m=course.total_elevation_gain_m,
                 use_flat_equivalent_distance=True,
             )
-            weights = dist_km_per_point * corrections
-            total_weight = weights.sum()
-            if total_weight > 0:
-                time_per_weight = total_running_time_s / total_weight
-            else:
-                time_per_weight = 0.0
-            point_times_s = weights * time_per_weight
+
+            # 2) Convert approximation into flat-equivalent average pace.
+            fed_distance_km = self.flat_equivalent_distance_km(
+                course.total_distance_km,
+                course.total_elevation_gain_m,
+            )
+            if fed_distance_km <= 0:
+                raise ValueError('Computed FED distance must be positive')
+            flat_equiv_avg_pace_s_per_km = (
+                riegel_running_time_approx_s / fed_distance_km
+            )
+
+            # 3) Apply inverse-GAP pace adjustments point-by-point and integrate.
+            point_times_s = (
+                dist_km_per_point * flat_equiv_avg_pace_s_per_km * corrections
+            )
             riegel_method = 'FED'
         else:
             # Flat pace from raw-distance Riegel.
@@ -512,5 +529,7 @@ class PaceCalculator:
         df.attrs['total_stop_time_s'] = total_stop_s
         df.attrs['total_time_s'] = cumulative_time_s
         df.attrs['riegel_method'] = riegel_method
+        df.attrs['riegel_running_time_approx_s'] = riegel_running_time_approx_s
+        df.attrs['grade_adjusted_running_time_s'] = total_running_s
 
         return df

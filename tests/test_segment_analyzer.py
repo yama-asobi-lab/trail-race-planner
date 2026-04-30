@@ -4,29 +4,23 @@ Tests for SegmentAnalyzer functionality.
 
 from pathlib import Path
 import warnings
-import yaml
 import pandas as pd
 import pytest
 
 from race_planner.course import Course, SegmentAnalyzer, analyze_race
 
 
-def test_analyze_race_with_carlos_athlete(tmp_path, sample_gpx_path):
+def test_analyze_race_with_carlos_athlete(
+    tmp_path, sample_gpx_path, race_config_path, carlos_config, carlos_config_path
+):
     """Test race analysis using carlos athlete profile."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
-    athlete_config_path = Path("config/athletes/carlos.yaml")
-
     assert race_config_path.exists(), "Race config not found"
-    assert athlete_config_path.exists(), "Carlos athlete config not found"
-
-    # Load athlete config
-    with open(athlete_config_path, 'r', encoding='utf-8') as f:
-        athlete_config = yaml.safe_load(f)
+    assert carlos_config_path.exists(), "Carlos athlete config not found"
 
     # Verify carlos-specific config
-    assert athlete_config['athlete']['name'] == 'Carlos'
-    assert athlete_config['athlete']['reference_performance']['time'] == '3:30:00'
-    assert athlete_config['athlete']['itra_points'] == 650
+    assert carlos_config['athlete']['name'] == 'Carlos'
+    assert carlos_config['athlete']['reference_performance']['time'] == '2:50:00'
+    assert carlos_config['athlete']['itra_points'] == 720
 
     # Create temporary output
     output_path = tmp_path / "carlos_output.xlsx"
@@ -37,22 +31,23 @@ def test_analyze_race_with_carlos_athlete(tmp_path, sample_gpx_path):
         race_config_path=race_config_path,
         output_path=output_path,
         resample_m=10,
-        athlete_config=athlete_config,
+        athlete_config=carlos_config,
     )
 
     # Verify analyzer uses carlos config
     assert analyzer.athlete_config is not None
     assert analyzer.athlete_config['athlete']['name'] == 'Carlos'
-    assert analyzer.athlete_config['athlete']['itra_points'] == 650
+    assert analyzer.athlete_config['athlete']['itra_points'] == 720
 
     # Verify outputs were created
     assert output_path.exists()
     assert (tmp_path / "carlos_output_elevation_profile.html").exists()
 
 
-def test_analyze_race_defaults_to_yet_another_sato(tmp_path, sample_gpx_path):
+def test_analyze_race_defaults_to_yet_another_sato(
+    tmp_path, sample_gpx_path, race_config_path
+):
     """Test race analysis defaults to Yet Another Sato when no athlete config provided."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
     output_path = tmp_path / "default_output.xlsx"
 
     # Run analysis without athlete config (should default to Yet Another Sato)
@@ -73,7 +68,7 @@ def test_analyze_race_defaults_to_yet_another_sato(tmp_path, sample_gpx_path):
 
 def test_segment_analyzer_initialization(sample_gpx_path):
     """Test SegmentAnalyzer initialization and attribute setup."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
 
     analyzer = SegmentAnalyzer(course, race_config_path)
@@ -90,7 +85,7 @@ def test_segment_analyzer_initialization(sample_gpx_path):
 
 def test_segment_analyzer_loads_race_config_correctly(sample_gpx_path):
     """Test that race configuration is properly loaded."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
 
     analyzer = SegmentAnalyzer(course, race_config_path)
@@ -109,7 +104,7 @@ def test_segment_analyzer_loads_race_config_correctly(sample_gpx_path):
 
 def test_calculate_segment_stats_returns_dataframe(sample_gpx_path):
     """Test that calculate_segment_stats returns a proper DataFrame."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
     analyzer = SegmentAnalyzer(course, race_config_path)
 
@@ -142,7 +137,7 @@ def test_calculate_segment_stats_returns_dataframe(sample_gpx_path):
 
 def test_calculate_segment_stats_accumulation(sample_gpx_path):
     """Test that segment statistics accumulate correctly."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
     analyzer = SegmentAnalyzer(course, race_config_path)
 
@@ -167,7 +162,7 @@ def test_calculate_segment_stats_accumulation(sample_gpx_path):
 
 def test_generate_report_creates_files(tmp_path, sample_gpx_path):
     """Test that generate_report creates Excel and HTML files."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
     analyzer = SegmentAnalyzer(course, race_config_path)
 
@@ -188,7 +183,7 @@ def test_generate_report_creates_files(tmp_path, sample_gpx_path):
 
 def test_validate_course_distance_within_tolerance(sample_gpx_path):
     """Test that course distance validation passes when within tolerance."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
 
     # Should not raise warnings if within 100m tolerance
@@ -204,7 +199,7 @@ def test_validate_course_distance_within_tolerance(sample_gpx_path):
 
 def test_validate_elevations_runs(sample_gpx_path):
     """Test that elevation validation executes without errors."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
 
     # Should complete without exceptions (may produce warnings)
@@ -217,7 +212,7 @@ def test_validate_elevations_runs(sample_gpx_path):
 
 def test_custom_elevation_tolerance(sample_gpx_path):
     """Test that custom elevation tolerance is respected."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
 
     custom_tolerance = 100.0
@@ -230,7 +225,7 @@ def test_custom_elevation_tolerance(sample_gpx_path):
 
 def test_aid_stations_with_japanese_names(sample_gpx_path):
     """Test that aid stations with Japanese names are formatted correctly."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
     course = Course(sample_gpx_path, resample_m=10)
     analyzer = SegmentAnalyzer(course, race_config_path)
 
@@ -248,7 +243,7 @@ def test_aid_stations_with_japanese_names(sample_gpx_path):
 
 def test_different_resample_interval(sample_gpx_path):
     """Test that analysis works with different resampling than production config."""
-    race_config_path = Path("config/races/tgt_2026.yaml")
+    race_config_path = Path("tests/fixtures/races/tgt_2026.yaml")
 
     # Test 1: Coarser sampling (50m) for faster processing
     course_coarse = Course(sample_gpx_path, resample_m=50)

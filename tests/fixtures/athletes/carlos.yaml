@@ -1,0 +1,14 @@
+athlete:
+  name: "Carlos"
+  itra_points: 720
+  reference_performance:
+    distance_km: 42.195
+    time: "2:50:00"
+    notes: "Stable test marathon PB"
+  gap_curve:
+    points:
+      - [0.01, 1.075]
+      - [0.00, 1.00]
+      - [-0.01, 0.965]
+      - [-0.06, 0.8]
+      - [-0.07, 0.865]

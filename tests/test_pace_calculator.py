@@ -1,48 +1,16 @@
-"""
-Tests for PaceCalculator.
-"""
-
-from pathlib import Path
+"""Tests for PaceCalculator."""
 
 import numpy as np
 import pytest
-import yaml
 
 from race_planner.planner import PaceCalculator
 from race_planner.course.course import Course
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-RACE_CONFIG_PATH = Path("config/races/tgt_2026.yaml")
-CARLOS_CONFIG_PATH = Path("config/athletes/carlos.yaml")
-YAS_CONFIG_PATH = Path("config/athletes/yet_another_sato.yaml")
-
-
-@pytest.fixture
-def carlos_config():
-    with open(CARLOS_CONFIG_PATH, encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-@pytest.fixture
-def yas_config():
-    with open(YAS_CONFIG_PATH, encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-@pytest.fixture
-def race_config():
-    with open(RACE_CONFIG_PATH, encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
 @pytest.fixture
 def carlos_calc():
-    """PaceCalculator with Carlos marathon reference: 42.195 km / 3:30:00."""
-    return PaceCalculator(ref_dist_km=42.195, ref_time_s=3 * 3600 + 30 * 60)
+    """PaceCalculator with Carlos marathon reference: 42.195 km / 2:50:00."""
+    return PaceCalculator(ref_dist_km=42.195, ref_time_s=2 * 3600 + 50 * 60)
 
 
 @pytest.fixture
@@ -58,7 +26,7 @@ def tgt_course(sample_gpx_path):
 def test_from_athlete_config_carlos(carlos_config):
     calc = PaceCalculator.from_athlete_config(carlos_config)
     assert calc.ref_dist_km == pytest.approx(42.195)
-    assert calc.ref_time_s == pytest.approx(3 * 3600 + 30 * 60)
+    assert calc.ref_time_s == pytest.approx(2 * 3600 + 50 * 60)
 
 
 def test_from_athlete_config_yas(yas_config):
@@ -92,7 +60,7 @@ def test_custom_gap_curve_is_sorted():
 def test_riegel_at_reference_distance(carlos_calc):
     """Riegel at the reference distance must return the reference time."""
     result = carlos_calc.predict_riegel_flat_race_time_sec(42.195)
-    assert result == pytest.approx(3 * 3600 + 30 * 60, rel=1e-6)
+    assert result == pytest.approx(2 * 3600 + 50 * 60, rel=1e-6)
 
 
 def test_riegel_longer_distance_takes_more_time(carlos_calc):
@@ -100,14 +68,22 @@ def test_riegel_longer_distance_takes_more_time(carlos_calc):
     t_half = carlos_calc.predict_riegel_flat_race_time_sec(21.0975)
     t_full = carlos_calc.predict_riegel_flat_race_time_sec(42.195)
     assert t_full > t_half
-    # Riegel exponent 1.09: doubling distance multiplies time by 2^1.09 ≈ 2.13
-    assert t_full / t_half == pytest.approx(2**1.09, rel=0.01)
+    # Below the reference distance, the piecewise model reduces to the base 1.06 exponent.
+    assert t_full / t_half == pytest.approx(
+        2**carlos_calc.RIEGEL_BASE_EXPONENT,
+        rel=0.01,
+    )
 
 
-def test_riegel_uses_fixed_exponent(carlos_calc):
-    """Riegel prediction uses fixed 1.09 exponent at all distances."""
+def test_riegel_uses_piecewise_sqrt_exponent(carlos_calc):
+    """Above the reference distance, the piecewise sqrt exponent should be used."""
     t_pred = carlos_calc.predict_riegel_flat_race_time_sec(100.0)
-    t_expected = carlos_calc.ref_time_s * (100.0 / carlos_calc.ref_dist_km) ** 1.09
+    ultra_excess = 100.0 - carlos_calc.ref_dist_km
+    exponent = (
+        carlos_calc.RIEGEL_BASE_EXPONENT
+        + carlos_calc.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(ultra_excess)
+    )
+    t_expected = carlos_calc.ref_time_s * (100.0 / carlos_calc.ref_dist_km) ** exponent
     assert t_pred == pytest.approx(t_expected)
 
 
@@ -180,12 +156,12 @@ def test_grade_correction_steep_downhill_gt_one():
 
 
 def test_grade_correction_interpolation():
-    """Interpolated value between -1 % and -6 % (e.g. -3.5 %) should lie between their corrections."""
+    """Interpolated value between -1 % and -5 % (e.g. -3.5 %) should lie between their corrections."""
     calc = PaceCalculator(ref_dist_km=42.195, ref_time_s=12600)
-    c_m1 = calc.grade_correction(np.array([-0.01]))[0]  # 0.965
-    c_m6 = calc.grade_correction(np.array([-0.06]))[0]  # 0.79
+    c_m1 = calc.grade_correction(np.array([-0.01]))[0]  # 0.97
+    c_m5 = calc.grade_correction(np.array([-0.05]))[0]  # 0.85
     c_m35 = calc.grade_correction(np.array([-0.035]))[0]  # should be between
-    assert c_m6 < c_m35 < c_m1
+    assert c_m5 < c_m35 < c_m1
 
 
 # ---------------------------------------------------------------------------
@@ -257,17 +233,20 @@ def test_calculate_pacing_flat_distance_mode(carlos_calc, tgt_course, race_confi
 def test_calculate_pacing_fed_matches_fed_riegel_target(
     carlos_calc, tgt_course, race_config
 ):
-    """FED mode running time should closely match the FED-adjusted Riegel prediction."""
+    """FED mode should expose both approximation and integrated running totals."""
     aid_stations = race_config['aid_stations']
     df_fed = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=True)
     expected_running_s = carlos_calc.predict_riegel_fed_race_time_sec(
         tgt_course.total_distance_km,
         tgt_course.total_elevation_gain_m,
     )
-    # Segment slicing and endpoint snapping can drop/add a small amount of running time.
-    assert df_fed.attrs['total_running_time_s'] == pytest.approx(
+    assert df_fed.attrs['riegel_running_time_approx_s'] == pytest.approx(
         expected_running_s, rel=0.01
     )
+    assert df_fed.attrs['grade_adjusted_running_time_s'] == pytest.approx(
+        df_fed.attrs['total_running_time_s'], rel=1e-9
+    )
+    assert df_fed.attrs['total_running_time_s'] > 0
 
 
 def test_calculate_pacing_reasonable_total_time(carlos_calc, tgt_course, race_config):
