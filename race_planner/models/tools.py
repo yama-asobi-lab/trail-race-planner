@@ -1,10 +1,25 @@
 """Generic tools library"""
 
+import numpy as np
+
 
 def time_to_seconds(time_str: str) -> int:
     """Convert HH:MM:SS to total seconds."""
     h, m, s = map(int, time_str.split(':'))
     return h * 3600 + m * 60 + s
+
+
+def pace_to_seconds_per_km(pace_str: str) -> float:
+    """Convert a pace string like MM:SS/km or HH:MM:SS/km to sec/km."""
+    text = pace_str.strip().lower().replace('/km', '')
+    parts = text.split(':')
+    if len(parts) == 2:
+        minutes, seconds = map(int, parts)
+        return float(minutes * 60 + seconds)
+    if len(parts) == 3:
+        hours, minutes, seconds = map(int, parts)
+        return float(hours * 3600 + minutes * 60 + seconds)
+    raise ValueError(f"Unsupported pace format: {pace_str}")
 
 
 def seconds_to_hms(seconds: float) -> str:
@@ -14,6 +29,35 @@ def seconds_to_hms(seconds: float) -> str:
     m = (total % 3600) // 60
     s = total % 60
     return f"{h}:{m:02d}:{s:02d}"
+
+
+def seconds_per_km_to_pace(pace_sec_per_km: float) -> str:
+    """Convert sec/km to an M:SS/km pace string."""
+    total = int(round(pace_sec_per_km))
+    minutes = total // 60
+    seconds = total % 60
+    return f"{minutes}:{seconds:02d}/km"
+
+
+def speed_kmh_from_pace(pace_sec_per_km: np.ndarray | float) -> np.ndarray | float:
+    """Convert sec/km pace to horizontal speed in km/h."""
+    return 3600.0 / pace_sec_per_km
+
+
+def vertical_speed_m_per_h(
+    grades: np.ndarray | float,
+    pace_sec_per_km: np.ndarray | float,
+) -> np.ndarray | float:
+    """Convert grade and sec/km pace to signed vertical speed in m/h."""
+    return speed_kmh_from_pace(pace_sec_per_km) * 1000.0 * grades
+
+
+def pace_from_constant_vertical_speed(
+    grades: np.ndarray | float,
+    vertical_speed: float,
+) -> np.ndarray | float:
+    """Return sec/km pace implied by a constant signed vertical speed."""
+    return 3_600_000.0 * grades / vertical_speed
 
 
 def hours_to_hms(hours: float) -> str:

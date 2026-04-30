@@ -24,3 +24,7 @@ athlete:
       - [-0.01, 0.965 ]  # −1 %: 3.5 % faster
       - [-0.06, 0.8   ]  # −6 %: 20 % faster (optimal descent)
       - [-0.07, 0.865 ]  # −7 %: braking effect starts
+
+  preferences:
+    threshold_flat_pace_per_km: "3:50/km"  # LT2
+    aerobic_threshold_flat_pace_per_km: "4:40/km"  # LT1
