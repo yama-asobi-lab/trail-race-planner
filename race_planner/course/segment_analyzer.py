@@ -160,12 +160,20 @@ class SegmentAnalyzer:
         """
         Calculate statistics for each segment between aid stations.
 
+        When no aid stations are configured the entire course is treated as a
+        single segment from Start to Finish.
+
         Returns:
             DataFrame with segment statistics.
         """
         segments = []
 
-        for i, aid in enumerate(self.aid_stations):
+        stations = self.aid_stations or [
+            {'name': 'Start', 'distance_km': 0.0},
+            {'name': 'Finish', 'distance_km': self.course.total_distance_km},
+        ]
+
+        for i, aid in enumerate(stations):
             name = aid.get('name', 'Unknown')
             jap_name = aid.get('jap_name', '')
 
@@ -192,7 +200,7 @@ class SegmentAnalyzer:
                 avg_pos_gradient_pct = 0.0
             else:
                 # Calculate from previous aid station
-                prev_distance_km = self.aid_stations[i - 1].get('distance_km', 0)
+                prev_distance_km = stations[i - 1].get('distance_km', 0)
                 prev_distance_m = prev_distance_km * 1000
 
                 # Get segment DataFrame

@@ -55,13 +55,18 @@ Default table (adapted from an empirical trail-running tool):
 
     grade (decimal) | correction
     ----------------+----------
-      +0.01  (+1%)  |  1.08     ← 8% slower; linear extrapolation for steeper
-       0.00  ( 0%)  |  1.00
-      -0.01  (-1%)  |  0.965    ← 3.5% faster
-      -0.06  (-6%)  |  0.79     ← 21% faster  (empirical optimum)
-      -0.07  (-7%)  |  0.86     ← 14% faster  (braking begins)
+    +0.20 (+20%)  |  2.60     ← uphill cutoff anchor
+    +0.01  (+1%)  |  1.08     ← 8% slower
+    +0.00  ( 0%)  |  1.00
+    -0.01  (-1%)  |  0.965    ← 3.5% faster
+    -0.06  (-6%)  |  0.79     ← 21% faster  (empirical optimum)
+    -0.07  (-7%)  |  0.86     ← 14% faster  (braking begins)
+    -0.20 (-20%)  |  1.60     ← downhill cutoff anchor
 
-Endpoints are extrapolated linearly.
+For grades beyond ±18%, correction follows a constant-vertical-speed rule:
+
+    c(g) = c(g_cutoff) * g / g_cutoff
+
 Note: the uphill branch has only one reference point (+1%), so steep uphills
 (> ~15%) are extrapolated fairly aggressively.  Custom points per-athlete
 can be supplied to override the default table.
@@ -76,10 +81,9 @@ The model is conceptually sound:
   • Downhills: the non-monotonic shape (fastest at -6%, then slowdown) is
     well supported in race records research (Minetti et al. 2002;
     "Pace and critical gradient for hill runners", Loughborough 2019).
-  • Weakness: with only one uphill knot (+ one shared flat), the table
-    extrapolates linearly for grades > 1%.  This works acceptably up to
-    ~20-25% but becomes imprecise on very steep technical terrain.
-    Adding more knot points (e.g. 5%, 10%, 20%) would improve accuracy.
+    • Tail handling: outside ±18% grade, corrections switch to a
+        constant-vertical-speed rule anchored at the cutoff points. This avoids
+        unrealistic tail growth from unconstrained linear extrapolation.
 
 References:
   - Riegel, P.S. (1981) Athletic records and human endurance.
@@ -131,14 +135,19 @@ class PaceCalculator:
     # Built-in default GAP correction table (grade in decimal, correction factor).
     DEFAULT_GAP_CURVE = np.array(
         [
-            [0.01, 1.08],  # +1 %: 8 % slower (linear extrapolation above this)
+            [0.20, 2.60],  # +20 % cutoff anchor
+            [0.01, 1.08],  # +1 %
             [0.00, 1.00],  # flat
             [-0.01, 0.97],  # −1 %: 3 % faster
             [-0.05, 0.85],  # −5 %: 15 % faster (optimal descent)
             [-0.06, 0.9],  # −6 %: braking effect starts
+            [-0.20, 1.60],  # −20 % cutoff anchor
         ],
         dtype=float,
     )
+
+    GAP_UPHILL_CUTOFF_GRADE: float = 0.20
+    GAP_DOWNHILL_CUTOFF_GRADE: float = -0.20
 
     # Piecewise Riegel parameters (combined-sex robust fit from analysis):
     #   k(D) = 1.06 + c*sqrt(max(D-D_ref, 0))
@@ -319,8 +328,8 @@ class PaceCalculator:
         """
         Compute GAP correction factors for an array of grade values.
 
-        Uses piecewise linear interpolation with linear extrapolation at both
-        ends of the table.
+        Uses piecewise linear interpolation on the curve knots, and applies a
+        constant-vertical-speed tail beyond the configured cutoff grades.
 
         Args:
             grades: 1-D array of grade values as decimal rise/run
@@ -333,17 +342,31 @@ class PaceCalculator:
         c = self.gap_curve[:, 1]
 
         grades = np.asarray(grades, dtype=float)
-        result = np.empty_like(grades)
+        result = np.interp(grades, g, c)
 
-        for i, gr in enumerate(grades.flat):
-            if gr <= g[0]:
-                slope = (c[1] - c[0]) / (g[1] - g[0])
-                result.flat[i] = c[0] + slope * (gr - g[0])
-            elif gr >= g[-1]:
-                slope = (c[-1] - c[-2]) / (g[-1] - g[-2])
-                result.flat[i] = c[-1] + slope * (gr - g[-1])
-            else:
-                result.flat[i] = float(np.interp(gr, g, c))
+        low_mask = grades <= g[0]
+        if np.any(low_mask):
+            slope = (c[1] - c[0]) / (g[1] - g[0])
+            result[low_mask] = c[0] + slope * (grades[low_mask] - g[0])
+
+        high_mask = grades >= g[-1]
+        if np.any(high_mask):
+            slope = (c[-1] - c[-2]) / (g[-1] - g[-2])
+            result[high_mask] = c[-1] + slope * (grades[high_mask] - g[-1])
+
+        uphill_cutoff = self.GAP_UPHILL_CUTOFF_GRADE
+        downhill_cutoff = self.GAP_DOWNHILL_CUTOFF_GRADE
+
+        c_uphill = float(np.interp(uphill_cutoff, g, c))
+        c_downhill = float(np.interp(downhill_cutoff, g, c))
+
+        uphill_mask = grades > uphill_cutoff
+        if np.any(uphill_mask):
+            result[uphill_mask] = c_uphill * grades[uphill_mask] / uphill_cutoff
+
+        downhill_mask = grades < downhill_cutoff
+        if np.any(downhill_mask):
+            result[downhill_mask] = c_downhill * grades[downhill_mask] / downhill_cutoff
 
         return result
 
@@ -468,6 +491,13 @@ class PaceCalculator:
             riegel_method = 'flat-distance'
 
         cum_dist = full_df['cum_dist_m'].values
+
+        # When no aid stations are configured treat the whole course as one segment.
+        if not aid_stations:
+            aid_stations = [
+                {'name': 'Start', 'distance_km': 0.0},
+                {'name': 'Finish', 'distance_km': course.total_distance_km},
+            ]
 
         rows = []
         cumulative_time_s = 0.0

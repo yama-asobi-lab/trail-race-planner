@@ -64,9 +64,11 @@ def test_race_config_structure():
             'output_file' in race_info
         ), f"'output_file' missing in race info for {config_path}"
 
-        # Check aid stations
+        # Check aid stations (empty list is valid — treated as start-to-finish)
         aid_stations = config['aid_stations']
-        assert len(aid_stations) > 0, f"No aid stations defined in {config_path}"
+        assert isinstance(
+            aid_stations, list
+        ), f"'aid_stations' must be a list in {config_path}"
 
         for station in aid_stations:
             assert 'name' in station, f"Aid station missing 'name' in {config_path}"

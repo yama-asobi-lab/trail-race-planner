@@ -164,6 +164,40 @@ def test_grade_correction_interpolation():
     assert c_m5 < c_m35 < c_m1
 
 
+def test_grade_correction_uphill_constant_vertical_speed_tail():
+    calc = PaceCalculator(ref_dist_km=42.195, ref_time_s=12600)
+    cutoff = calc.GAP_UPHILL_CUTOFF_GRADE
+    c_cutoff = calc.grade_correction(np.array([cutoff]))[0]
+
+    steep_uphill = 0.30
+    c_steep = calc.grade_correction(np.array([steep_uphill]))[0]
+    expected = c_cutoff * steep_uphill / cutoff
+
+    assert c_steep == pytest.approx(expected, rel=1e-9)
+
+    # Vertical speed is proportional to g / c(g) for a fixed flat pace.
+    vspeed_ratio_cutoff = cutoff / c_cutoff
+    vspeed_ratio_steep = steep_uphill / c_steep
+    assert vspeed_ratio_steep == pytest.approx(vspeed_ratio_cutoff, rel=1e-9)
+
+
+def test_grade_correction_downhill_constant_vertical_speed_tail():
+    calc = PaceCalculator(ref_dist_km=42.195, ref_time_s=12600)
+    cutoff = calc.GAP_DOWNHILL_CUTOFF_GRADE
+    c_cutoff = calc.grade_correction(np.array([cutoff]))[0]
+
+    steep_downhill = -0.30
+    c_steep = calc.grade_correction(np.array([steep_downhill]))[0]
+    expected = c_cutoff * steep_downhill / cutoff
+
+    assert c_steep == pytest.approx(expected, rel=1e-9)
+
+    # Vertical speed is proportional to g / c(g) for a fixed flat pace.
+    vspeed_ratio_cutoff = cutoff / c_cutoff
+    vspeed_ratio_steep = steep_downhill / c_steep
+    assert vspeed_ratio_steep == pytest.approx(vspeed_ratio_cutoff, rel=1e-9)
+
+
 # ---------------------------------------------------------------------------
 # calculate_pacing
 # ---------------------------------------------------------------------------

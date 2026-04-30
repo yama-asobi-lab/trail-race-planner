@@ -9,7 +9,7 @@ athlete:
   # The pace calculator uses this to derive the baseline flat pace for the course.
   reference_performance:
     distance_km: 42.195
-    time: "2:50:00"
+    time: "2:45:00"
     notes: "Road marathon PB"
 
   # Grade Adjusted Pace (GAP) correction curve.
@@ -19,11 +19,13 @@ athlete:
   # Leave 'points' empty ([]) to use the built-in default trail-running table.
   gap_curve:
     points: 
+      - [ 0.20, 2.50  ]  # +20 % cutoff anchor for constant-vspeed tails
       - [ 0.01, 1.075 ]  # +1 %: 7.5 % slower (linear extrapolation above this)
       - [ 0.00, 1.00  ]  # flat
       - [-0.01, 0.965 ]  # −1 %: 3.5 % faster
       - [-0.06, 0.8   ]  # −6 %: 20 % faster (optimal descent)
       - [-0.07, 0.865 ]  # −7 %: braking effect starts
+      - [-0.20, 1.71  ]  # −20 % cutoff anchor for constant-vspeed tails
 
   preferences:
     threshold_flat_pace_per_km: "3:50/km"  # LT2
