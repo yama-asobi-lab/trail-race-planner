@@ -158,30 +158,30 @@ def main():
         metavar='N',
         help='Target ITRA score — required for --mode target_itra',
     )
-    args = parser.parse_args()
+    cli_args = parser.parse_args()
 
-    if args.mode == 'target_time' and not args.target_time:
+    if cli_args.mode == 'target_time' and not cli_args.target_time:
         parser.error('--target-time HH:MM:SS is required when --mode target_time')
-    if args.mode == 'target_itra' and not args.target_itra_score:
+    if cli_args.mode == 'target_itra' and not cli_args.target_itra_score:
         parser.error('--target-itra-score N is required when --mode target_itra')
 
     # ------------------------------------------------------------------
     # Load configs
     # ------------------------------------------------------------------
-    race_config_path = args.race_config
+    race_config_path = cli_args.race_config
     if not race_config_path.exists():
         logger.error(f"Race configuration file not found: {race_config_path}")
         sys.exit(1)
 
     project_root = Path.cwd()
-    athlete_config_path = project_root / 'config' / 'athletes' / f'{args.athlete}.yaml'
+    athlete_config_path = project_root / 'config' / 'athletes' / f'{cli_args.athlete}.yaml'
     if not athlete_config_path.exists():
         logger.error(f"Athlete configuration file not found: {athlete_config_path}")
         sys.exit(1)
 
     logger.info(f"Race config:    {race_config_path}")
     logger.info(f"Athlete config: {athlete_config_path}")
-    logger.info(f"Planning mode:  {args.mode}")
+    logger.info(f"Planning mode:  {cli_args.mode}")
 
     with open(race_config_path, 'r', encoding='utf-8') as f:
         race_config = yaml.safe_load(f)
@@ -204,7 +204,7 @@ def main():
     output_path = project_root / output_file
 
     athlete_info = athlete_config.get('athlete', {})
-    athlete_display_name = athlete_info.get('name', args.athlete)
+    athlete_display_name = athlete_info.get('name', cli_args.athlete)
     logger.info(f"Athlete: {athlete_display_name}")
 
     # ------------------------------------------------------------------
@@ -240,48 +240,48 @@ def main():
     # ------------------------------------------------------------------
     override_running_time_s: float | None = None
 
-    if args.mode == 'athlete_pb':
+    if cli_args.mode == 'athlete_pb':
         calc = PaceCalculator.from_athlete_config(athlete_config)
         ref = athlete_info.get('reference_performance', {})
         logger.info(f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}")
 
-    elif args.mode == 'target_time':
-        target_total_s = float(time_to_seconds(args.target_time))
+    elif cli_args.mode == 'target_time':
+        target_total_time_s = float(time_to_seconds(cli_args.target_time))
         total_stop_s = _total_stop_time_s(aid_stations)
-        override_running_time_s = target_total_s - total_stop_s
+        override_running_time_s = target_total_time_s - total_stop_s
         if override_running_time_s <= 0:
             logger.error(
-                f"Target time {args.target_time} is shorter than total stop time "
+                f"Target time {cli_args.target_time} is shorter than total stop time "
                 f"({seconds_to_hms(total_stop_s)})"
             )
             sys.exit(1)
         calc = PaceCalculator.from_athlete_config(athlete_config)
         logger.info(
-            f"Target finish time: {args.target_time}  "
+            f"Target finish time: {cli_args.target_time}  "
             f"(running: {seconds_to_hms(override_running_time_s)}, "
             f"stops: {seconds_to_hms(total_stop_s)})"
         )
 
-    elif args.mode == 'target_itra':
+    elif cli_args.mode == 'target_itra':
         if itra_predictor is None:
             logger.error(
                 "Cannot use --mode target_itra: " "no 'itra_reference_points' in race config."
             )
             sys.exit(1)
-        predicted_hours = itra_predictor.predict_time(args.target_itra_score)
-        target_total_s = predicted_hours * 3600
+        predicted_total_time_h = itra_predictor.predict_time(cli_args.target_itra_score)
+        target_total_time_s = predicted_total_time_h * 3600
         total_stop_s = _total_stop_time_s(aid_stations)
-        override_running_time_s = target_total_s - total_stop_s
+        override_running_time_s = target_total_time_s - total_stop_s
         if override_running_time_s <= 0:
             logger.error(
-                f"ITRA-predicted time {hours_to_hms(predicted_hours)} is shorter "
+                f"ITRA-predicted time {hours_to_hms(predicted_total_time_h)} is shorter "
                 f"than total stop time ({seconds_to_hms(total_stop_s)})"
             )
             sys.exit(1)
         calc = PaceCalculator.from_athlete_config(athlete_config)
         logger.info(
-            f"ITRA score {args.target_itra_score} → "
-            f"predicted finish time: {hours_to_hms(predicted_hours)}  "
+            f"ITRA score {cli_args.target_itra_score} → "
+            f"predicted finish time: {hours_to_hms(predicted_total_time_h)}  "
             f"(running: {seconds_to_hms(override_running_time_s)}, "
             f"stops: {seconds_to_hms(total_stop_s)})"
         )
@@ -293,7 +293,7 @@ def main():
         pacing_df = calc.calculate_pacing(
             course=course,
             aid_stations=aid_stations,
-            use_fed=(args.mode == 'athlete_pb'),
+            use_fed=(cli_args.mode == 'athlete_pb'),
             override_total_running_time_s=override_running_time_s,
         )
     except Exception as exc:
@@ -321,12 +321,12 @@ def main():
     # ------------------------------------------------------------------
     # 6. Append pacing sheet to xlsx
     # ------------------------------------------------------------------
-    sheet_name = f"Race Plan ({args.mode})"
+    sheet_name = f"Race Plan ({cli_args.mode})"
     _append_pacing_sheet(
         output_path=output_path,
         pacing_df=pacing_df,
         sheet_name=sheet_name,
-        mode=args.mode,
+        mode=cli_args.mode,
         athlete_name=athlete_display_name,
         itra_score=itra_score_result,
     )
@@ -338,7 +338,7 @@ def main():
     sep = "=" * 52
     logger.info(sep)
     logger.info("RACE PLAN SUMMARY")
-    logger.info(f"  Mode:          {args.mode}")
+    logger.info(f"  Mode:          {cli_args.mode}")
     logger.info(f"  Athlete:       {athlete_display_name}")
     approx_running_s = pacing_df.attrs.get('riegel_running_time_approx_s')
     if approx_running_s is not None:

@@ -94,19 +94,22 @@ References:
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 
 from race_planner.course.course import Course
-from race_planner.models.tools import seconds_to_hms, time_to_seconds
+from race_planner.models.pacing_model import PacingModel
+from race_planner.models.tools import seconds_to_hms
 
 
 class PaceCalculator:
     """
     Calculates a per-segment pacing plan for a trail race.
+
+    This planner class delegates pure formulas to ``PacingModel`` and keeps
+    course traversal + segment aggregation responsibilities.
 
     Two calculation modes are supported (``use_fed`` parameter):
 
@@ -132,31 +135,13 @@ class PaceCalculator:
                      the module docstring.
     """
 
-    # Built-in default GAP correction table (grade in decimal, correction factor).
-    DEFAULT_GAP_CURVE = np.array(
-        [
-            [0.20, 2.60],  # +20 % cutoff anchor
-            [0.01, 1.08],  # +1 %
-            [0.00, 1.00],  # flat
-            [-0.01, 0.97],  # −1 %: 3 % faster
-            [-0.05, 0.85],  # −5 %: 15 % faster (optimal descent)
-            [-0.06, 0.9],  # −6 %: braking effect starts
-            [-0.20, 1.60],  # −20 % cutoff anchor
-        ],
-        dtype=float,
-    )
-
-    GAP_UPHILL_CUTOFF_GRADE: float = 0.20
-    GAP_DOWNHILL_CUTOFF_GRADE: float = -0.20
-
-    # Piecewise Riegel parameters (combined-sex robust fit from analysis):
-    #   k(D) = 1.06 + c*sqrt(max(D-D_ref, 0))
-    RIEGEL_BASE_EXPONENT: float = 1.06
-    PIECEWISE_RIEGEL_106_SQRT_C: float = 0.013422
-
-    # Flat Equivalent Distance factor: metres of gain per 1 km FED.
-    # 100 m gain ↔ 1 km flat (standard trail-running convention).
-    FED_VERT_FACTOR_M_PER_KM: float = 100.0
+    # Expose model constants from the pure-model layer.
+    DEFAULT_GAP_CURVE = PacingModel.DEFAULT_GAP_CURVE
+    GAP_UPHILL_CUTOFF_GRADE: float = PacingModel.GAP_UPHILL_CUTOFF_GRADE
+    GAP_DOWNHILL_CUTOFF_GRADE: float = PacingModel.GAP_DOWNHILL_CUTOFF_GRADE
+    RIEGEL_BASE_EXPONENT: float = PacingModel.RIEGEL_BASE_EXPONENT
+    PIECEWISE_RIEGEL_106_SQRT_C: float = PacingModel.PIECEWISE_RIEGEL_106_SQRT_C
+    FED_VERT_FACTOR_M_PER_KM: float = PacingModel.FED_VERT_FACTOR_M_PER_KM
 
     def __init__(
         self,
@@ -164,21 +149,14 @@ class PaceCalculator:
         ref_time_s: float,
         gap_curve: Optional[np.ndarray] = None,
     ) -> None:
-        if ref_dist_km <= 0:
-            raise ValueError("ref_dist_km must be positive")
-        if ref_time_s <= 0:
-            raise ValueError("ref_time_s must be positive")
-
-        self.ref_dist_km = float(ref_dist_km)
-        self.ref_time_s = float(ref_time_s)
-
-        raw = (
-            np.array(gap_curve, dtype=float)
-            if gap_curve is not None
-            else self.DEFAULT_GAP_CURVE.copy()
+        self.model = PacingModel(
+            ref_dist_km=ref_dist_km,
+            ref_time_s=ref_time_s,
+            gap_curve=gap_curve,
         )
-        # Sort ascending by grade for interpolation
-        self.gap_curve = raw[raw[:, 0].argsort()]
+        self.ref_dist_km = self.model.ref_dist_km
+        self.ref_time_s = self.model.ref_time_s
+        self.gap_curve = self.model.gap_curve
 
     # ------------------------------------------------------------------
     # Construction helpers
@@ -204,28 +182,11 @@ class PaceCalculator:
         Returns:
             PaceCalculator instance.
         """
-        athlete = athlete_config.get('athlete', {})
-        ref = athlete.get('reference_performance', {})
-
-        ref_dist_km = ref.get('distance_km')
-        ref_time_str = ref.get('time')
-
-        if ref_dist_km is None or ref_time_str is None:
-            raise ValueError(
-                "Athlete config must contain 'athlete.reference_performance.distance_km' "
-                "and 'athlete.reference_performance.time'"
-            )
-
-        ref_time_s = float(time_to_seconds(str(ref_time_str)))
-
-        # Optional custom GAP curve
-        custom_points = athlete.get('gap_curve', {}).get('points') or []
-        gap_curve = np.array(custom_points, dtype=float) if custom_points else None
-
+        model = PacingModel.from_athlete_config(athlete_config)
         return cls(
-            ref_dist_km=float(ref_dist_km),
-            ref_time_s=ref_time_s,
-            gap_curve=gap_curve,
+            ref_dist_km=model.ref_dist_km,
+            ref_time_s=model.ref_time_s,
+            gap_curve=model.gap_curve,
         )
 
     # ------------------------------------------------------------------
@@ -246,7 +207,7 @@ class PaceCalculator:
         Returns:
             Flat equivalent distance in km.
         """
-        return dist_km + gain_m / self.FED_VERT_FACTOR_M_PER_KM
+        return self.model.flat_equivalent_distance_km(dist_km, gain_m)
 
     def predict_riegel_race_time_sec(
         self,
@@ -274,56 +235,40 @@ class PaceCalculator:
         Returns:
             Predicted total race time in seconds (running only, no stops).
         """
-        effective_distance_km = target_distance_km
-        if use_flat_equivalent_distance:
-            effective_distance_km = self.flat_equivalent_distance_km(
-                target_distance_km,
-                elevation_gain_m,
-            )
-
-        if effective_distance_km <= 0:
-            raise ValueError("target_distance_km must be positive")
-
-        distance_ratio = effective_distance_km / self.ref_dist_km
-        ultra_excess_km = max(effective_distance_km - self.ref_dist_km, 0.0)
-        exponent = self.RIEGEL_BASE_EXPONENT + self.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(
-            ultra_excess_km
+        return self.model.predict_riegel_race_time_sec(
+            target_distance_km=target_distance_km,
+            elevation_gain_m=elevation_gain_m,
+            use_flat_equivalent_distance=use_flat_equivalent_distance,
         )
-
-        return self.ref_time_s * (distance_ratio**exponent)
 
     def predict_riegel_flat_race_time_sec(self, target_distance_km: float) -> float:
         """Predict flat race time (seconds) for a horizontal target distance."""
-        return self.predict_riegel_race_time_sec(target_distance_km)
+        return self.model.predict_riegel_flat_race_time_sec(target_distance_km)
 
     def predict_riegel_fed_race_time_sec(
         self, target_distance_km: float, elevation_gain_m: float
     ) -> float:
         """Predict race time (seconds) using FED-adjusted Riegel distance."""
-        return self.predict_riegel_race_time_sec(
-            target_distance_km,
-            elevation_gain_m,
-            use_flat_equivalent_distance=True,
-        )
+        return self.model.predict_riegel_fed_race_time_sec(target_distance_km, elevation_gain_m)
 
     # Backward-compatible aliases
     def riegel(self, dist_km: float) -> float:
         """Backward-compatible alias for ``predict_riegel_flat_race_time_sec``."""
-        return self.predict_riegel_flat_race_time_sec(dist_km)
+        return self.model.riegel(dist_km)
 
     def flat_equivalent_dist_km(self, dist_km: float, gain_m: float) -> float:
         """Backward-compatible alias for ``flat_equivalent_distance_km``."""
-        return self.flat_equivalent_distance_km(dist_km, gain_m)
+        return self.model.flat_equivalent_dist_km(dist_km, gain_m)
 
     def riegel_fed(self, dist_km: float, gain_m: float, loss_m: float = 0.0) -> float:
         """Backward-compatible alias for ``predict_riegel_fed_race_time_sec``."""
-        return self.predict_riegel_fed_race_time_sec(dist_km, gain_m)
+        return self.model.riegel_fed(dist_km, gain_m, loss_m)
 
     # ------------------------------------------------------------------
     # Grade correction
     # ------------------------------------------------------------------
 
-    def grade_correction(self, grades: np.ndarray) -> np.ndarray:
+    def grade_correction(self, grade_decimal_values: np.ndarray) -> np.ndarray:
         """
         Compute GAP correction factors for an array of grade values.
 
@@ -331,43 +276,13 @@ class PaceCalculator:
         constant-vertical-speed tail beyond the configured cutoff grades.
 
         Args:
-            grades: 1-D array of grade values as decimal rise/run
-                    (e.g. 0.10 for a 10 % uphill, -0.06 for a 6 % downhill).
+            grade_decimal_values: 1-D array of grade values as decimal rise/run
+                (e.g. 0.10 for a 10 % uphill, -0.06 for a 6 % downhill).
 
         Returns:
-            Array of correction factors, same length as *grades*.
+            Array of correction factors, same length as *grade_decimal_values*.
         """
-        g = self.gap_curve[:, 0]  # sorted ascending
-        c = self.gap_curve[:, 1]
-
-        grades = np.asarray(grades, dtype=float)
-        result = np.interp(grades, g, c)
-
-        low_mask = grades <= g[0]
-        if np.any(low_mask):
-            slope = (c[1] - c[0]) / (g[1] - g[0])
-            result[low_mask] = c[0] + slope * (grades[low_mask] - g[0])
-
-        high_mask = grades >= g[-1]
-        if np.any(high_mask):
-            slope = (c[-1] - c[-2]) / (g[-1] - g[-2])
-            result[high_mask] = c[-1] + slope * (grades[high_mask] - g[-1])
-
-        uphill_cutoff = self.GAP_UPHILL_CUTOFF_GRADE
-        downhill_cutoff = self.GAP_DOWNHILL_CUTOFF_GRADE
-
-        c_uphill = float(np.interp(uphill_cutoff, g, c))
-        c_downhill = float(np.interp(downhill_cutoff, g, c))
-
-        uphill_mask = grades > uphill_cutoff
-        if np.any(uphill_mask):
-            result[uphill_mask] = c_uphill * grades[uphill_mask] / uphill_cutoff
-
-        downhill_mask = grades < downhill_cutoff
-        if np.any(downhill_mask):
-            result[downhill_mask] = c_downhill * grades[downhill_mask] / downhill_cutoff
-
-        return result
+        return self.model.grade_correction(grade_decimal_values)
 
     # ------------------------------------------------------------------
     # Pacing plan
@@ -440,19 +355,23 @@ class PaceCalculator:
         full_df = course.df
 
         # Convert grade (%) → decimal for the GAP curve
-        grades_decimal = full_df['grade'].values / 100.0
-        corrections = self.grade_correction(grades_decimal)
-        dist_km_per_point = full_df['dist_m'].values / 1000.0
+        grade_decimal_values = full_df['grade'].values / 100.0
+        grade_correction_factors = self.grade_correction(grade_decimal_values)
+        point_distance_km_values = full_df['dist_m'].values / 1000.0
 
         riegel_running_time_approx_s: float | None = None
 
         if override_total_running_time_s is not None:
             total_running_time_s = float(override_total_running_time_s)
             riegel_method = 'target-override'
-            weights = dist_km_per_point * corrections
-            total_weight = weights.sum()
-            time_per_weight = total_running_time_s / total_weight if total_weight > 0 else 0.0
-            point_times_s = weights * time_per_weight
+            grade_weighted_distance_km = point_distance_km_values * grade_correction_factors
+            total_grade_weighted_distance_km = grade_weighted_distance_km.sum()
+            seconds_per_weighted_km = (
+                total_running_time_s / total_grade_weighted_distance_km
+                if total_grade_weighted_distance_km > 0
+                else 0.0
+            )
+            point_times_s = grade_weighted_distance_km * seconds_per_weighted_km
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
             riegel_running_time_approx_s = self.predict_riegel_race_time_sec(
@@ -471,7 +390,9 @@ class PaceCalculator:
             flat_equiv_avg_pace_s_per_km = riegel_running_time_approx_s / fed_distance_km
 
             # 3) Apply inverse-GAP pace adjustments point-by-point and integrate.
-            point_times_s = dist_km_per_point * flat_equiv_avg_pace_s_per_km * corrections
+            point_times_s = (
+                point_distance_km_values * flat_equiv_avg_pace_s_per_km * grade_correction_factors
+            )
             riegel_method = 'FED'
         else:
             # Flat pace from raw-distance Riegel.
@@ -480,10 +401,10 @@ class PaceCalculator:
                 use_flat_equivalent_distance=False,
             )
             flat_pace_s_per_km = flat_time_s / course.total_distance_km
-            point_times_s = dist_km_per_point * flat_pace_s_per_km * corrections
+            point_times_s = point_distance_km_values * flat_pace_s_per_km * grade_correction_factors
             riegel_method = 'flat-distance'
 
-        cum_dist = full_df['cum_dist_m'].values
+        cumulative_distance_m_values = full_df['cum_dist_m'].values
 
         # When no aid stations are configured treat the whole course as one segment.
         if not aid_stations:
@@ -493,7 +414,7 @@ class PaceCalculator:
             ]
 
         rows = []
-        cumulative_time_s = 0.0
+        cumulative_elapsed_time_s = 0.0
         total_stop_s = 0.0
 
         for i, aid in enumerate(aid_stations):
@@ -501,13 +422,13 @@ class PaceCalculator:
             jap_name = aid.get('jap_name', '')
             full_name = f"{name} ({jap_name})" if jap_name else name
 
-            dist_km = float(aid.get('distance_km', 0.0))
-            dist_m = dist_km * 1000.0
+            aid_distance_km = float(aid.get('distance_km', 0.0))
+            aid_distance_m = aid_distance_km * 1000.0
             stop_time_s = float(aid.get('stop_time_s', 0))
 
-            point = course.get_point_at_distance(dist_m)
-            elevation_m = float(point['ele_m'])
-            cum_ele_gain_m = float(point['cum_ele_gain_m'])
+            aid_point = course.get_point_at_distance(aid_distance_m)
+            elevation_m = float(aid_point['ele_m'])
+            cum_ele_gain_m = float(aid_point['cum_ele_gain_m'])
 
             if i == 0:
                 running_time_s = 0.0
@@ -515,21 +436,23 @@ class PaceCalculator:
                 seg_gain_m = 0.0
                 seg_loss_m = 0.0
             else:
-                prev_dist_m = float(aid_stations[i - 1].get('distance_km', 0.0)) * 1000.0
-                mask = (cum_dist >= prev_dist_m) & (cum_dist <= dist_m)
+                prev_aid_distance_m = float(aid_stations[i - 1].get('distance_km', 0.0)) * 1000.0
+                segment_point_mask = (cumulative_distance_m_values >= prev_aid_distance_m) & (
+                    cumulative_distance_m_values <= aid_distance_m
+                )
 
-                seg_dist_km = dist_km - float(aid_stations[i - 1].get('distance_km', 0.0))
-                seg_gain_m = float(full_df['ele_gain_m'].values[mask].sum())
-                seg_loss_m = float(full_df['ele_loss_m'].values[mask].sum())
-                running_time_s = float(point_times_s[mask].sum())
+                seg_dist_km = aid_distance_km - float(aid_stations[i - 1].get('distance_km', 0.0))
+                seg_gain_m = float(full_df['ele_gain_m'].values[segment_point_mask].sum())
+                seg_loss_m = float(full_df['ele_loss_m'].values[segment_point_mask].sum())
+                running_time_s = float(point_times_s[segment_point_mask].sum())
 
-            cumulative_time_s += running_time_s + stop_time_s
+            cumulative_elapsed_time_s += running_time_s + stop_time_s
             total_stop_s += stop_time_s
 
             rows.append(
                 {
                     'Point Name': full_name,
-                    'Total Distance (km)': dist_km,
+                    'Total Distance (km)': aid_distance_km,
                     'Elevation (m)': round(elevation_m, 1),
                     'Accum. Elevation Gain (m)': round(cum_ele_gain_m, 0),
                     'Segment Distance (km)': round(seg_dist_km, 2),
@@ -537,16 +460,16 @@ class PaceCalculator:
                     'Segment Elevation Loss (m)': round(seg_loss_m, 0),
                     'Segment Running Time': seconds_to_hms(running_time_s),
                     'Stop Time': seconds_to_hms(stop_time_s),
-                    'Elapsed Time': seconds_to_hms(cumulative_time_s),
+                    'Elapsed Time': seconds_to_hms(cumulative_elapsed_time_s),
                 }
             )
 
         df = pd.DataFrame(rows)
 
-        total_running_s = cumulative_time_s - total_stop_s
+        total_running_s = cumulative_elapsed_time_s - total_stop_s
         df.attrs['total_running_time_s'] = total_running_s
         df.attrs['total_stop_time_s'] = total_stop_s
-        df.attrs['total_time_s'] = cumulative_time_s
+        df.attrs['total_time_s'] = cumulative_elapsed_time_s
         df.attrs['riegel_method'] = riegel_method
         df.attrs['riegel_running_time_approx_s'] = riegel_running_time_approx_s
         df.attrs['grade_adjusted_running_time_s'] = total_running_s

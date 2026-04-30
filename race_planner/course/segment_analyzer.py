@@ -87,22 +87,22 @@ class SegmentAnalyzer:
         if not self.aid_stations:
             return
 
-        last_aid = self.aid_stations[-1]
-        last_distance_km = last_aid.get('distance_km', 0)
-        last_distance_m = last_distance_km * 1000
+        last_aid_station = self.aid_stations[-1]
+        last_aid_distance_km = last_aid_station.get('distance_km', 0)
+        last_aid_distance_m = last_aid_distance_km * 1000
 
         actual_distance_m = self.course.total_distance_m
         actual_distance_km = self.course.total_distance_km
 
-        diff_m = abs(actual_distance_m - last_distance_m)
+        distance_diff_m = abs(actual_distance_m - last_aid_distance_m)
         tolerance_m = 100.0
 
-        if diff_m > tolerance_m:
+        if distance_diff_m > tolerance_m:
             warning_msg = (
                 f"Course distance mismatch: "
-                f"Last aid station at {last_distance_km:.1f} km, "
+                f"Last aid station at {last_aid_distance_km:.1f} km, "
                 f"actual course length {actual_distance_km:.1f} km "
-                f"(diff={diff_m:.0f}m, tolerance=±{tolerance_m:.0f}m)"
+                f"(diff={distance_diff_m:.0f}m, tolerance=±{tolerance_m:.0f}m)"
             )
             warnings.warn(warning_msg, UserWarning)
         else:
@@ -128,12 +128,12 @@ class SegmentAnalyzer:
             validation_count += 1
 
             # Get actual elevation from course
-            distance_m = config_distance_km * 1000
-            actual_elevation_m = self.course.get_elevation_at_distance(distance_m)
+            config_distance_m = config_distance_km * 1000
+            actual_elevation_m = self.course.get_elevation_at_distance(config_distance_m)
 
             # Check if within tolerance
-            diff = abs(actual_elevation_m - config_elevation_m)
-            is_valid = diff <= self.elevation_tolerance_m
+            elevation_diff_m = abs(actual_elevation_m - config_elevation_m)
+            is_valid = elevation_diff_m <= self.elevation_tolerance_m
 
             if not is_valid:
                 mismatch_count += 1
@@ -170,26 +170,26 @@ class SegmentAnalyzer:
             {'name': 'Finish', 'distance_km': self.course.total_distance_km},
         ]
 
-        for i, aid in enumerate(stations):
-            name = aid.get('name', 'Unknown')
-            jap_name = aid.get('jap_name', '')
+        for station_index, aid_station in enumerate(stations):
+            station_name = aid_station.get('name', 'Unknown')
+            station_jap_name = aid_station.get('jap_name', '')
 
             # Format name with Japanese
-            if jap_name:
-                full_name = f"{name} ({jap_name})"
+            if station_jap_name:
+                full_name = f"{station_name} ({station_jap_name})"
             else:
-                full_name = name
+                full_name = station_name
 
-            distance_km = aid.get('distance_km', 0)
-            distance_m = distance_km * 1000
+            station_distance_km = aid_station.get('distance_km', 0)
+            station_distance_m = station_distance_km * 1000
 
             # Get point data from course
-            point = self.course.get_point_at_distance(distance_m)
-            elevation_m = float(point['ele_m'])
-            cum_ele_gain_m = float(point['cum_ele_gain_m'])
+            station_point = self.course.get_point_at_distance(station_distance_m)
+            elevation_m = float(station_point['ele_m'])
+            cum_ele_gain_m = float(station_point['cum_ele_gain_m'])
 
             # Calculate segment stats
-            if i == 0:
+            if station_index == 0:
                 # First point (START)
                 segment_distance_km = 0.0
                 segment_ele_gain_m = 0.0
@@ -197,13 +197,16 @@ class SegmentAnalyzer:
                 avg_pos_gradient_pct = 0.0
             else:
                 # Calculate from previous aid station
-                prev_distance_km = stations[i - 1].get('distance_km', 0)
-                prev_distance_m = prev_distance_km * 1000
+                prev_station_distance_km = stations[station_index - 1].get('distance_km', 0)
+                prev_station_distance_m = prev_station_distance_km * 1000
 
                 # Get segment DataFrame
-                segment_df = self.course.get_segment(start_m=prev_distance_m, end_m=distance_m)
+                segment_df = self.course.get_segment(
+                    start_m=prev_station_distance_m,
+                    end_m=station_distance_m,
+                )
 
-                segment_distance_km = distance_km - prev_distance_km
+                segment_distance_km = station_distance_km - prev_station_distance_km
                 segment_ele_gain_m = segment_df['ele_gain_m'].sum()
                 segment_ele_loss_m = segment_df['ele_loss_m'].sum()
 
@@ -217,7 +220,7 @@ class SegmentAnalyzer:
             segments.append(
                 {
                     'Point Name': full_name,
-                    'Total Distance (km)': distance_km,
+                    'Total Distance (km)': station_distance_km,
                     'Elevation (m)': elevation_m,
                     'Accum. Elevation Gain (m)': cum_ele_gain_m,
                     'Segment Distance (km)': segment_distance_km,
@@ -264,11 +267,11 @@ class SegmentAnalyzer:
         logger.success(f"Report saved to: {output_path}")
 
         # Print summary
-        total_distance = segment_stats['Total Distance (km)'].iloc[-1]
-        total_gain = segment_stats['Accum. Elevation Gain (m)'].iloc[-1]
+        total_distance_km = segment_stats['Total Distance (km)'].iloc[-1]
+        total_elevation_gain_m = segment_stats['Accum. Elevation Gain (m)'].iloc[-1]
         logger.info(f"Race Summary:")
-        logger.info(f"  Total Distance: {total_distance:.1f} km")
-        logger.info(f"  Total Elevation Gain: {total_gain:.0f} m")
+        logger.info(f"  Total Distance: {total_distance_km:.1f} km")
+        logger.info(f"  Total Elevation Gain: {total_elevation_gain_m:.0f} m")
         logger.info(f"  Number of Aid Stations: {len(self.aid_stations)}")
 
         # Generate elevation profile plot

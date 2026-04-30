@@ -47,7 +47,7 @@ except ModuleNotFoundError:
 
 
 ATHLETE_CONFIG = Path(__file__).resolve().parents[1] / "config" / "athletes" / "carlos.yaml"
-OUT_DIR = Path(__file__).parent / "results"
+OUT_DIR = Path(__file__).parent / "results" / "analyze_gap_vertical_speed_cutoff"
 
 GRADE_MIN = -0.50
 GRADE_MAX = 0.50

@@ -55,7 +55,7 @@ except ModuleNotFoundError:
     from race_planner.models.tools import hms_to_hours
 
 DATA_FILE = Path(__file__).with_name("ultra_records_2026.json")
-OUT_DIR = Path(__file__).parent / "results"
+OUT_DIR = Path(__file__).parent / "results" / "validate_ultra_fatigue_model"
 
 D_MARATHON_KM = 42.195
 D_ULTRA_KM = 50.0

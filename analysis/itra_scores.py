@@ -13,6 +13,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from race_planner.models.tools import time_to_seconds, hours_to_hms
 
+OUT_DIR = Path(__file__).parent / "results" / "itra_scores"
+
 reference_races = {
     "oku_long": {
         "race_name": "Okumusashi Long",
@@ -192,6 +194,8 @@ reference_races = {
 oku_long_fig = None
 oku_long_ax = None
 
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
 for race, data in reference_races.items():
     times_seconds = np.array([time_to_seconds(t) for t in data["times"]])
 
@@ -320,6 +324,10 @@ for race, data in reference_races.items():
         oku_long_fig = fig
         oku_long_ax = ax
 
+    race_plot_path = OUT_DIR / f"itra_score_curve_{race}.png"
+    fig.savefig(race_plot_path, dpi=170)
+    print(f"Saved plot: {race_plot_path}")
+
     # Print time predictions table for every 50 points
     print(f"\n\nTime predictions for target ITRA scores (using least squares fit):")
     print(f"{'Score':<8} {'Time (h:mm:ss)':<15} {'Ratio vs 1000':<15}")
@@ -340,6 +348,18 @@ for race, data in reference_races.items():
 # Save ratios from UTMB to configuration file
 ratios = reference_races["utmb"]["ratios_rel_to_1000"]
 config_path = Path(__file__).parent.parent / "race_planner" / "models" / "itra_score_ratios.py"
+
+ratios_export_path = OUT_DIR / "utmb_score_time_ratios.csv"
+ratios_df = np.array([[s, ratios[s]] for s in sorted(ratios.keys(), reverse=True)])
+np.savetxt(
+    ratios_export_path,
+    ratios_df,
+    delimiter=",",
+    header="score,ratio_vs_1000",
+    comments="",
+    fmt=["%d", "%.10f"],
+)
+print(f"Saved ratios table: {ratios_export_path}")
 
 with open(config_path, 'r') as f:
     lines = f.readlines()
@@ -428,4 +448,8 @@ if oku_long_fig is not None and oku_long_ax is not None:
     oku_long_ax.legend(fontsize=10, loc='best')
     oku_long_fig.tight_layout()
 
-plt.show()
+    predictor_plot_path = OUT_DIR / "itra_score_curve_oku_long_with_predictor.png"
+    oku_long_fig.savefig(predictor_plot_path, dpi=170)
+    print(f"Saved plot: {predictor_plot_path}")
+
+plt.close('all')

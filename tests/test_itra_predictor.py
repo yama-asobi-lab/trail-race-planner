@@ -3,11 +3,6 @@
 import pytest
 import numpy as np
 from loguru import logger
-import matplotlib
-
-matplotlib.use('Agg')  # Use non-interactive backend for testing
-import matplotlib.pyplot as plt
-from pathlib import Path
 
 from race_planner.models.itra_predictor import ItraScorePredictor
 from race_planner.models.tools import hours_to_hms, hms_to_hours
@@ -95,7 +90,6 @@ class TestItraScorePredictorComprehensive:
         max_error_percent = 10.0
 
         errors = []
-        error_data = []  # Store detailed error information for plotting
 
         # Use each datapoint as a reference
         for ref_idx in range(len(times)):
@@ -119,18 +113,6 @@ class TestItraScorePredictorComprehensive:
                 )
                 errors.append(error_percent)
 
-                # Store detailed error data
-                error_data.append(
-                    {
-                        'ref_score': ref_score,
-                        'target_score': target_score,
-                        'actual_time': actual_time_hours,
-                        'predicted_time': predicted_time_hours,
-                        'error_percent': error_percent,
-                        'score_diff': abs(target_score - ref_score),
-                    }
-                )
-
                 # Assert error is within tolerance
                 assert error_percent <= max_error_percent, (
                     f"Time prediction error too high: "
@@ -147,9 +129,6 @@ class TestItraScorePredictorComprehensive:
         logger.info(f"  Max error: {np.max(errors):.3f}%")
         logger.info(f"  Std dev: {np.std(errors):.3f}%")
 
-        # Create visualization
-        self._plot_time_prediction_errors(error_data, reference_race)
-
     def test_predict_score_accuracy_from_all_datapoints(self, reference_race):
         """
         Test score prediction accuracy by using each datapoint as reference
@@ -160,7 +139,6 @@ class TestItraScorePredictorComprehensive:
         max_error_percent = 10.0
 
         errors = []
-        error_data = []  # Store detailed error information for plotting
 
         # Use each datapoint as a reference
         for ref_idx in range(len(times)):
@@ -182,17 +160,6 @@ class TestItraScorePredictorComprehensive:
                 error_percent = abs(predicted_score - actual_score) / actual_score * 100
                 errors.append(error_percent)
 
-                # Store detailed error data
-                error_data.append(
-                    {
-                        'ref_score': ref_score,
-                        'target_score': actual_score,
-                        'predicted_score': predicted_score,
-                        'error_percent': error_percent,
-                        'score_diff': abs(actual_score - ref_score),
-                    }
-                )
-
                 # Assert error is within tolerance
                 assert error_percent <= max_error_percent, (
                     f"Score prediction error too high: "
@@ -208,194 +175,6 @@ class TestItraScorePredictorComprehensive:
         logger.info(f"  Mean error: {np.mean(errors):.3f}%")
         logger.info(f"  Max error: {np.max(errors):.3f}%")
         logger.info(f"  Std dev: {np.std(errors):.3f}%")
-
-        # Create visualization
-        self._plot_score_prediction_errors(error_data, reference_race)
-
-    def _plot_time_prediction_errors(self, error_data, reference_race):
-        """Create comprehensive visualization of time prediction errors."""
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-        fig.suptitle(
-            f'Time Prediction Error Analysis - {reference_race["race_name"]}',
-            fontsize=14,
-            fontweight='bold',
-        )
-
-        # Convert to arrays for easier manipulation
-        target_scores = np.array([d['target_score'] for d in error_data])
-        errors = np.array([d['error_percent'] for d in error_data])
-        score_diffs = np.array([d['score_diff'] for d in error_data])
-        ref_scores = np.array([d['ref_score'] for d in error_data])
-
-        # Plot 1: Error vs Target Score
-        ax1 = axes[0, 0]
-        scatter1 = ax1.scatter(
-            target_scores, errors, alpha=0.3, s=20, c=score_diffs, cmap='viridis'
-        )
-        ax1.set_xlabel('Target Score', fontsize=11)
-        ax1.set_ylabel('Prediction Error (%)', fontsize=11)
-        ax1.set_title('Error vs Target Score', fontweight='bold')
-        ax1.grid(True, alpha=0.3)
-        ax1.axhline(y=2, color='r', linestyle='--', alpha=0.5, label='2% threshold')
-        ax1.legend()
-        plt.colorbar(scatter1, ax=ax1, label='Score Difference')
-
-        # Plot 2: Error vs Score Difference (from reference)
-        ax2 = axes[0, 1]
-        ax2.scatter(score_diffs, errors, alpha=0.3, s=20)
-        ax2.set_xlabel('|Target Score - Reference Score|', fontsize=11)
-        ax2.set_ylabel('Prediction Error (%)', fontsize=11)
-        ax2.set_title('Error vs Distance from Reference', fontweight='bold')
-        ax2.grid(True, alpha=0.3)
-        ax2.axhline(y=2, color='r', linestyle='--', alpha=0.5, label='2% threshold')
-        ax2.legend()
-
-        # Plot 3: Error distribution by score bins
-        ax3 = axes[1, 0]
-        score_bins = [400, 500, 600, 700, 800, 900, 1000]
-        binned_errors = []
-        bin_labels = []
-        for i in range(len(score_bins) - 1):
-            mask = (target_scores >= score_bins[i]) & (target_scores < score_bins[i + 1])
-            if mask.sum() > 0:
-                binned_errors.append(errors[mask])
-                bin_labels.append(f'{score_bins[i]}-{score_bins[i+1]}')
-
-        bp = ax3.boxplot(binned_errors, tick_labels=bin_labels)
-        ax3.set_xlabel('Score Range', fontsize=11)
-        ax3.set_ylabel('Prediction Error (%)', fontsize=11)
-        ax3.set_title('Error Distribution by Score Range', fontweight='bold')
-        ax3.grid(True, alpha=0.3, axis='y')
-        ax3.axhline(y=2, color='r', linestyle='--', alpha=0.5)
-
-        # Plot 4: Error heatmap (Reference Score vs Target Score)
-        ax4 = axes[1, 1]
-        unique_ref_scores = sorted(set(ref_scores))
-        unique_target_scores = sorted(set(target_scores))
-
-        # Create heatmap matrix
-        heatmap_data = np.full((len(unique_ref_scores), len(unique_target_scores)), np.nan)
-        for i, ref_score in enumerate(unique_ref_scores):
-            for j, target_score in enumerate(unique_target_scores):
-                mask = (ref_scores == ref_score) & (target_scores == target_score)
-                if mask.sum() > 0:
-                    heatmap_data[i, j] = errors[mask].mean()
-
-        im = ax4.imshow(heatmap_data, aspect='auto', cmap='RdYlGn_r', vmin=0, vmax=10)
-        ax4.set_xticks(
-            np.arange(0, len(unique_target_scores), max(1, len(unique_target_scores) // 5))
-        )
-        ax4.set_xticklabels(
-            [
-                unique_target_scores[i]
-                for i in range(0, len(unique_target_scores), max(1, len(unique_target_scores) // 5))
-            ]
-        )
-        ax4.set_yticks(np.arange(0, len(unique_ref_scores), max(1, len(unique_ref_scores) // 5)))
-        ax4.set_yticklabels(
-            [
-                unique_ref_scores[i]
-                for i in range(0, len(unique_ref_scores), max(1, len(unique_ref_scores) // 5))
-            ]
-        )
-        ax4.set_xlabel('Target Score', fontsize=11)
-        ax4.set_ylabel('Reference Score', fontsize=11)
-        ax4.set_title('Mean Error Heatmap', fontweight='bold')
-        plt.colorbar(im, ax=ax4, label='Error (%)')
-
-        plt.tight_layout()
-
-        # Save plot
-        output_dir = Path(__file__).parent.parent / "results"
-        output_dir.mkdir(exist_ok=True)
-        output_path = output_dir / "itra_predictor_time_error_analysis.png"
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        logger.info(f"Saved time error analysis plot to {output_path}")
-        plt.close()
-
-    def _plot_score_prediction_errors(self, error_data, reference_race):
-        """Create comprehensive visualization of score prediction errors."""
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-        fig.suptitle(
-            f'Score Prediction Error Analysis - {reference_race["race_name"]}',
-            fontsize=14,
-            fontweight='bold',
-        )
-
-        # Convert to arrays for easier manipulation
-        target_scores = np.array([d['target_score'] for d in error_data])
-        predicted_scores = np.array([d['predicted_score'] for d in error_data])
-        errors = np.array([d['error_percent'] for d in error_data])
-        score_diffs = np.array([d['score_diff'] for d in error_data])
-        ref_scores = np.array([d['ref_score'] for d in error_data])
-
-        # Plot 1: Predicted vs Actual Score
-        ax1 = axes[0, 0]
-        scatter1 = ax1.scatter(
-            target_scores, predicted_scores, alpha=0.3, s=20, c=errors, cmap='viridis'
-        )
-        min_score, max_score = min(target_scores), max(target_scores)
-        ax1.plot(
-            [min_score, max_score],
-            [min_score, max_score],
-            'r--',
-            alpha=0.5,
-            label='Perfect prediction',
-        )
-        ax1.set_xlabel('Actual Score', fontsize=11)
-        ax1.set_ylabel('Predicted Score', fontsize=11)
-        ax1.set_title('Predicted vs Actual Score', fontweight='bold')
-        ax1.grid(True, alpha=0.3)
-        ax1.legend()
-        plt.colorbar(scatter1, ax=ax1, label='Error (%)')
-
-        # Plot 2: Error vs Target Score
-        ax2 = axes[0, 1]
-        ax2.scatter(target_scores, errors, alpha=0.3, s=20)
-        ax2.set_xlabel('Target Score', fontsize=11)
-        ax2.set_ylabel('Prediction Error (%)', fontsize=11)
-        ax2.set_title('Error vs Target Score', fontweight='bold')
-        ax2.grid(True, alpha=0.3)
-        ax2.axhline(y=2, color='r', linestyle='--', alpha=0.5, label='2% threshold')
-        ax2.legend()
-
-        # Plot 3: Error vs Score Difference
-        ax3 = axes[1, 0]
-        ax3.scatter(score_diffs, errors, alpha=0.3, s=20)
-        ax3.set_xlabel('|Target Score - Reference Score|', fontsize=11)
-        ax3.set_ylabel('Prediction Error (%)', fontsize=11)
-        ax3.set_title('Error vs Distance from Reference', fontweight='bold')
-        ax3.grid(True, alpha=0.3)
-        ax3.axhline(y=2, color='r', linestyle='--', alpha=0.5, label='2% threshold')
-        ax3.legend()
-
-        # Plot 4: Error distribution by score bins
-        ax4 = axes[1, 1]
-        score_bins = [400, 500, 600, 700, 800, 900, 1000]
-        binned_errors = []
-        bin_labels = []
-        for i in range(len(score_bins) - 1):
-            mask = (target_scores >= score_bins[i]) & (target_scores < score_bins[i + 1])
-            if mask.sum() > 0:
-                binned_errors.append(errors[mask])
-                bin_labels.append(f'{score_bins[i]}-{score_bins[i+1]}')
-
-        bp = ax4.boxplot(binned_errors, tick_labels=bin_labels)
-        ax4.set_xlabel('Score Range', fontsize=11)
-        ax4.set_ylabel('Prediction Error (%)', fontsize=11)
-        ax4.set_title('Error Distribution by Score Range', fontweight='bold')
-        ax4.grid(True, alpha=0.3, axis='y')
-        ax4.axhline(y=2, color='r', linestyle='--', alpha=0.5)
-
-        plt.tight_layout()
-
-        # Save plot
-        output_dir = Path(__file__).parent.parent / "results"
-        output_dir.mkdir(exist_ok=True)
-        output_path = output_dir / "itra_predictor_score_error_analysis.png"
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        logger.info(f"Saved score error analysis plot to {output_path}")
-        plt.close()
 
     def test_time_score_roundtrip_consistency(self, reference_race):
         """
