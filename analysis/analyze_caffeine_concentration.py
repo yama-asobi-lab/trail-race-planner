@@ -141,7 +141,7 @@ def plot_caffeine_profile(
     # Light table borders improve readability without visual overload.
     for _, cell in table.get_celld().items():
         cell.set_edgecolor("#ced4da")
-        cell.set_linewidth(0.5)
+        cell.set_linewidth(0.8)
 
     ax_table.set_title("Ingestion Plan", fontsize=11, fontweight="bold", pad=8)
 
