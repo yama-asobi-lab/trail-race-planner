@@ -5,11 +5,12 @@ Implements Peter Riegel's endurance formula combined with per-point grade-adjust
 pace (GAP) correction to produce a segment-by-segment pacing plan.
 
 -----------------------------------------------------------------------
-Riegel's formula
+Piecewise Riegel (1.06 + sqrt update)
 -----------------------------------------------------------------------
-    T = T_ref * (D / D_ref) ^ e
+    k(D) = 1.06 + c * sqrt(max(D - D_ref, 0))
+    T    = T_ref * (D / D_ref) ^ k(D)
 
-where e = 1.09 in this implementation.
+where c = 0.013422 in this implementation.
 
 -----------------------------------------------------------------------
 Flat Equivalent Distance (FED)
@@ -137,7 +138,10 @@ class PaceCalculator:
         dtype=float,
     )
 
-    RIEGEL_BASE_EXPONENT: float = 1.09
+    # Piecewise Riegel parameters (combined-sex robust fit from analysis):
+    #   k(D) = 1.06 + c*sqrt(max(D-D_ref, 0))
+    RIEGEL_BASE_EXPONENT: float = 1.06
+    PIECEWISE_RIEGEL_106_SQRT_C: float = 0.013422
 
     # Flat Equivalent Distance factor: metres of gain per 1 km FED.
     # 100 m gain ↔ 1 km flat (standard trail-running convention).
@@ -240,11 +244,16 @@ class PaceCalculator:
         use_flat_equivalent_distance: bool = False,
     ) -> float:
         """
-        Predict race time (seconds) using Riegel's formula.
+        Predict race time (seconds) using piecewise Riegel.
 
-        This implementation uses a fixed exponent of 1.09. If
-        ``use_flat_equivalent_distance`` is true, FED replaces horizontal
-        distance before applying Riegel.
+        The exponent is distance-dependent and follows the validated
+        piecewise model:
+
+            k(D) = 1.06 + c*sqrt(max(D-D_ref, 0))
+
+        where ``c = PIECEWISE_RIEGEL_106_SQRT_C`` and ``D_ref`` is
+        ``self.ref_dist_km``. If ``use_flat_equivalent_distance`` is true,
+        FED replaces horizontal distance before applying the formula.
 
         Args:
             target_distance_km: Horizontal course distance in km.
@@ -261,10 +270,17 @@ class PaceCalculator:
                 elevation_gain_m,
             )
 
-        return (
-            self.ref_time_s
-            * (effective_distance_km / self.ref_dist_km) ** self.RIEGEL_BASE_EXPONENT
+        if effective_distance_km <= 0:
+            raise ValueError("target_distance_km must be positive")
+
+        distance_ratio = effective_distance_km / self.ref_dist_km
+        ultra_excess_km = max(effective_distance_km - self.ref_dist_km, 0.0)
+        exponent = (
+            self.RIEGEL_BASE_EXPONENT
+            + self.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(ultra_excess_km)
         )
+
+        return self.ref_time_s * (distance_ratio**exponent)
 
     def predict_riegel_flat_race_time_sec(self, target_distance_km: float) -> float:
         """Predict flat race time (seconds) for a horizontal target distance."""

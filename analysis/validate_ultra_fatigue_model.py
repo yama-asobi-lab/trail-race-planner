@@ -3,6 +3,11 @@
 This analysis script evaluates how well different distance-to-time formulas explain
 historic best performances, while preserving a marathon reference anchor.
 
+A pure Riegel exponent performs well in short-to-marathon ranges but can be
+too optimistic for longer ultras. This script build on empirical evidence to see
+when and how to increase the effective exponent beyond marathon distance.
+We compare models using both fit quality and generalization proxy (LOOCV).
+
 Core idea:
 - Keep marathon as the reference point (D_ref = 42.195 km).
 - Use the original Riegel baseline exponent (k = 1.06) as a benchmark model.
@@ -10,28 +15,20 @@ Core idea:
     including linear, square-root, mixed linear+square-root, piecewise, and
     regularized variants.
 
-Why this script exists:
-- A pure Riegel exponent performs well in short-to-marathon ranges but can be
-    too optimistic for longer ultras.
-- We want empirical evidence for when and how to increase the effective exponent
-    beyond marathon distance.
-- We compare models using both fit quality and generalization proxy (LOOCV).
-
 What is computed:
 - Training metrics: RMSE (hours), MAPE (%).
 - Sub-ultra metrics (<= 50 km): RMSE and MAPE.
 - LOOCV RMSE for model robustness.
 - Event-level predictions and residuals.
-- Breakpoint summary for when adjusted models outperform fixed Riegel.
 - Human-readable fitted equations and model coefficients.
 
 Outputs written to analysis/results:
 - ultra_model_validation.xlsx
-    Sheets: model_metrics, model_predictions, breakpoint_analysis,
-    model_coefficients, model_equations.
+    Sheets: model_metrics, model_predictions, model_coefficients,
+    model_equations.
 - Plots for each sex:
     ultra_model_fit_*.png, ultra_model_fit_sub_ultra_*.png,
-    ultra_model_residuals_*.png, ultra_model_breakpoint_*.png.
+    ultra_model_residuals_*.png.
 
 Usage:
         python analysis/validate_ultra_fatigue_model.py
@@ -63,17 +60,6 @@ OUT_DIR = Path(__file__).parent / "results"
 D_MARATHON_KM = 42.195
 D_ULTRA_KM = 50.0
 RIEGEL_ORIGINAL_K = 1.06
-
-# Models that apply a post-marathon exponent adjustment (used in breakpoint analysis).
-ADJUSTED_MODELS = [
-    "riegel_106_ultra_linear_update",
-    "riegel_106_ultra_sqrt_update",
-    "riegel_106_ultra_mixed_update",
-    "linear_ultra_distance_penalty",
-    "hybrid_marathon_soft_regularized",
-    "piecewise_marathon_linear_exponent",
-    "log_quadratic_exponent",
-]
 
 
 @dataclass
@@ -168,7 +154,7 @@ def model_linear_ultra_distance_penalty_predict(
     return t_ref_h * np.exp(k * x + c * x * np.maximum(dist - d0, 0.0))
 
 
-def model_riegel_106_ultra_linear_update_fit(
+def model_piecewise_riegel_106_linear_fit(
     dist: np.ndarray,
     time_h: np.ndarray,
     t_ref_h: float | np.ndarray,
@@ -181,7 +167,7 @@ def model_riegel_106_ultra_linear_update_fit(
     return np.array([RIEGEL_ORIGINAL_K, _fit_ols_slope(ultra_term, y)], dtype=float)
 
 
-def model_riegel_106_ultra_linear_update_predict(
+def model_piecewise_riegel_106_linear_predict(
     params: np.ndarray,
     dist: np.ndarray,
     t_ref_h: float,
@@ -192,7 +178,7 @@ def model_riegel_106_ultra_linear_update_predict(
     return t_ref_h * np.exp((k0 + c * np.maximum(dist - d0, 0.0)) * x)
 
 
-def model_riegel_106_ultra_sqrt_update_fit(
+def model_piecewise_riegel_106_sqrt_fit(
     dist: np.ndarray,
     time_h: np.ndarray,
     t_ref_h: float | np.ndarray,
@@ -205,7 +191,7 @@ def model_riegel_106_ultra_sqrt_update_fit(
     return np.array([RIEGEL_ORIGINAL_K, _fit_ols_slope(ultra_term, y)], dtype=float)
 
 
-def model_riegel_106_ultra_sqrt_update_predict(
+def model_piecewise_riegel_106_sqrt_predict(
     params: np.ndarray,
     dist: np.ndarray,
     t_ref_h: float,
@@ -216,7 +202,7 @@ def model_riegel_106_ultra_sqrt_update_predict(
     return t_ref_h * np.exp((k0 + c * np.sqrt(np.maximum(dist - d0, 0.0))) * x)
 
 
-def model_riegel_106_ultra_mixed_update_fit(
+def model_piecewise_riegel_106_mixed_fit(
     dist: np.ndarray,
     time_h: np.ndarray,
     t_ref_h: float,
@@ -232,7 +218,7 @@ def model_riegel_106_ultra_mixed_update_fit(
     return np.array([RIEGEL_ORIGINAL_K, float(c1), float(c2)], dtype=float)
 
 
-def model_riegel_106_ultra_mixed_update_predict(
+def model_piecewise_riegel_106_mixed_predict(
     params: np.ndarray,
     dist: np.ndarray,
     t_ref_h: float,
@@ -420,19 +406,19 @@ def evaluate_group(
             lambda p, d: model_fixed_riegel_predict(p, d, t_ref_h),
         ),
         (
-            "riegel_106_ultra_linear_update",
-            lambda d, t: model_riegel_106_ultra_linear_update_fit(d, t, t_ref_h),
-            lambda p, d: model_riegel_106_ultra_linear_update_predict(p, d, t_ref_h),
+            "piecewise_riegel_106_linear",
+            lambda d, t: model_piecewise_riegel_106_linear_fit(d, t, t_ref_h),
+            lambda p, d: model_piecewise_riegel_106_linear_predict(p, d, t_ref_h),
         ),
         (
-            "riegel_106_ultra_sqrt_update",
-            lambda d, t: model_riegel_106_ultra_sqrt_update_fit(d, t, t_ref_h),
-            lambda p, d: model_riegel_106_ultra_sqrt_update_predict(p, d, t_ref_h),
+            "piecewise_riegel_106_sqrt",
+            lambda d, t: model_piecewise_riegel_106_sqrt_fit(d, t, t_ref_h),
+            lambda p, d: model_piecewise_riegel_106_sqrt_predict(p, d, t_ref_h),
         ),
         (
-            "riegel_106_ultra_mixed_update",
-            lambda d, t: model_riegel_106_ultra_mixed_update_fit(d, t, t_ref_h),
-            lambda p, d: model_riegel_106_ultra_mixed_update_predict(p, d, t_ref_h),
+            "piecewise_riegel_106_mixed",
+            lambda d, t: model_piecewise_riegel_106_mixed_fit(d, t, t_ref_h),
+            lambda p, d: model_piecewise_riegel_106_mixed_predict(p, d, t_ref_h),
         ),
         (
             "linear_ultra_distance_penalty",
@@ -542,19 +528,19 @@ def evaluate_combined(
     models = [
         ("fixed_riegel", model_fixed_riegel_fit, model_fixed_riegel_predict),
         (
-            "riegel_106_ultra_linear_update",
-            model_riegel_106_ultra_linear_update_fit,
-            model_riegel_106_ultra_linear_update_predict,
+            "piecewise_riegel_106_linear",
+            model_piecewise_riegel_106_linear_fit,
+            model_piecewise_riegel_106_linear_predict,
         ),
         (
-            "riegel_106_ultra_sqrt_update",
-            model_riegel_106_ultra_sqrt_update_fit,
-            model_riegel_106_ultra_sqrt_update_predict,
+            "piecewise_riegel_106_sqrt",
+            model_piecewise_riegel_106_sqrt_fit,
+            model_piecewise_riegel_106_sqrt_predict,
         ),
         (
-            "riegel_106_ultra_mixed_update",
-            model_riegel_106_ultra_mixed_update_fit,
-            model_riegel_106_ultra_mixed_update_predict,
+            "piecewise_riegel_106_mixed",
+            model_piecewise_riegel_106_mixed_fit,
+            model_piecewise_riegel_106_mixed_predict,
         ),
         (
             "linear_ultra_distance_penalty",
@@ -650,91 +636,25 @@ def evaluate_combined(
     return metrics, all_preds, coeff_rows
 
 
-def compute_breakpoint_rows(pred_rows: list[dict]) -> list[dict]:
-    df = pd.DataFrame(pred_rows)
-
-    out: list[dict] = []
-    for sex in ("men", "women"):
-        group = df[df["sex"] == sex].copy()
-        abs_err = (
-            group.pivot_table(
-                index="distance_km",
-                columns="model",
-                values="error_pct",
-                aggfunc="mean",
-            )
-            .abs()
-            .sort_index()
-        )
-
-        fixed = abs_err["fixed_riegel"]
-        best_adjusted = abs_err[ADJUSTED_MODELS].min(axis=1)
-        winner = np.where(best_adjusted < fixed, "adjusted", "fixed")
-
-        candidate_break_km = None
-        for d in abs_err.index:
-            if d < D_MARATHON_KM:
-                continue
-            if best_adjusted.loc[d] < fixed.loc[d]:
-                candidate_break_km = float(d)
-                break
-
-        sustained_break_km = None
-        marathon_plus = [d for d in abs_err.index if d >= D_MARATHON_KM]
-        for d in marathon_plus:
-            if best_adjusted.loc[d] >= fixed.loc[d]:
-                continue
-            tail = [x for x in marathon_plus if x >= d]
-            if all(best_adjusted.loc[x] <= fixed.loc[x] for x in tail):
-                sustained_break_km = float(d)
-                break
-
-        out.append(
-            {
-                "sex": sex,
-                "candidate_break_km": candidate_break_km,
-                "sustained_break_km": sustained_break_km,
-                "winner_by_distance": "; ".join(
-                    [f"{float(d):.3f}km={w}" for d, w in zip(abs_err.index, winner)]
-                ),
-            }
-        )
-
-    return out
-
-
 def write_excel(
     path: Path,
     metrics_rows: list[dict],
     pred_rows: list[dict],
-    breakpoint_rows: list[dict],
     coeff_rows: list[dict],
     equation_rows: list[dict],
-    combined_metrics_rows: list[dict] | None = None,
-    combined_coeff_rows: list[dict] | None = None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     metrics_df = pd.DataFrame(metrics_rows)
     preds_df = pd.DataFrame(pred_rows)
-    breakpoint_df = pd.DataFrame(breakpoint_rows)
     coeff_df = pd.DataFrame(coeff_rows)
     equation_df = pd.DataFrame(equation_rows)
 
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
         metrics_df.to_excel(writer, sheet_name="model_metrics", index=False)
         preds_df.to_excel(writer, sheet_name="model_predictions", index=False)
-        breakpoint_df.to_excel(writer, sheet_name="breakpoint_analysis", index=False)
         coeff_df.to_excel(writer, sheet_name="model_coefficients", index=False)
         equation_df.to_excel(writer, sheet_name="model_equations", index=False)
-        if combined_metrics_rows is not None:
-            pd.DataFrame(combined_metrics_rows).to_excel(
-                writer, sheet_name="combined_model_metrics", index=False
-            )
-        if combined_coeff_rows is not None:
-            pd.DataFrame(combined_coeff_rows).to_excel(
-                writer, sheet_name="combined_model_coefficients", index=False
-            )
 
 
 def build_equation_rows(
@@ -757,7 +677,7 @@ def build_equation_rows(
             symbolic = f"T(D)=T_ref*(D/{d0:.3f})^k"
             fitted = f"T(D)={t_ref:.6f}*(D/{d0:.3f})^{k:.6f}"
             notes = "Classic reference-distance Riegel anchored at marathon (k fixed at original value 1.06)"
-        elif model == "riegel_106_ultra_linear_update":
+        elif model == "piecewise_riegel_106_linear":
             symbolic = (
                 f"k(D)=1.06 + c*max(D-{d0:.3f},0); " f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
             )
@@ -766,7 +686,7 @@ def build_equation_rows(
                 f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
             )
             notes = "Requested piecewise coefficient update: fixed 1.06 up to marathon, linear increase after marathon"
-        elif model == "riegel_106_ultra_sqrt_update":
+        elif model == "piecewise_riegel_106_sqrt":
             symbolic = (
                 f"k(D)=1.06 + c*sqrt(max(D-{d0:.3f},0)); "
                 f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
@@ -776,7 +696,7 @@ def build_equation_rows(
                 f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
             )
             notes = "Requested piecewise coefficient update: fixed 1.06 up to marathon, square-root increase after marathon"
-        elif model == "riegel_106_ultra_mixed_update":
+        elif model == "piecewise_riegel_106_mixed":
             symbolic = (
                 f"k(D)=1.06 + c1*max(D-{d0:.3f},0) + c2*sqrt(max(D-{d0:.3f},0)); "
                 f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
@@ -831,6 +751,7 @@ def build_equation_rows(
             {
                 "sex": sex,
                 "model": model,
+                "fit_scope": row.get("fit_scope", "sex_specific"),
                 "equation_symbolic": symbolic,
                 "equation_fitted": fitted,
                 "notes": notes,
@@ -977,59 +898,6 @@ def write_plots(out_dir: Path, records: list[Record], pred_rows: list[dict]) -> 
         ax.grid(axis="y", alpha=0.3)
         plt.tight_layout()
         plt.savefig(out_dir / f"ultra_model_residuals_{sex}.png", dpi=160)
-        plt.close()
-
-        # Plot 3: absolute error vs distance for fixed vs best adjusted model
-        abs_err = (
-            sex_pred.pivot_table(
-                index="distance_km",
-                columns="model",
-                values="error_pct",
-                aggfunc="mean",
-            )
-            .abs()
-            .sort_index()
-        )
-        fixed = abs_err["fixed_riegel"]
-        best_adjusted = abs_err[ADJUSTED_MODELS].min(axis=1)
-
-        break_km = None
-        for d in abs_err.index:
-            if d >= D_MARATHON_KM and best_adjusted.loc[d] < fixed.loc[d]:
-                break_km = float(d)
-                break
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(
-            abs_err.index,
-            fixed.values,
-            marker="o",
-            linewidth=2,
-            label="fixed_riegel |error|%",
-        )
-        plt.plot(
-            abs_err.index,
-            best_adjusted.values,
-            marker="o",
-            linewidth=2,
-            label="best_adjusted |error|%",
-        )
-        if break_km is not None:
-            plt.axvline(
-                break_km,
-                color="red",
-                linestyle="--",
-                linewidth=1.5,
-                label=f"candidate break @ {break_km:.1f} km",
-            )
-
-        plt.title(f"Fixed vs adjusted absolute error by distance ({sex})")
-        plt.xlabel("Distance (km)")
-        plt.ylabel("Absolute error (%)")
-        plt.grid(alpha=0.3)
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig(out_dir / f"ultra_model_breakpoint_{sex}.png", dpi=160)
         plt.close()
 
 
@@ -1254,11 +1122,34 @@ def main() -> None:
                 f"loocv_rmse={m['loocv_rmse_h']:.3f}h"
             )
 
-    breakpoint_rows = compute_breakpoint_rows(preds_all)
-    equation_rows = build_equation_rows(coeff_all)
-
     # --- combined-sex shared-coefficient analysis -----------------------------------
     combined_metrics, combined_preds, combined_coeff = evaluate_combined(records)
+
+    # Merge combined rows into the existing sheet outputs and tag their origin.
+    metrics_sheet_rows = [
+        {**row, "fit_scope": "sex_specific"} for row in metrics_all
+    ] + [{**row, "fit_scope": "combined_shared"} for row in combined_metrics]
+
+    preds_sheet_rows = [{**row, "fit_scope": "sex_specific"} for row in preds_all] + [
+        {**row, "fit_scope": "combined_shared"} for row in combined_preds
+    ]
+
+    coeff_sheet_rows = [{**row, "fit_scope": "sex_specific"} for row in coeff_all]
+    for row in combined_coeff:
+        for sex in ("men", "women"):
+            coeff_sheet_rows.append(
+                {
+                    "sex": sex,
+                    "model": row["model"],
+                    "t_ref_h": row[f"t_ref_{sex}_h"],
+                    "param_k": row["param_k"],
+                    "param_c": row["param_c"],
+                    "param_d": row["param_d"],
+                    "fit_scope": "combined_shared",
+                }
+            )
+
+    equation_rows = build_equation_rows(coeff_sheet_rows)
 
     print("\nCombined-sex model summary (shared coefficients, only T_ref differs):")
     combined_pool = [m for m in combined_metrics if m["sex"] == "combined"]
@@ -1276,13 +1167,10 @@ def main() -> None:
     out_file = OUT_DIR / "ultra_model_validation.xlsx"
     write_excel(
         out_file,
-        metrics_all,
-        preds_all,
-        breakpoint_rows,
-        coeff_all,
+        metrics_sheet_rows,
+        preds_sheet_rows,
+        coeff_sheet_rows,
         equation_rows,
-        combined_metrics_rows=combined_metrics,
-        combined_coeff_rows=combined_coeff,
     )
     write_plots(OUT_DIR, records, preds_all)
     write_plots_combined(OUT_DIR, records, combined_preds)
@@ -1302,13 +1190,6 @@ def main() -> None:
                 f"T_ref={row['t_ref_h']:.6f}h  k={row['param_k']:.6f}  c={c_text}  d={d_text}"
             )
 
-    print("\nBreakpoint summary (fixed vs adjusted):")
-    for row in breakpoint_rows:
-        print(
-            f"  {row['sex']}: candidate_break_km={row['candidate_break_km']}  "
-            f"sustained_break_km={row['sustained_break_km']}"
-        )
-
     print(f"\nWrote: {out_file}")
     print(f"Wrote: {OUT_DIR / 'ultra_model_fit_men.png'}")
     print(f"Wrote: {OUT_DIR / 'ultra_model_fit_women.png'}")
@@ -1316,8 +1197,6 @@ def main() -> None:
     print(f"Wrote: {OUT_DIR / 'ultra_model_fit_sub_ultra_women.png'}")
     print(f"Wrote: {OUT_DIR / 'ultra_model_residuals_men.png'}")
     print(f"Wrote: {OUT_DIR / 'ultra_model_residuals_women.png'}")
-    print(f"Wrote: {OUT_DIR / 'ultra_model_breakpoint_men.png'}")
-    print(f"Wrote: {OUT_DIR / 'ultra_model_breakpoint_women.png'}")
     print(f"Wrote: {OUT_DIR / 'ultra_model_fit_combined.png'}")
     print(f"Wrote: {OUT_DIR / 'ultra_model_fit_combined_sub_ultra.png'}")
 
