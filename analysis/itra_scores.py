@@ -236,9 +236,7 @@ for race, data in reference_races.items():
     print(f"Reference race: {data['race_name']}")
     print(f"    R² (two datapoints) = {r_squared_single:.4f}")
     print(f"    R² (all datapoints) = {r_squared:.4f}")
-    print(
-        f"    A (two datapoints) = {A_single:.2f}, B (two datapoints) = {B_single:.2f}"
-    )
+    print(f"    A (two datapoints) = {A_single:.2f}, B (two datapoints) = {B_single:.2f}")
     print(f"    A (all datapoints) = {A_full:.2f}, B (all datapoints) = {B_full:.2f}")
 
     # Create plot
@@ -285,9 +283,7 @@ for race, data in reference_races.items():
 
     # Calculate ratios relative to score 1000
     t_1000 = all_times_hours[0]
-    ratios = {
-        score: t_hours / t_1000 for score, t_hours in zip(all_scores, all_times_hours)
-    }
+    ratios = {score: t_hours / t_1000 for score, t_hours in zip(all_scores, all_times_hours)}
     # Save to dictionary
     reference_races[race]["ratios_rel_to_1000"] = ratios
 
@@ -343,9 +339,7 @@ for race, data in reference_races.items():
 
 # Save ratios from UTMB to configuration file
 ratios = reference_races["utmb"]["ratios_rel_to_1000"]
-config_path = (
-    Path(__file__).parent.parent / "race_planner" / "models" / "itra_score_ratios.py"
-)
+config_path = Path(__file__).parent.parent / "race_planner" / "models" / "itra_score_ratios.py"
 
 with open(config_path, 'r') as f:
     lines = f.readlines()

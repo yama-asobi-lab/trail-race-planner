@@ -6,7 +6,7 @@ pace (GAP) correction to produce a segment-by-segment pacing plan.
 
 -----------------------------------------------------------------------
 Piecewise Riegel:
-Use 1.06 exponent from Riegel's formula for sub-marathon distance, 
+Use 1.06 exponent from Riegel's formula for sub-marathon distance,
 and update the exponent for longer distance based on sqrt of the distance beyond marathon.
 -----------------------------------------------------------------------
     k(D) = 1.06 + c * sqrt(max(D - D_ref, 0))
@@ -286,9 +286,8 @@ class PaceCalculator:
 
         distance_ratio = effective_distance_km / self.ref_dist_km
         ultra_excess_km = max(effective_distance_km - self.ref_dist_km, 0.0)
-        exponent = (
-            self.RIEGEL_BASE_EXPONENT
-            + self.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(ultra_excess_km)
+        exponent = self.RIEGEL_BASE_EXPONENT + self.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(
+            ultra_excess_km
         )
 
         return self.ref_time_s * (distance_ratio**exponent)
@@ -452,9 +451,7 @@ class PaceCalculator:
             riegel_method = 'target-override'
             weights = dist_km_per_point * corrections
             total_weight = weights.sum()
-            time_per_weight = (
-                total_running_time_s / total_weight if total_weight > 0 else 0.0
-            )
+            time_per_weight = total_running_time_s / total_weight if total_weight > 0 else 0.0
             point_times_s = weights * time_per_weight
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
@@ -471,14 +468,10 @@ class PaceCalculator:
             )
             if fed_distance_km <= 0:
                 raise ValueError('Computed FED distance must be positive')
-            flat_equiv_avg_pace_s_per_km = (
-                riegel_running_time_approx_s / fed_distance_km
-            )
+            flat_equiv_avg_pace_s_per_km = riegel_running_time_approx_s / fed_distance_km
 
             # 3) Apply inverse-GAP pace adjustments point-by-point and integrate.
-            point_times_s = (
-                dist_km_per_point * flat_equiv_avg_pace_s_per_km * corrections
-            )
+            point_times_s = dist_km_per_point * flat_equiv_avg_pace_s_per_km * corrections
             riegel_method = 'FED'
         else:
             # Flat pace from raw-distance Riegel.
@@ -522,14 +515,10 @@ class PaceCalculator:
                 seg_gain_m = 0.0
                 seg_loss_m = 0.0
             else:
-                prev_dist_m = (
-                    float(aid_stations[i - 1].get('distance_km', 0.0)) * 1000.0
-                )
+                prev_dist_m = float(aid_stations[i - 1].get('distance_km', 0.0)) * 1000.0
                 mask = (cum_dist >= prev_dist_m) & (cum_dist <= dist_m)
 
-                seg_dist_km = dist_km - float(
-                    aid_stations[i - 1].get('distance_km', 0.0)
-                )
+                seg_dist_km = dist_km - float(aid_stations[i - 1].get('distance_km', 0.0))
                 seg_gain_m = float(full_df['ele_gain_m'].values[mask].sum())
                 seg_loss_m = float(full_df['ele_loss_m'].values[mask].sum())
                 running_time_s = float(point_times_s[mask].sum())

@@ -57,9 +57,7 @@ class SegmentAnalyzer:
         # Load default athlete config if not provided
         if athlete_config is None:
             default_athlete_path = Path('config/athletes/yet_another_sato.yaml')
-            logger.info(
-                f"No athlete config provided, using default: {default_athlete_path}"
-            )
+            logger.info(f"No athlete config provided, using default: {default_athlete_path}")
             with open(default_athlete_path, 'r', encoding='utf-8') as f:
                 self.athlete_config = yaml.safe_load(f)
         else:
@@ -72,8 +70,7 @@ class SegmentAnalyzer:
         ref_time = ref_perf.get('time', 'N/A')
         ref_dist = ref_perf.get('distance_km', 'N/A')
         logger.info(
-            f"Using athlete profile: {athlete_name} "
-            f"(Reference: {ref_dist} km in {ref_time})"
+            f"Using athlete profile: {athlete_name} " f"(Reference: {ref_dist} km in {ref_time})"
         )
 
         # Run validations on initialization
@@ -204,9 +201,7 @@ class SegmentAnalyzer:
                 prev_distance_m = prev_distance_km * 1000
 
                 # Get segment DataFrame
-                segment_df = self.course.get_segment(
-                    start_m=prev_distance_m, end_m=distance_m
-                )
+                segment_df = self.course.get_segment(start_m=prev_distance_m, end_m=distance_m)
 
                 segment_distance_km = distance_km - prev_distance_km
                 segment_ele_gain_m = segment_df['ele_gain_m'].sum()
@@ -215,9 +210,7 @@ class SegmentAnalyzer:
                 # Average gradient
                 if segment_distance_km > 0:
                     # Net elevation change divided by horizontal distance
-                    avg_pos_gradient_pct = (
-                        segment_ele_gain_m / (segment_distance_km * 1000)
-                    ) * 100
+                    avg_pos_gradient_pct = (segment_ele_gain_m / (segment_distance_km * 1000)) * 100
                 else:
                     avg_pos_gradient_pct = 0.0
 

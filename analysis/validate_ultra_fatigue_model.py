@@ -239,9 +239,7 @@ def model_piecewise_marathon_linear_exponent_fit(
     # Step 1: fit classic Riegel k only on distances up to marathon, anchored at T_ref.
     marathon_mask = dist <= d0
     if np.sum(marathon_mask) < 2:
-        raise ValueError(
-            "Need at least two sub-marathon/marathon points for piecewise fit"
-        )
+        raise ValueError("Need at least two sub-marathon/marathon points for piecewise fit")
 
     _tref = np.asarray(t_ref_h, dtype=float)
     tref_sub = _tref if _tref.ndim == 0 else _tref[marathon_mask]
@@ -283,9 +281,7 @@ def model_hybrid_marathon_soft_regularized_fit(
     # Fit sub-marathon k first, then softly pull global k toward it.
     marathon_mask = dist <= d0
     if np.sum(marathon_mask) < 2:
-        raise ValueError(
-            "Need at least two sub-marathon/marathon points for hybrid fit"
-        )
+        raise ValueError("Need at least two sub-marathon/marathon points for hybrid fit")
 
     _tref = np.asarray(t_ref_h, dtype=float)
     tref_sub = _tref if _tref.ndim == 0 else _tref[marathon_mask]
@@ -389,9 +385,7 @@ def _records_to_df(records: list[Record]) -> pd.DataFrame:
     )
 
 
-def evaluate_group(
-    records: list[Record], sex: str
-) -> tuple[list[dict], list[dict], list[dict]]:
+def evaluate_group(records: list[Record], sex: str) -> tuple[list[dict], list[dict], list[dict]]:
     subset = [r for r in records if r.sex == sex]
     subset = sorted(subset, key=lambda r: r.distance_km)
 
@@ -433,9 +427,7 @@ def evaluate_group(
         (
             "piecewise_marathon_linear_exponent",
             lambda d, t: model_piecewise_marathon_linear_exponent_fit(d, t, t_ref_h),
-            lambda p, d: model_piecewise_marathon_linear_exponent_predict(
-                p, d, t_ref_h
-            ),
+            lambda p, d: model_piecewise_marathon_linear_exponent_predict(p, d, t_ref_h),
         ),
         (
             "log_quadratic_exponent",
@@ -471,9 +463,7 @@ def evaluate_group(
                 "train_rmse_h": rmse(time_h, pred),
                 "train_mape_pct": mape(time_h, pred),
                 "sub_ultra_rmse_h": rmse(time_h[sub_ultra_mask], pred[sub_ultra_mask]),
-                "sub_ultra_mape_pct": mape(
-                    time_h[sub_ultra_mask], pred[sub_ultra_mask]
-                ),
+                "sub_ultra_mape_pct": mape(time_h[sub_ultra_mask], pred[sub_ultra_mask]),
                 "loocv_rmse_h": loocv_rmse(dist, time_h, fit_fn, pred_fn),
             }
         )
@@ -565,9 +555,7 @@ def evaluate_combined(
     ]
 
     sub_ultra_mask = dist <= D_ULTRA_KM
-    sex_masks = {
-        s: np.array([r.sex == s for r in all_sorted]) for s in ("men", "women")
-    }
+    sex_masks = {s: np.array([r.sex == s for r in all_sorted]) for s in ("men", "women")}
 
     metrics: list[dict] = []
     all_preds: list[dict] = []
@@ -597,9 +585,7 @@ def evaluate_combined(
                 "train_rmse_h": rmse(time_h, pred),
                 "train_mape_pct": mape(time_h, pred),
                 "sub_ultra_rmse_h": rmse(time_h[sub_ultra_mask], pred[sub_ultra_mask]),
-                "sub_ultra_mape_pct": mape(
-                    time_h[sub_ultra_mask], pred[sub_ultra_mask]
-                ),
+                "sub_ultra_mape_pct": mape(time_h[sub_ultra_mask], pred[sub_ultra_mask]),
                 "loocv_rmse_h": loocv_val,
             }
         )
@@ -657,9 +643,7 @@ def write_excel(
         equation_df.to_excel(writer, sheet_name="model_equations", index=False)
 
 
-def build_equation_rows(
-    coeff_rows: list[dict], d0: float = D_MARATHON_KM
-) -> list[dict]:
+def build_equation_rows(coeff_rows: list[dict], d0: float = D_MARATHON_KM) -> list[dict]:
     out: list[dict] = []
     for row in coeff_rows:
         sex = str(row["sex"])
@@ -678,19 +662,13 @@ def build_equation_rows(
             fitted = f"T(D)={t_ref:.6f}*(D/{d0:.3f})^{k:.6f}"
             notes = "Classic reference-distance Riegel anchored at marathon (k fixed at original value 1.06)"
         elif model == "piecewise_riegel_106_linear":
-            symbolic = (
-                f"k(D)=1.06 + c*max(D-{d0:.3f},0); " f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
-            )
+            symbolic = f"k(D)=1.06 + c*max(D-{d0:.3f},0); " f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
             fitted = (
-                f"k(D)=1.06 + {c:.6f}*max(D-{d0:.3f},0); "
-                f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
+                f"k(D)=1.06 + {c:.6f}*max(D-{d0:.3f},0); " f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
             )
             notes = "Requested piecewise coefficient update: fixed 1.06 up to marathon, linear increase after marathon"
         elif model == "piecewise_riegel_106_sqrt":
-            symbolic = (
-                f"k(D)=1.06 + c*sqrt(max(D-{d0:.3f},0)); "
-                f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
-            )
+            symbolic = f"k(D)=1.06 + c*sqrt(max(D-{d0:.3f},0)); " f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
             fitted = (
                 f"k(D)=1.06 + {c:.6f}*sqrt(max(D-{d0:.3f},0)); "
                 f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
@@ -708,8 +686,7 @@ def build_equation_rows(
             notes = "Mixed post-marathon coefficient update with linear and square-root terms"
         elif model == "log_quadratic_exponent":
             symbolic = (
-                f"T(D)=T_ref*exp(k*log(D/{d0:.3f})"
-                f"+q*(log(D/{d0:.3f}))^2*max(D-{d0:.3f},0))"
+                f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+q*(log(D/{d0:.3f}))^2*max(D-{d0:.3f},0))"
             )
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
@@ -717,30 +694,21 @@ def build_equation_rows(
             )
             notes = "Piecewise log-quadratic: quadratic term active only above marathon"
         elif model == "hybrid_marathon_soft_regularized":
-            symbolic = (
-                f"T(D)=T_ref*exp(k*log(D/{d0:.3f})"
-                f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
-            )
+            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
                 f"+{c:.6f}*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             )
             notes = "Same functional form as linear-ultra; k softly regularized to sub-marathon fit"
         elif model == "piecewise_marathon_linear_exponent":
-            symbolic = (
-                f"T(D)=T_ref*exp(k*log(D/{d0:.3f})"
-                f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
-            )
+            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
                 f"+{c:.6f}*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             )
             notes = "k fit on up-to-marathon data; c fit on ultra data"
         else:
-            symbolic = (
-                f"T(D)=T_ref*exp(k*log(D/{d0:.3f})"
-                f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
-            )
+            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
                 f"+{c:.6f}*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
@@ -901,9 +869,7 @@ def write_plots(out_dir: Path, records: list[Record], pred_rows: list[dict]) -> 
         plt.close()
 
 
-def write_plots_combined(
-    out_dir: Path, records: list[Record], pred_rows: list[dict]
-) -> None:
+def write_plots_combined(out_dir: Path, records: list[Record], pred_rows: list[dict]) -> None:
     """Produce an overlay plot for the combined-sex shared-coefficient analysis.
 
     Both men and women actual records are shown on the same axes together with model
@@ -1038,12 +1004,8 @@ def write_plots_combined(
 
         for idx, model_name in enumerate(model_names):
             color = prop_cycle[idx % len(prop_cycle)]
-            m_grp = men_sub_pred[men_sub_pred["model"] == model_name].sort_values(
-                "distance_km"
-            )
-            w_grp = women_sub_pred[women_sub_pred["model"] == model_name].sort_values(
-                "distance_km"
-            )
+            m_grp = men_sub_pred[men_sub_pred["model"] == model_name].sort_values("distance_km")
+            w_grp = women_sub_pred[women_sub_pred["model"] == model_name].sort_values("distance_km")
 
             ax2_top.plot(
                 m_grp["distance_km"],
@@ -1076,9 +1038,7 @@ def write_plots_combined(
                     color=color,
                 )
 
-        ax2_top.set_title(
-            f"Sub-ultra model fits – shared coefficients (<= {D_ULTRA_KM:.0f} km)"
-        )
+        ax2_top.set_title(f"Sub-ultra model fits – shared coefficients (<= {D_ULTRA_KM:.0f} km)")
         ax2_top.set_ylabel("Time (hours)")
         ax2_top.grid(alpha=0.3)
         ax2_top.legend(loc="upper left", fontsize=7, ncol=2)
@@ -1126,9 +1086,9 @@ def main() -> None:
     combined_metrics, combined_preds, combined_coeff = evaluate_combined(records)
 
     # Merge combined rows into the existing sheet outputs and tag their origin.
-    metrics_sheet_rows = [
-        {**row, "fit_scope": "sex_specific"} for row in metrics_all
-    ] + [{**row, "fit_scope": "combined_shared"} for row in combined_metrics]
+    metrics_sheet_rows = [{**row, "fit_scope": "sex_specific"} for row in metrics_all] + [
+        {**row, "fit_scope": "combined_shared"} for row in combined_metrics
+    ]
 
     preds_sheet_rows = [{**row, "fit_scope": "sex_specific"} for row in preds_all] + [
         {**row, "fit_scope": "combined_shared"} for row in combined_preds
@@ -1182,9 +1142,7 @@ def main() -> None:
         group = coeff_df[coeff_df["sex"] == sex]
         for _, row in group.iterrows():
             c_text = "NA" if pd.isna(row["param_c"]) else f"{row['param_c']:.6f}"
-            d_text = (
-                "NA" if pd.isna(row.get("param_d", np.nan)) else f"{row['param_d']:.6f}"
-            )
+            d_text = "NA" if pd.isna(row.get("param_d", np.nan)) else f"{row['param_d']:.6f}"
             print(
                 f"  {row['model']:<28} "
                 f"T_ref={row['t_ref_h']:.6f}h  k={row['param_k']:.6f}  c={c_text}  d={d_text}"

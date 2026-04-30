@@ -25,10 +25,7 @@ def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     phi2 = math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
-    a = (
-        math.sin(dphi / 2.0) ** 2
-        + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0) ** 2
-    )
+    a = math.sin(dphi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0) ** 2
     return 2 * R * math.asin(math.sqrt(a))
 
 
@@ -68,9 +65,7 @@ def _parse_with_gpxpy(path: str) -> List[Dict]:
                     {
                         "lat": float(p.latitude),
                         "lon": float(p.longitude),
-                        "ele_m": (
-                            float(p.elevation) if p.elevation is not None else None
-                        ),
+                        "ele_m": (float(p.elevation) if p.elevation is not None else None),
                         "time": p.time,  # datetime or None
                     }
                 )

@@ -46,9 +46,7 @@ except ModuleNotFoundError:
     from race_planner.planner import PaceCalculator
 
 
-ATHLETE_CONFIG = (
-    Path(__file__).resolve().parents[1] / "config" / "athletes" / "carlos.yaml"
-)
+ATHLETE_CONFIG = Path(__file__).resolve().parents[1] / "config" / "athletes" / "carlos.yaml"
 OUT_DIR = Path(__file__).parent / "results"
 
 GRADE_MIN = -0.50
@@ -83,23 +81,17 @@ def build_cutoff_curve(
     pace_cutoff = pace_extrap.copy()
 
     uphill_cutoff_pace = float(
-        threshold_flat_pace_sec_per_km
-        * calc.grade_correction(np.array([uphill_cutoff]))[0]
+        threshold_flat_pace_sec_per_km * calc.grade_correction(np.array([uphill_cutoff]))[0]
     )
     downhill_cutoff_pace = float(
-        threshold_flat_pace_sec_per_km
-        * calc.grade_correction(np.array([downhill_cutoff]))[0]
+        threshold_flat_pace_sec_per_km * calc.grade_correction(np.array([downhill_cutoff]))[0]
     )
 
     uphill_cutoff_vspeed = float(
-        vertical_speed_m_per_h(
-            np.array([uphill_cutoff]), np.array([uphill_cutoff_pace])
-        )[0]
+        vertical_speed_m_per_h(np.array([uphill_cutoff]), np.array([uphill_cutoff_pace]))[0]
     )
     downhill_cutoff_vspeed = float(
-        vertical_speed_m_per_h(
-            np.array([downhill_cutoff]), np.array([downhill_cutoff_pace])
-        )[0]
+        vertical_speed_m_per_h(np.array([downhill_cutoff]), np.array([downhill_cutoff_pace]))[0]
     )
 
     uphill_mask = grades > uphill_cutoff
@@ -151,28 +143,20 @@ def write_plot(
         ax.grid(which="major", axis="y", alpha=0.3)
         ax.grid(which="minor", axis="y", alpha=0.18, linestyle=":")
 
-    ax_corr.plot(
-        grade_pct, curve["correction_extrap"], label="GAP extrapolation", linewidth=2
-    )
+    ax_corr.plot(grade_pct, curve["correction_extrap"], label="GAP extrapolation", linewidth=2)
     ax_corr.plot(
         grade_pct,
         curve["correction_cutoff"],
         label="constant-vspeed cutoff",
         linewidth=2,
     )
-    ax_corr.axvline(
-        UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
-    ax_corr.axvline(
-        DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
+    ax_corr.axvline(UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
+    ax_corr.axvline(DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
     ax_corr.set_title("Adjustment Factor vs Grade")
     ax_corr.set_ylabel("factor")
     ax_corr.legend(loc="best")
 
-    ax_pace.plot(
-        grade_pct, curve["pace_extrap"] / 60.0, label="GAP extrapolation", linewidth=2
-    )
+    ax_pace.plot(grade_pct, curve["pace_extrap"] / 60.0, label="GAP extrapolation", linewidth=2)
     ax_pace.plot(
         grade_pct,
         curve["pace_cutoff"] / 60.0,
@@ -186,44 +170,24 @@ def write_plot(
         linewidth=1.2,
         label="threshold flat pace",
     )
-    ax_pace.axvline(
-        UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
-    ax_pace.axvline(
-        DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
+    ax_pace.axvline(UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
+    ax_pace.axvline(DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
     ax_pace.set_title("Pace vs Grade")
     ax_pace.set_ylabel("min/km")
 
-    ax_speed.plot(
-        grade_pct, curve["speed_extrap"], label="GAP extrapolation", linewidth=2
-    )
-    ax_speed.plot(
-        grade_pct, curve["speed_cutoff"], label="constant-vspeed cutoff", linewidth=2
-    )
-    ax_speed.axvline(
-        UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
-    ax_speed.axvline(
-        DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
+    ax_speed.plot(grade_pct, curve["speed_extrap"], label="GAP extrapolation", linewidth=2)
+    ax_speed.plot(grade_pct, curve["speed_cutoff"], label="constant-vspeed cutoff", linewidth=2)
+    ax_speed.axvline(UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
+    ax_speed.axvline(DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
     ax_speed.set_title("Horizontal Speed vs Grade")
     ax_speed.set_xlabel("grade (%)")
     ax_speed.set_ylabel("km/h")
 
-    ax_vspeed.plot(
-        grade_pct, curve["vspeed_extrap"], label="GAP extrapolation", linewidth=2
-    )
-    ax_vspeed.plot(
-        grade_pct, curve["vspeed_cutoff"], label="constant-vspeed cutoff", linewidth=2
-    )
+    ax_vspeed.plot(grade_pct, curve["vspeed_extrap"], label="GAP extrapolation", linewidth=2)
+    ax_vspeed.plot(grade_pct, curve["vspeed_cutoff"], label="constant-vspeed cutoff", linewidth=2)
     ax_vspeed.axhline(0.0, color="grey", linestyle=":", linewidth=1.0)
-    ax_vspeed.axvline(
-        UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
-    ax_vspeed.axvline(
-        DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1
-    )
+    ax_vspeed.axvline(UPHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
+    ax_vspeed.axvline(DOWNHILL_GRADE_CUTOFF * 100.0, color="black", linestyle="--", linewidth=1)
     ax_vspeed.set_title("Vertical Speed vs Grade")
     ax_vspeed.set_xlabel("grade (%)")
     ax_vspeed.set_ylabel("m/h")
@@ -326,18 +290,12 @@ def build_outputs_for_pace(
                 "flat_pace_per_km": seconds_per_km_to_pace(pace_sec_per_km),
                 "uphill_cutoff_pct": UPHILL_GRADE_CUTOFF * 100.0,
                 "downhill_cutoff_pct": DOWNHILL_GRADE_CUTOFF * 100.0,
-                "uphill_cutoff_pace": seconds_per_km_to_pace(
-                    float(curve["uphill_cutoff_pace"])
-                ),
+                "uphill_cutoff_pace": seconds_per_km_to_pace(float(curve["uphill_cutoff_pace"])),
                 "downhill_cutoff_pace": seconds_per_km_to_pace(
                     float(curve["downhill_cutoff_pace"])
                 ),
-                "uphill_cutoff_vertical_speed_m_per_h": float(
-                    curve["uphill_cutoff_vspeed"]
-                ),
-                "downhill_cutoff_vertical_speed_m_per_h": float(
-                    curve["downhill_cutoff_vspeed"]
-                ),
+                "uphill_cutoff_vertical_speed_m_per_h": float(curve["uphill_cutoff_vspeed"]),
+                "downhill_cutoff_vertical_speed_m_per_h": float(curve["downhill_cutoff_vspeed"]),
             }
         ]
     )
@@ -362,9 +320,7 @@ def main() -> None:
         )
 
     threshold_flat_pace_sec_per_km = pace_to_seconds_per_km(str(threshold_pace_str))
-    aerobic_threshold_flat_pace_sec_per_km = pace_to_seconds_per_km(
-        str(aerobic_threshold_pace_str)
-    )
+    aerobic_threshold_flat_pace_sec_per_km = pace_to_seconds_per_km(str(aerobic_threshold_pace_str))
     calc = PaceCalculator.from_athlete_config(athlete_config)
 
     (
@@ -425,9 +381,7 @@ def main() -> None:
 
     print("Vertical-speed cutoff GAP analysis")
     print(f"Athlete: {athlete.get('name', 'unknown')}")
-    print(
-        f"Threshold flat pace (LT2): {seconds_per_km_to_pace(threshold_flat_pace_sec_per_km)}"
-    )
+    print(f"Threshold flat pace (LT2): {seconds_per_km_to_pace(threshold_flat_pace_sec_per_km)}")
     print(
         f"Aerobic threshold flat pace (LT1): "
         f"{seconds_per_km_to_pace(aerobic_threshold_flat_pace_sec_per_km)}"

@@ -51,8 +51,7 @@ def _build_itra_predictor(race_config: dict) -> ItraScorePredictor | None:
     ref_points = race_config.get('race', {}).get('itra_reference_points', [])
     if not ref_points:
         logger.warning(
-            "No 'itra_reference_points' in race config — "
-            "ITRA score prediction unavailable."
+            "No 'itra_reference_points' in race config — " "ITRA score prediction unavailable."
         )
         return None
     ref = ref_points[0]
@@ -105,9 +104,7 @@ def _append_pacing_sheet(
         'Elapsed Time': 14,
     }
     for col_idx, col_name in enumerate(cols, start=1):
-        ws.column_dimensions[get_column_letter(col_idx)].width = col_widths.get(
-            col_name, 16
-        )
+        ws.column_dimensions[get_column_letter(col_idx)].width = col_widths.get(col_name, 16)
 
     # Summary block below the data table
     attrs = pacing_df.attrs
@@ -246,9 +243,7 @@ def main():
     if args.mode == 'athlete_pb':
         calc = PaceCalculator.from_athlete_config(athlete_config)
         ref = athlete_info.get('reference_performance', {})
-        logger.info(
-            f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}"
-        )
+        logger.info(f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}")
 
     elif args.mode == 'target_time':
         target_total_s = float(time_to_seconds(args.target_time))
@@ -270,8 +265,7 @@ def main():
     elif args.mode == 'target_itra':
         if itra_predictor is None:
             logger.error(
-                "Cannot use --mode target_itra: "
-                "no 'itra_reference_points' in race config."
+                "Cannot use --mode target_itra: " "no 'itra_reference_points' in race config."
             )
             sys.exit(1)
         predicted_hours = itra_predictor.predict_time(args.target_itra_score)
@@ -348,21 +342,16 @@ def main():
     logger.info(f"  Athlete:       {athlete_display_name}")
     approx_running_s = pacing_df.attrs.get('riegel_running_time_approx_s')
     if approx_running_s is not None:
-        logger.info(
-            f"  Riegel approx running time: {seconds_to_hms(float(approx_running_s))}"
-        )
+        logger.info(f"  Riegel approx running time: {seconds_to_hms(float(approx_running_s))}")
         logger.info(
             f"  Grade-adjusted running time: "
             f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
         )
     else:
         logger.info(
-            f"  Running time:  "
-            f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
+            f"  Running time:  " f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
         )
-    logger.info(
-        f"  Stop time:     " f"{seconds_to_hms(pacing_df.attrs['total_stop_time_s'])}"
-    )
+    logger.info(f"  Stop time:     " f"{seconds_to_hms(pacing_df.attrs['total_stop_time_s'])}")
     logger.info(f"  Finish time:   {seconds_to_hms(total_time_s)}")
     if itra_score_result is not None:
         logger.info(f"  ITRA score:    {itra_score_result}")

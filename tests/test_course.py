@@ -51,9 +51,7 @@ class TestCourse:
         assert "lon" in point.index
         assert "ele_m" in point.index
         # Check that we got a point close to the target
-        assert (
-            abs(point["cum_dist_m"] - target_distance) < course.total_distance_m * 0.1
-        )
+        assert abs(point["cum_dist_m"] - target_distance) < course.total_distance_m * 0.1
 
     def test_get_segment(self, sample_gpx_path):
         """Test extracting a segment of the course."""

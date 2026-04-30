@@ -44,9 +44,7 @@ def test_analyze_race_with_carlos_athlete(
     assert (tmp_path / "carlos_output_elevation_profile.html").exists()
 
 
-def test_analyze_race_defaults_to_yet_another_sato(
-    tmp_path, sample_gpx_path, race_config_path
-):
+def test_analyze_race_defaults_to_yet_another_sato(tmp_path, sample_gpx_path, race_config_path):
     """Test race analysis defaults to Yet Another Sato when no athlete config provided."""
     output_path = tmp_path / "default_output.xlsx"
 
@@ -152,9 +150,7 @@ def test_calculate_segment_stats_accumulation(sample_gpx_path):
     assert all(accum_gain[i] <= accum_gain[i + 1] for i in range(len(accum_gain) - 1))
 
     # Verify segment distances sum approximately to total distance
-    segment_distances = stats_df['Segment Distance (km)'].values[
-        1:
-    ]  # Skip first (start)
+    segment_distances = stats_df['Segment Distance (km)'].values[1:]  # Skip first (start)
     total_segment_distance = segment_distances.sum()
     total_course_distance = stats_df['Total Distance (km)'].iloc[-1]
     assert abs(total_segment_distance - total_course_distance) < 0.1
@@ -216,9 +212,7 @@ def test_custom_elevation_tolerance(sample_gpx_path):
     course = Course(sample_gpx_path, resample_m=10)
 
     custom_tolerance = 100.0
-    analyzer = SegmentAnalyzer(
-        course, race_config_path, elevation_tolerance_m=custom_tolerance
-    )
+    analyzer = SegmentAnalyzer(course, race_config_path, elevation_tolerance_m=custom_tolerance)
 
     assert analyzer.elevation_tolerance_m == custom_tolerance
 

@@ -28,15 +28,11 @@ def test_athlete_config_structure():
 
         # Check reference_performance structure
         ref = athlete_info['reference_performance']
-        assert (
-            'distance_km' in ref
-        ), f"reference_performance.distance_km missing in {config_path}"
+        assert 'distance_km' in ref, f"reference_performance.distance_km missing in {config_path}"
         assert 'time' in ref, f"reference_performance.time missing in {config_path}"
 
         # Check gap_curve structure
-        assert (
-            'points' in athlete_info['gap_curve']
-        ), f"gap_curve.points missing in {config_path}"
+        assert 'points' in athlete_info['gap_curve'], f"gap_curve.points missing in {config_path}"
 
 
 def test_race_config_structure():
@@ -57,21 +53,13 @@ def test_race_config_structure():
         # Check race info
         race_info = config['race']
         assert 'name' in race_info, f"'name' missing in race info for {config_path}"
-        assert (
-            'gpx_file' in race_info
-        ), f"'gpx_file' missing in race info for {config_path}"
-        assert (
-            'output_file' in race_info
-        ), f"'output_file' missing in race info for {config_path}"
+        assert 'gpx_file' in race_info, f"'gpx_file' missing in race info for {config_path}"
+        assert 'output_file' in race_info, f"'output_file' missing in race info for {config_path}"
 
         # Check aid stations (empty list is valid — treated as start-to-finish)
         aid_stations = config['aid_stations']
-        assert isinstance(
-            aid_stations, list
-        ), f"'aid_stations' must be a list in {config_path}"
+        assert isinstance(aid_stations, list), f"'aid_stations' must be a list in {config_path}"
 
         for station in aid_stations:
             assert 'name' in station, f"Aid station missing 'name' in {config_path}"
-            assert (
-                'distance_km' in station
-            ), f"Aid station missing 'distance_km' in {config_path}"
+            assert 'distance_km' in station, f"Aid station missing 'distance_km' in {config_path}"

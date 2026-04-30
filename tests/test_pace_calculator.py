@@ -79,9 +79,8 @@ def test_riegel_uses_piecewise_sqrt_exponent(carlos_calc):
     """Above the reference distance, the piecewise sqrt exponent should be used."""
     t_pred = carlos_calc.predict_riegel_flat_race_time_sec(100.0)
     ultra_excess = 100.0 - carlos_calc.ref_dist_km
-    exponent = (
-        carlos_calc.RIEGEL_BASE_EXPONENT
-        + carlos_calc.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(ultra_excess)
+    exponent = carlos_calc.RIEGEL_BASE_EXPONENT + carlos_calc.PIECEWISE_RIEGEL_106_SQRT_C * np.sqrt(
+        ultra_excess
     )
     t_expected = carlos_calc.ref_time_s * (100.0 / carlos_calc.ref_dist_km) ** exponent
     assert t_pred == pytest.approx(t_expected)
@@ -94,9 +93,7 @@ def test_riegel_uses_piecewise_sqrt_exponent(carlos_calc):
 
 def test_fed_flat_course(carlos_calc):
     """FED of a flat course equals the course distance."""
-    assert carlos_calc.flat_equivalent_distance_km(100.0, gain_m=0) == pytest.approx(
-        100.0
-    )
+    assert carlos_calc.flat_equivalent_distance_km(100.0, gain_m=0) == pytest.approx(100.0)
 
 
 def test_fed_adds_gain(carlos_calc):
@@ -108,9 +105,7 @@ def test_fed_adds_gain(carlos_calc):
 def test_riegel_fed_greater_than_riegel(carlos_calc):
     """FED-based Riegel always predicts more time than raw-distance Riegel for mountain courses."""
     t_flat = carlos_calc.predict_riegel_flat_race_time_sec(160.0)
-    t_fed = carlos_calc.predict_riegel_fed_race_time_sec(
-        160.0, elevation_gain_m=11000.0
-    )
+    t_fed = carlos_calc.predict_riegel_fed_race_time_sec(160.0, elevation_gain_m=11000.0)
     assert t_fed > t_flat
 
 
@@ -264,9 +259,7 @@ def test_calculate_pacing_flat_distance_mode(carlos_calc, tgt_course, race_confi
     assert df.attrs['riegel_method'] == 'flat-distance'
 
 
-def test_calculate_pacing_fed_matches_fed_riegel_target(
-    carlos_calc, tgt_course, race_config
-):
+def test_calculate_pacing_fed_matches_fed_riegel_target(carlos_calc, tgt_course, race_config):
     """FED mode should expose both approximation and integrated running totals."""
     aid_stations = race_config['aid_stations']
     df_fed = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=True)

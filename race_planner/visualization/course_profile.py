@@ -101,7 +101,9 @@ class CourseProfilePlotter:
             if notes:
                 click_text += f"<b>Notes:</b> {notes}<br>"
             if gmaps_link:
-                click_text += f"<b>Google Maps:</b> <a href='{gmaps_link}' target='_blank'>Open</a><br>"
+                click_text += (
+                    f"<b>Google Maps:</b> <a href='{gmaps_link}' target='_blank'>Open</a><br>"
+                )
 
             # Add marker for aid station
             fig.add_trace(
@@ -175,9 +177,7 @@ class CourseProfilePlotter:
                     ticklen=4,
                 ),
                 zeroline=False,
-                tickfont=dict(
-                    size=11, family='Inter, system-ui, sans-serif', color='#374151'
-                ),
+                tickfont=dict(size=11, family='Inter, system-ui, sans-serif', color='#374151'),
                 minor_ticks="inside",
                 showspikes=True,
                 spikemode='across',
@@ -207,9 +207,7 @@ class CourseProfilePlotter:
                     ticklen=4,
                 ),
                 zeroline=False,
-                tickfont=dict(
-                    size=11, family='Inter, system-ui, sans-serif', color='#374151'
-                ),
+                tickfont=dict(size=11, family='Inter, system-ui, sans-serif', color='#374151'),
                 minor_ticks="inside",
             ),
             hovermode='closest',  # Show hover without unified x-label

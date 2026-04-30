@@ -93,9 +93,7 @@ class ItraScorePredictor:
 
         # Find closest score for this ratio
         scores = sorted(SCORE_TIME_RATIOS.keys())
-        closest_score = min(
-            scores, key=lambda s: abs(SCORE_TIME_RATIOS[s] - target_ratio)
-        )
+        closest_score = min(scores, key=lambda s: abs(SCORE_TIME_RATIOS[s] - target_ratio))
         return closest_score
 
     def _get_ratio(self, score: int) -> float:
@@ -119,8 +117,7 @@ class ItraScorePredictor:
 
         if score < min_score or score > max_score:
             raise ValueError(
-                f"Score {score} is outside the valid range "
-                f"({min_score}-{max_score})"
+                f"Score {score} is outside the valid range " f"({min_score}-{max_score})"
             )
 
         # Find bracketing scores

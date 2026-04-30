@@ -115,9 +115,7 @@ class TestItraScorePredictorComprehensive:
 
                 # Calculate error percentage
                 error_percent = (
-                    abs(predicted_time_hours - actual_time_hours)
-                    / actual_time_hours
-                    * 100
+                    abs(predicted_time_hours - actual_time_hours) / actual_time_hours * 100
                 )
                 errors.append(error_percent)
 
@@ -258,9 +256,7 @@ class TestItraScorePredictorComprehensive:
         binned_errors = []
         bin_labels = []
         for i in range(len(score_bins) - 1):
-            mask = (target_scores >= score_bins[i]) & (
-                target_scores < score_bins[i + 1]
-            )
+            mask = (target_scores >= score_bins[i]) & (target_scores < score_bins[i + 1])
             if mask.sum() > 0:
                 binned_errors.append(errors[mask])
                 bin_labels.append(f'{score_bins[i]}-{score_bins[i+1]}')
@@ -278,9 +274,7 @@ class TestItraScorePredictorComprehensive:
         unique_target_scores = sorted(set(target_scores))
 
         # Create heatmap matrix
-        heatmap_data = np.full(
-            (len(unique_ref_scores), len(unique_target_scores)), np.nan
-        )
+        heatmap_data = np.full((len(unique_ref_scores), len(unique_target_scores)), np.nan)
         for i, ref_score in enumerate(unique_ref_scores):
             for j, target_score in enumerate(unique_target_scores):
                 mask = (ref_scores == ref_score) & (target_scores == target_score)
@@ -289,27 +283,19 @@ class TestItraScorePredictorComprehensive:
 
         im = ax4.imshow(heatmap_data, aspect='auto', cmap='RdYlGn_r', vmin=0, vmax=10)
         ax4.set_xticks(
-            np.arange(
-                0, len(unique_target_scores), max(1, len(unique_target_scores) // 5)
-            )
+            np.arange(0, len(unique_target_scores), max(1, len(unique_target_scores) // 5))
         )
         ax4.set_xticklabels(
             [
                 unique_target_scores[i]
-                for i in range(
-                    0, len(unique_target_scores), max(1, len(unique_target_scores) // 5)
-                )
+                for i in range(0, len(unique_target_scores), max(1, len(unique_target_scores) // 5))
             ]
         )
-        ax4.set_yticks(
-            np.arange(0, len(unique_ref_scores), max(1, len(unique_ref_scores) // 5))
-        )
+        ax4.set_yticks(np.arange(0, len(unique_ref_scores), max(1, len(unique_ref_scores) // 5)))
         ax4.set_yticklabels(
             [
                 unique_ref_scores[i]
-                for i in range(
-                    0, len(unique_ref_scores), max(1, len(unique_ref_scores) // 5)
-                )
+                for i in range(0, len(unique_ref_scores), max(1, len(unique_ref_scores) // 5))
             ]
         )
         ax4.set_xlabel('Target Score', fontsize=11)
@@ -389,9 +375,7 @@ class TestItraScorePredictorComprehensive:
         binned_errors = []
         bin_labels = []
         for i in range(len(score_bins) - 1):
-            mask = (target_scores >= score_bins[i]) & (
-                target_scores < score_bins[i + 1]
-            )
+            mask = (target_scores >= score_bins[i]) & (target_scores < score_bins[i + 1])
             if mask.sum() > 0:
                 binned_errors.append(errors[mask])
                 bin_labels.append(f'{score_bins[i]}-{score_bins[i+1]}')
@@ -578,8 +562,7 @@ class TestItraScorePredictorEdgeCases:
         # Should be very similar (within 5%)
         error_percent = abs(time_from_first - time_from_last) / time_from_first * 100
         assert error_percent < 5.0, (
-            f"Predictions from different references too different: "
-            f"{error_percent:.2f}% error"
+            f"Predictions from different references too different: " f"{error_percent:.2f}% error"
         )
 
 
