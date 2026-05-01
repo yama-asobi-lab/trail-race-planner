@@ -1,12 +1,17 @@
 import pathlib
+import sys
 import pytest
 import yaml
 
 
 TESTS_DIR = pathlib.Path(__file__).parent
+PROJECT_ROOT = TESTS_DIR.parent
 FIXTURES_DIR = TESTS_DIR / "fixtures"
 ATHLETES_FIXTURES_DIR = FIXTURES_DIR / "athletes"
 RACES_FIXTURES_DIR = FIXTURES_DIR / "races"
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 
 @pytest.fixture
