@@ -1,0 +1,16 @@
+race:
+  name: "Iizuna Trail Running Race"
+  distance_km: 20  # placeholder, update after loading GPX
+  elevation_gain_m: 1000  # placeholder
+  
+  # File paths (relative to project root)
+  gpx_file: "config/gpx_repo/iizuna_20km_strava.gpx"
+  output_file: "results/iizuna_20km_2026_segment_analysis.xlsx"
+  
+  # Analysis settings
+  resample_m: 5  # Resample course to 5 m intervals
+  elevation_tolerance_m: 50  # Tolerance for elevation validation
+
+
+# No aid station splits defined yet — the whole course is treated as one segment.
+aid_stations: []
