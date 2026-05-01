@@ -5,9 +5,6 @@ Predicts race times for different ITRA scores based on a single reference datapo
 Uses pre-calculated ratios derived from empirical race data.
 """
 
-from typing import Tuple
-import numpy as np
-
 from race_planner.models.itra_score_ratios import SCORE_TIME_RATIOS
 from race_planner.models.tools import hours_to_hms, hms_to_hours
 
@@ -116,9 +113,7 @@ class ItraScorePredictor:
         max_score = max(scores)
 
         if score < min_score or score > max_score:
-            raise ValueError(
-                f"Score {score} is outside the valid range " f"({min_score}-{max_score})"
-            )
+            raise ValueError(f"Score {score} is outside the valid range ({min_score}-{max_score})")
 
         # Find bracketing scores
         lower_score = max(s for s in scores if s <= score)

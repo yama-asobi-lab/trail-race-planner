@@ -2,4 +2,4 @@
 
 from race_planner.models.pacing_model import PacingModel
 
-__all__ = ['PacingModel']
+__all__ = ["PacingModel"]

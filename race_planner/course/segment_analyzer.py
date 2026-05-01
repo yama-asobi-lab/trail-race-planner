@@ -7,7 +7,7 @@ and exports statistics to Excel.
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 import warnings
 
 from loguru import logger
@@ -49,26 +49,26 @@ class SegmentAnalyzer:
 
         # Load race configuration
         race_config_path = Path(race_config_path)
-        with open(race_config_path, 'r', encoding='utf-8') as f:
+        with open(race_config_path, "r", encoding="utf-8") as f:
             self.race_config = yaml.safe_load(f)
 
-        self.aid_stations = self.race_config.get('aid_stations', [])
+        self.aid_stations = self.race_config.get("aid_stations", [])
 
         # Load default athlete config if not provided
         if athlete_config is None:
-            default_athlete_path = Path('config/athletes/yet_another_sato.yaml')
+            default_athlete_path = Path("config/athletes/yet_another_sato.yaml")
             logger.info(f"No athlete config provided, using default: {default_athlete_path}")
-            with open(default_athlete_path, 'r', encoding='utf-8') as f:
+            with open(default_athlete_path, "r", encoding="utf-8") as f:
                 self.athlete_config = yaml.safe_load(f)
         else:
             self.athlete_config = athlete_config
 
         # Log athlete info
-        athlete_info = self.athlete_config.get('athlete', {})
-        athlete_name = athlete_info.get('name', 'Unknown')
-        ref_perf = athlete_info.get('reference_performance', {})
-        ref_time = ref_perf.get('time', 'N/A')
-        ref_dist = ref_perf.get('distance_km', 'N/A')
+        athlete_info = self.athlete_config.get("athlete", {})
+        athlete_name = athlete_info.get("name", "Unknown")
+        ref_perf = athlete_info.get("reference_performance", {})
+        ref_time = ref_perf.get("time", "N/A")
+        ref_dist = ref_perf.get("distance_km", "N/A")
         logger.info(
             f"Using athlete profile: {athlete_name} " f"(Reference: {ref_dist} km in {ref_time})"
         )
@@ -88,7 +88,7 @@ class SegmentAnalyzer:
             return
 
         last_aid_station = self.aid_stations[-1]
-        last_aid_distance_km = last_aid_station.get('distance_km', 0)
+        last_aid_distance_km = last_aid_station.get("distance_km", 0)
         last_aid_distance_m = last_aid_distance_km * 1000
 
         actual_distance_m = self.course.total_distance_m
@@ -118,9 +118,9 @@ class SegmentAnalyzer:
         mismatch_count = 0
 
         for aid in self.aid_stations:
-            name = aid.get('name', 'Unknown')
-            config_distance_km = aid.get('distance_km', 0)
-            config_elevation_m = aid.get('elevation_m')
+            name = aid.get("name", "Unknown")
+            config_distance_km = aid.get("distance_km", 0)
+            config_elevation_m = aid.get("elevation_m")
 
             if config_elevation_m is None:
                 continue
@@ -166,13 +166,13 @@ class SegmentAnalyzer:
         segments = []
 
         stations = self.aid_stations or [
-            {'name': 'Start', 'distance_km': 0.0},
-            {'name': 'Finish', 'distance_km': self.course.total_distance_km},
+            {"name": "Start", "distance_km": 0.0},
+            {"name": "Finish", "distance_km": self.course.total_distance_km},
         ]
 
         for station_index, aid_station in enumerate(stations):
-            station_name = aid_station.get('name', 'Unknown')
-            station_jap_name = aid_station.get('jap_name', '')
+            station_name = aid_station.get("name", "Unknown")
+            station_jap_name = aid_station.get("jap_name", "")
 
             # Format name with Japanese
             if station_jap_name:
@@ -180,13 +180,13 @@ class SegmentAnalyzer:
             else:
                 full_name = station_name
 
-            station_distance_km = aid_station.get('distance_km', 0)
+            station_distance_km = aid_station.get("distance_km", 0)
             station_distance_m = station_distance_km * 1000
 
             # Get point data from course
             station_point = self.course.get_point_at_distance(station_distance_m)
-            elevation_m = float(station_point['ele_m'])
-            cum_ele_gain_m = float(station_point['cum_ele_gain_m'])
+            elevation_m = float(station_point["ele_m"])
+            cum_ele_gain_m = float(station_point["cum_ele_gain_m"])
 
             # Calculate segment stats
             if station_index == 0:
@@ -197,7 +197,7 @@ class SegmentAnalyzer:
                 avg_pos_gradient_pct = 0.0
             else:
                 # Calculate from previous aid station
-                prev_station_distance_km = stations[station_index - 1].get('distance_km', 0)
+                prev_station_distance_km = stations[station_index - 1].get("distance_km", 0)
                 prev_station_distance_m = prev_station_distance_km * 1000
 
                 # Get segment DataFrame
@@ -207,8 +207,8 @@ class SegmentAnalyzer:
                 )
 
                 segment_distance_km = station_distance_km - prev_station_distance_km
-                segment_ele_gain_m = segment_df['ele_gain_m'].sum()
-                segment_ele_loss_m = segment_df['ele_loss_m'].sum()
+                segment_ele_gain_m = segment_df["ele_gain_m"].sum()
+                segment_ele_loss_m = segment_df["ele_loss_m"].sum()
 
                 # Average gradient
                 if segment_distance_km > 0:
@@ -219,14 +219,14 @@ class SegmentAnalyzer:
 
             segments.append(
                 {
-                    'Point Name': full_name,
-                    'Total Distance (km)': station_distance_km,
-                    'Elevation (m)': elevation_m,
-                    'Accum. Elevation Gain (m)': cum_ele_gain_m,
-                    'Segment Distance (km)': segment_distance_km,
-                    'Segment Elevation Gain (m)': segment_ele_gain_m,
-                    'Segment Elevation Loss (m)': segment_ele_loss_m,
-                    'Average Gradient (%)': avg_pos_gradient_pct,
+                    "Point Name": full_name,
+                    "Total Distance (km)": station_distance_km,
+                    "Elevation (m)": elevation_m,
+                    "Accum. Elevation Gain (m)": cum_ele_gain_m,
+                    "Segment Distance (km)": segment_distance_km,
+                    "Segment Elevation Gain (m)": segment_ele_gain_m,
+                    "Segment Elevation Loss (m)": segment_ele_loss_m,
+                    "Average Gradient (%)": avg_pos_gradient_pct,
                 }
             )
 
@@ -247,36 +247,36 @@ class SegmentAnalyzer:
         segment_stats = self.calculate_segment_stats()
 
         # Create Excel file with multiple sheets
-        with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+        with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
             # Write segment stats
-            segment_stats.to_excel(writer, sheet_name='Segment Statistics', index=False)
+            segment_stats.to_excel(writer, sheet_name="Segment Statistics", index=False)
 
             # Format the segment stats sheet
-            worksheet = writer.sheets['Segment Statistics']
+            worksheet = writer.sheets["Segment Statistics"]
 
             # Set column widths
-            worksheet.column_dimensions['A'].width = 25  # Point Name
-            worksheet.column_dimensions['B'].width = 20  # Distance from Start
-            worksheet.column_dimensions['C'].width = 15  # Elevation
-            worksheet.column_dimensions['D'].width = 20  # Accumulated Elevation Gain
-            worksheet.column_dimensions['E'].width = 20  # Segment Distance
-            worksheet.column_dimensions['F'].width = 20  # Segment Elevation Gain
-            worksheet.column_dimensions['G'].width = 20  # Segment Elevation Loss
-            worksheet.column_dimensions['H'].width = 20  # Average Gradient
+            worksheet.column_dimensions["A"].width = 25  # Point Name
+            worksheet.column_dimensions["B"].width = 20  # Distance from Start
+            worksheet.column_dimensions["C"].width = 15  # Elevation
+            worksheet.column_dimensions["D"].width = 20  # Accumulated Elevation Gain
+            worksheet.column_dimensions["E"].width = 20  # Segment Distance
+            worksheet.column_dimensions["F"].width = 20  # Segment Elevation Gain
+            worksheet.column_dimensions["G"].width = 20  # Segment Elevation Loss
+            worksheet.column_dimensions["H"].width = 20  # Average Gradient
 
         logger.success(f"Report saved to: {output_path}")
 
         # Print summary
-        total_distance_km = segment_stats['Total Distance (km)'].iloc[-1]
-        total_elevation_gain_m = segment_stats['Accum. Elevation Gain (m)'].iloc[-1]
-        logger.info(f"Race Summary:")
+        total_distance_km = segment_stats["Total Distance (km)"].iloc[-1]
+        total_elevation_gain_m = segment_stats["Accum. Elevation Gain (m)"].iloc[-1]
+        logger.info("Race Summary:")
         logger.info(f"  Total Distance: {total_distance_km:.1f} km")
         logger.info(f"  Total Elevation Gain: {total_elevation_gain_m:.0f} m")
         logger.info(f"  Number of Aid Stations: {len(self.aid_stations)}")
 
         # Generate elevation profile plot
         plot_path = output_path.parent / f"{output_path.stem}_elevation_profile.html"
-        race_name = self.race_config.get('race', {}).get('name', 'Race Course')
+        race_name = self.race_config.get("race", {}).get("name", "Race Course")
         logger.info("Generating elevation profile plot...")
         plot_course_profile(
             course=self.course,

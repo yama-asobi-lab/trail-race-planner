@@ -92,11 +92,11 @@ class PacingModel:
     @classmethod
     def from_athlete_config(cls, athlete_config: dict) -> "PacingModel":
         """Build model parameters from athlete YAML dict."""
-        athlete = athlete_config.get('athlete', {})
-        ref = athlete.get('reference_performance', {})
+        athlete = athlete_config.get("athlete", {})
+        ref = athlete.get("reference_performance", {})
 
-        ref_dist_km = ref.get('distance_km')
-        ref_time_str = ref.get('time')
+        ref_dist_km = ref.get("distance_km")
+        ref_time_str = ref.get("time")
 
         if ref_dist_km is None or ref_time_str is None:
             raise ValueError(
@@ -106,7 +106,7 @@ class PacingModel:
             )
 
         ref_time_s = float(hms_to_seconds(str(ref_time_str)))
-        custom_points = athlete.get('gap_curve', {}).get('points') or []
+        custom_points = athlete.get("gap_curve", {}).get("points") or []
         gap_curve = np.array(custom_points, dtype=float) if custom_points else None
 
         return cls(

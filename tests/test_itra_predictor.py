@@ -124,7 +124,7 @@ class TestItraScorePredictorComprehensive:
                 )
 
         # Print statistics
-        logger.info(f"\nTime prediction error statistics:")
+        logger.info("\nTime prediction error statistics:")
         logger.info(f"  Mean error: {np.mean(errors):.3f}%")
         logger.info(f"  Max error: {np.max(errors):.3f}%")
         logger.info(f"  Std dev: {np.std(errors):.3f}%")
@@ -171,7 +171,7 @@ class TestItraScorePredictorComprehensive:
                 )
 
         # Print statistics
-        logger.info(f"\nScore prediction error statistics:")
+        logger.info("\nScore prediction error statistics:")
         logger.info(f"  Mean error: {np.mean(errors):.3f}%")
         logger.info(f"  Max error: {np.max(errors):.3f}%")
         logger.info(f"  Std dev: {np.std(errors):.3f}%")
@@ -239,7 +239,7 @@ class TestItraScorePredictorBasic:
         predictor = ItraScorePredictor("7:00:00", 700)
         result = predictor.predict_time_formatted(600)
         assert isinstance(result, str)
-        assert result.count(':') == 2
+        assert result.count(":") == 2
 
     def test_predict_score_with_string_time(self, reference_race):
         """Test predict_score with time as string."""

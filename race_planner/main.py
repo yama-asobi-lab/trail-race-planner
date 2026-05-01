@@ -43,12 +43,12 @@ from race_planner.planner import PaceCalculator
 
 
 def _total_stop_time_s(aid_stations: list) -> float:
-    return sum(float(aid.get('stop_time_s', 0)) for aid in aid_stations)
+    return sum(float(aid.get("stop_time_s", 0)) for aid in aid_stations)
 
 
 def _build_itra_predictor(race_config: dict) -> ItraScorePredictor | None:
     """Return an ItraScorePredictor from the first itra_reference_points entry, or None."""
-    ref_points = race_config.get('race', {}).get('itra_reference_points', [])
+    ref_points = race_config.get("race", {}).get("itra_reference_points", [])
     if not ref_points:
         logger.warning(
             "No 'itra_reference_points' in race config — " "ITRA score prediction unavailable."
@@ -57,8 +57,8 @@ def _build_itra_predictor(race_config: dict) -> ItraScorePredictor | None:
     ref = ref_points[0]
     try:
         return ItraScorePredictor(
-            reference_time=ref['reference_time'],
-            reference_score=int(ref['reference_score']),
+            reference_time=ref["reference_time"],
+            reference_score=int(ref["reference_score"]),
         )
     except Exception as exc:
         logger.warning(f"Could not build ITRA predictor from race config: {exc}")
@@ -92,16 +92,16 @@ def _append_pacing_sheet(
 
     # Column widths
     col_widths = {
-        'Point Name': 30,
-        'Total Distance (km)': 18,
-        'Elevation (m)': 14,
-        'Accum. Elevation Gain (m)': 24,
-        'Segment Distance (km)': 20,
-        'Segment Elevation Gain (m)': 24,
-        'Segment Elevation Loss (m)': 24,
-        'Segment Running Time': 20,
-        'Stop Time': 12,
-        'Elapsed Time': 14,
+        "Point Name": 30,
+        "Total Distance (km)": 18,
+        "Elevation (m)": 14,
+        "Accum. Elevation Gain (m)": 24,
+        "Segment Distance (km)": 20,
+        "Segment Elevation Gain (m)": 24,
+        "Segment Elevation Loss (m)": 24,
+        "Segment Running Time": 20,
+        "Stop Time": 12,
+        "Elapsed Time": 14,
     }
     for col_idx, col_name in enumerate(cols, start=1):
         ws.column_dimensions[get_column_letter(col_idx)].width = col_widths.get(col_name, 16)
@@ -110,14 +110,14 @@ def _append_pacing_sheet(
     attrs = pacing_df.attrs
     summary_row = len(pacing_df) + 3
     summary = [
-        ('Planning mode', mode),
-        ('Athlete', athlete_name),
-        ('Total running time', seconds_to_hms(attrs.get('total_running_time_s', 0))),
-        ('Total stop time', seconds_to_hms(attrs.get('total_stop_time_s', 0))),
-        ('Total finish time', seconds_to_hms(attrs.get('total_time_s', 0))),
+        ("Planning mode", mode),
+        ("Athlete", athlete_name),
+        ("Total running time", seconds_to_hms(attrs.get("total_running_time_s", 0))),
+        ("Total stop time", seconds_to_hms(attrs.get("total_stop_time_s", 0))),
+        ("Total finish time", seconds_to_hms(attrs.get("total_time_s", 0))),
     ]
     if itra_score is not None:
-        summary.append(('Predicted ITRA score', itra_score))
+        summary.append(("Predicted ITRA score", itra_score))
 
     for offset, (label, value) in enumerate(summary):
         ws.cell(row=summary_row + offset, column=1, value=label)
@@ -133,37 +133,37 @@ def _append_pacing_sheet(
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Trail race planner — segment analysis and pacing plan'
+        description="Trail race planner — segment analysis and pacing plan"
     )
-    parser.add_argument('race_config', type=Path, help='Path to race YAML config')
+    parser.add_argument("race_config", type=Path, help="Path to race YAML config")
     parser.add_argument(
-        '--athlete',
-        default='yet_another_sato',
-        help='Athlete name (default: yet_another_sato)',
-    )
-    parser.add_argument(
-        '--mode',
-        choices=['athlete_pb', 'target_time', 'target_itra'],
-        default='athlete_pb',
-        help='Planning mode (default: athlete_pb)',
+        "--athlete",
+        default="yet_another_sato",
+        help="Athlete name (default: yet_another_sato)",
     )
     parser.add_argument(
-        '--target-time',
-        metavar='HH:MM:SS',
-        help='Desired total finish time — required for --mode target_time',
+        "--mode",
+        choices=["athlete_pb", "target_time", "target_itra"],
+        default="athlete_pb",
+        help="Planning mode (default: athlete_pb)",
     )
     parser.add_argument(
-        '--target-itra-score',
+        "--target-time",
+        metavar="HH:MM:SS",
+        help="Desired total finish time — required for --mode target_time",
+    )
+    parser.add_argument(
+        "--target-itra-score",
         type=int,
-        metavar='N',
-        help='Target ITRA score — required for --mode target_itra',
+        metavar="N",
+        help="Target ITRA score — required for --mode target_itra",
     )
     args = parser.parse_args()
 
-    if args.mode == 'target_time' and not args.target_time:
-        parser.error('--target-time HH:MM:SS is required when --mode target_time')
-    if args.mode == 'target_itra' and not args.target_itra_score:
-        parser.error('--target-itra-score N is required when --mode target_itra')
+    if args.mode == "target_time" and not args.target_time:
+        parser.error("--target-time HH:MM:SS is required when --mode target_time")
+    if args.mode == "target_itra" and not args.target_itra_score:
+        parser.error("--target-itra-score N is required when --mode target_itra")
 
     # ------------------------------------------------------------------
     # Load configs
@@ -174,7 +174,7 @@ def main():
         sys.exit(1)
 
     project_root = Path.cwd()
-    athlete_config_path = project_root / 'config' / 'athletes' / f'{args.athlete}.yaml'
+    athlete_config_path = project_root / "config" / "athletes" / f"{args.athlete}.yaml"
     if not athlete_config_path.exists():
         logger.error(f"Athlete configuration file not found: {athlete_config_path}")
         sys.exit(1)
@@ -183,15 +183,15 @@ def main():
     logger.info(f"Athlete config: {athlete_config_path}")
     logger.info(f"Planning mode:  {args.mode}")
 
-    with open(race_config_path, 'r', encoding='utf-8') as f:
+    with open(race_config_path, "r", encoding="utf-8") as f:
         race_config = yaml.safe_load(f)
-    with open(athlete_config_path, 'r', encoding='utf-8') as f:
+    with open(athlete_config_path, "r", encoding="utf-8") as f:
         athlete_config = yaml.safe_load(f)
 
-    race_info = race_config.get('race', {})
-    gpx_file = race_info.get('gpx_file')
-    output_file = race_info.get('output_file')
-    resample_m = race_info.get('resample_m', 5)
+    race_info = race_config.get("race", {})
+    gpx_file = race_info.get("gpx_file")
+    output_file = race_info.get("output_file")
+    resample_m = race_info.get("resample_m", 5)
 
     if not gpx_file:
         logger.error("'gpx_file' not specified in race config")
@@ -203,8 +203,8 @@ def main():
     gpx_path = project_root / gpx_file
     output_path = project_root / output_file
 
-    athlete_info = athlete_config.get('athlete', {})
-    athlete_display_name = athlete_info.get('name', args.athlete)
+    athlete_info = athlete_config.get("athlete", {})
+    athlete_display_name = athlete_info.get("name", args.athlete)
     logger.info(f"Athlete: {athlete_display_name}")
 
     # ------------------------------------------------------------------
@@ -240,15 +240,15 @@ def main():
     # ------------------------------------------------------------------
     override_running_time_s: float | None = None
 
-    if args.mode == 'athlete_pb':
+    if args.mode == "athlete_pb":
         calc = PaceCalculator.from_athlete_config(athlete_config)
-        ref = athlete_info.get('reference_performance', {})
+        ref = athlete_info.get("reference_performance", {})
         logger.info(f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}")
 
-    elif args.mode == 'target_time':
+    elif args.mode == "target_time":
         target_total_s = float(hms_to_seconds(args.target_time))
         total_stop_s = _total_stop_time_s(aid_stations)
-        override_running_time_s = target_total_time_s - total_stop_s
+        override_running_time_s = target_total_s - total_stop_s
         if override_running_time_s <= 0:
             logger.error(
                 f"Target time {args.target_time} is shorter than total stop time "
@@ -262,7 +262,7 @@ def main():
             f"stops: {seconds_to_hms(total_stop_s)})"
         )
 
-    elif args.mode == 'target_itra':
+    elif args.mode == "target_itra":
         if itra_predictor is None:
             logger.error(
                 "Cannot use --mode target_itra: " "no 'itra_reference_points' in race config."
@@ -293,7 +293,7 @@ def main():
         pacing_df = calc.calculate_pacing(
             course=course,
             aid_stations=aid_stations,
-            use_fed=(args.mode == 'athlete_pb'),
+            use_fed=(args.mode == "athlete_pb"),
             override_total_running_time_s=override_running_time_s,
         )
     except Exception as exc:
@@ -303,7 +303,7 @@ def main():
         traceback.print_exc()
         sys.exit(1)
 
-    total_time_s = pacing_df.attrs['total_time_s']
+    total_time_s = pacing_df.attrs["total_time_s"]
 
     # ------------------------------------------------------------------
     # 5. ITRA score for the computed finish time
@@ -340,7 +340,7 @@ def main():
     logger.info("RACE PLAN SUMMARY")
     logger.info(f"  Mode:          {args.mode}")
     logger.info(f"  Athlete:       {athlete_display_name}")
-    approx_running_s = pacing_df.attrs.get('riegel_running_time_approx_s')
+    approx_running_s = pacing_df.attrs.get("riegel_running_time_approx_s")
     if approx_running_s is not None:
         logger.info(f"  Riegel approx running time: {seconds_to_hms(float(approx_running_s))}")
         logger.info(
@@ -351,12 +351,12 @@ def main():
         logger.info(
             f"  Running time:  " f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
         )
-    logger.info(f"  Stop time:     " f"{seconds_to_hms(pacing_df.attrs['total_stop_time_s'])}")
+    logger.info(f"  Stop time:     {seconds_to_hms(pacing_df.attrs['total_stop_time_s'])}")
     logger.info(f"  Finish time:   {seconds_to_hms(total_time_s)}")
     if itra_score_result is not None:
         logger.info(f"  ITRA score:    {itra_score_result}")
     logger.info(sep)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

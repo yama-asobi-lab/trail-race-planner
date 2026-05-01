@@ -2,4 +2,4 @@
 
 from race_planner.planner.pace_calculator import PaceCalculator
 
-__all__ = ['PaceCalculator']
+__all__ = ["PaceCalculator"]

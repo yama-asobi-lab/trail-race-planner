@@ -5,7 +5,6 @@ Visualization module for race course profiles and analysis.
 from pathlib import Path
 from typing import List, Dict, Optional
 
-import pandas as pd
 import plotly.graph_objects as go
 from loguru import logger
 
@@ -46,7 +45,7 @@ class CourseProfilePlotter:
 
         # Calculate gradient percentage for hover (already in percent in 'grade' column)
         df_gradient = df.copy()
-        df_gradient['gradient_pct'] = df_gradient['grade']
+        df_gradient["gradient_pct"] = df_gradient["grade"]
 
         # Create figure
         fig = go.Figure()
@@ -54,39 +53,39 @@ class CourseProfilePlotter:
         # Add elevation profile trace with fill
         fig.add_trace(
             go.Scatter(
-                x=df_gradient['cum_dist_m'] / 1000,  # Convert to km
-                y=df_gradient['ele_m'],
-                mode='lines',
-                name='Elevation',
-                line=dict(color='#2563eb', width=2.5),  # Sleek blue
-                fill='tozeroy',  # Fill area under curve
-                fillcolor='rgba(37, 99, 235, 0.12)',  # Light blue with transparency
+                x=df_gradient["cum_dist_m"] / 1000,  # Convert to km
+                y=df_gradient["ele_m"],
+                mode="lines",
+                name="Elevation",
+                line=dict(color="#2563eb", width=2.5),  # Sleek blue
+                fill="tozeroy",  # Fill area under curve
+                fillcolor="rgba(37, 99, 235, 0.12)",  # Light blue with transparency
                 customdata=list(
-                    zip(df_gradient['cum_ele_gain_m'], df_gradient['gradient_pct'])
+                    zip(df_gradient["cum_ele_gain_m"], df_gradient["gradient_pct"])
                 ),  # Add cumulative gain and gradient
                 hovertemplate=(
                     '<b style="color:#92400e">Distance:</b> <span style="color:#92400e">%{x:.2f} km</span><br>'
                     '<b style="color:#92400e">Elevation:</b> <span style="color:#92400e">%{y:.0f} m</span><br>'
                     '<b style="color:#92400e">Gradient:</b> <span style="color:#92400e">%{customdata[1]:.1f}%</span><br>'
                     '<b style="color:#92400e">Accum. Elevation Gain:</b> <span style="color:#92400e">%{customdata[0]:.0f} m</span><br>'
-                    '<extra></extra>'
+                    "<extra></extra>"
                 ),
             )
         )
 
         # Add aid station markers
         for aid in self.aid_stations:
-            name = aid.get('name', 'Unknown')
-            jap_name = aid.get('jap_name', '')
-            distance_km = aid.get('distance_km', 0)
-            notes = aid.get('notes', '')
-            gmaps_link = aid.get('gmaps_link', '')
+            name = aid.get("name", "Unknown")
+            jap_name = aid.get("jap_name", "")
+            distance_km = aid.get("distance_km", 0)
+            notes = aid.get("notes", "")
+            gmaps_link = aid.get("gmaps_link", "")
 
             # Get point data from course
             distance_m = distance_km * 1000
             point = self.course.get_point_at_distance(distance_m)
-            elevation_m = float(point['ele_m'])
-            cum_gain_m = float(point['cum_ele_gain_m'])
+            elevation_m = float(point["ele_m"])
+            cum_gain_m = float(point["cum_ele_gain_m"])
 
             # Format name with Japanese
             full_name = f"{name} ({jap_name})" if jap_name else name
@@ -110,16 +109,16 @@ class CourseProfilePlotter:
                 go.Scatter(
                     x=[distance_km],
                     y=[elevation_m],
-                    mode='markers',
+                    mode="markers",
                     name=name,
                     marker=dict(
                         size=16,
-                        color='#f59e0b',  # Sleek gold/amber
-                        symbol='diamond',
-                        line=dict(width=2, color='white'),
+                        color="#f59e0b",  # Sleek gold/amber
+                        symbol="diamond",
+                        line=dict(width=2, color="white"),
                     ),
                     customdata=[[click_text]],
-                    hovertemplate='<extra></extra>',  # Make clickable but show nothing on hover
+                    hovertemplate="<extra></extra>",  # Make clickable but show nothing on hover
                     showlegend=False,
                 )
             )
@@ -131,14 +130,14 @@ class CourseProfilePlotter:
                 text=name,
                 showarrow=False,
                 yshift=15,  # Position above marker
-                bgcolor='rgba(255, 251, 235, 0.75)',  # Light gold background
-                bordercolor='#f59e0b',  # Gold border
+                bgcolor="rgba(255, 251, 235, 0.75)",  # Light gold background
+                bordercolor="#f59e0b",  # Gold border
                 borderwidth=1,
                 borderpad=4,
                 font=dict(
                     size=11,
-                    color='#78350f',  # Dark gold text
-                    family='Inter, system-ui, sans-serif',
+                    color="#78350f",  # Dark gold text
+                    family="Inter, system-ui, sans-serif",
                     weight=600,
                 ),
             )
@@ -149,81 +148,81 @@ class CourseProfilePlotter:
                 text=title,
                 font=dict(
                     size=24,
-                    color='#1e3a8a',  # Deep blue
-                    family='Inter, system-ui, sans-serif',
+                    color="#1e3a8a",  # Deep blue
+                    family="Inter, system-ui, sans-serif",
                     weight=600,
                 ),
                 x=0.5,
-                xanchor='center',
+                xanchor="center",
             ),
             xaxis=dict(
                 title=dict(
-                    text='Distance (km)',
+                    text="Distance (km)",
                     font=dict(
                         size=16,
-                        family='Inter, system-ui, sans-serif',
+                        family="Inter, system-ui, sans-serif",
                         weight=500,
-                        color='#1e40af',
+                        color="#1e40af",
                     ),
                 ),
                 showgrid=True,
                 gridwidth=1,
-                gridcolor='#dbeafe',  # Light blue grid
+                gridcolor="#dbeafe",  # Light blue grid
                 minor=dict(
                     showgrid=True,
-                    gridcolor='#bfdbfe',
+                    gridcolor="#bfdbfe",
                     gridwidth=0.5,
-                    griddash='dot',
+                    griddash="dot",
                     ticklen=4,
                 ),
                 zeroline=False,
-                tickfont=dict(size=11, family='Inter, system-ui, sans-serif', color='#374151'),
+                tickfont=dict(size=11, family="Inter, system-ui, sans-serif", color="#374151"),
                 minor_ticks="inside",
                 showspikes=True,
-                spikemode='across',
-                spikesnap='cursor',
-                spikedash='solid',
-                spikecolor='#94a3b8',
+                spikemode="across",
+                spikesnap="cursor",
+                spikedash="solid",
+                spikecolor="#94a3b8",
                 spikethickness=1,
             ),
             yaxis=dict(
                 title=dict(
-                    text='Elevation (m)',
+                    text="Elevation (m)",
                     font=dict(
                         size=16,
-                        family='Inter, system-ui, sans-serif',
+                        family="Inter, system-ui, sans-serif",
                         weight=500,
-                        color='#1e40af',
+                        color="#1e40af",
                     ),
                 ),
                 showgrid=True,
                 gridwidth=1,
-                gridcolor='#dbeafe',  # Light blue grid
+                gridcolor="#dbeafe",  # Light blue grid
                 minor=dict(
                     showgrid=True,
-                    gridcolor='#bfdbfe',
+                    gridcolor="#bfdbfe",
                     gridwidth=0.5,
-                    griddash='dot',
+                    griddash="dot",
                     ticklen=4,
                 ),
                 zeroline=False,
-                tickfont=dict(size=11, family='Inter, system-ui, sans-serif', color='#374151'),
+                tickfont=dict(size=11, family="Inter, system-ui, sans-serif", color="#374151"),
                 minor_ticks="inside",
             ),
-            hovermode='closest',  # Show hover without unified x-label
+            hovermode="closest",  # Show hover without unified x-label
             hoverlabel=dict(
-                bgcolor='#fffbeb',  # Light gold background
+                bgcolor="#fffbeb",  # Light gold background
                 font_size=14,
-                font_family='Inter, system-ui, sans-serif',
-                bordercolor='#f59e0b',  # Gold border
+                font_family="Inter, system-ui, sans-serif",
+                bordercolor="#f59e0b",  # Gold border
                 namelength=0,  # Hide trace names
             ),
-            clickmode='event',  # Enable click events without selection
-            template='plotly_white',
+            clickmode="event",  # Enable click events without selection
+            template="plotly_white",
             height=600,
             showlegend=False,
-            plot_bgcolor='#f8fafc',  # Very light blue-gray
-            paper_bgcolor='white',
+            plot_bgcolor="#f8fafc",  # Very light blue-gray
+            paper_bgcolor="white",
             margin=dict(l=80, r=40, t=80, b=60),
         )
 
@@ -252,7 +251,7 @@ class CourseProfilePlotter:
             align="left",
             xanchor="left",
             yanchor="top",
-            font=dict(size=13, family='Inter, system-ui, sans-serif', color='#1e3a8a'),
+            font=dict(size=13, family="Inter, system-ui, sans-serif", color="#1e3a8a"),
         )
 
         # Save to file if output path provided
@@ -436,10 +435,10 @@ class CourseProfilePlotter:
             """
 
             # Write HTML with custom JavaScript
-            html_str = fig.to_html(include_plotlyjs='cdn')
-            html_str = html_str.replace('</body>', click_js + '</body>')
+            html_str = fig.to_html(include_plotlyjs="cdn")
+            html_str = html_str.replace("</body>", click_js + "</body>")
 
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(html_str)
 
             logger.success(f"Elevation profile saved to: {output_path}")

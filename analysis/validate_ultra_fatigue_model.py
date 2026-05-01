@@ -658,13 +658,13 @@ def build_equation_rows(coeff_rows: list[dict], d0: float = D_MARATHON_KM) -> li
             fitted = f"T(D)={t_ref:.6f}*(D/{d0:.3f})^{k:.6f}"
             notes = "Classic reference-distance Riegel anchored at marathon (k fixed at original value 1.06)"
         elif model == "piecewise_riegel_106_linear":
-            symbolic = f"k(D)=1.06 + c*max(D-{d0:.3f},0); " f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
+            symbolic = f"k(D)=1.06 + c*max(D-{d0:.3f},0); T(D)=T_ref*(D/{d0:.3f})^k(D)"
             fitted = (
                 f"k(D)=1.06 + {c:.6f}*max(D-{d0:.3f},0); " f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
             )
             notes = "Requested piecewise coefficient update: fixed 1.06 up to marathon, linear increase after marathon"
         elif model == "piecewise_riegel_106_sqrt":
-            symbolic = f"k(D)=1.06 + c*sqrt(max(D-{d0:.3f},0)); " f"T(D)=T_ref*(D/{d0:.3f})^k(D)"
+            symbolic = f"k(D)=1.06 + c*sqrt(max(D-{d0:.3f},0)); T(D)=T_ref*(D/{d0:.3f})^k(D)"
             fitted = (
                 f"k(D)=1.06 + {c:.6f}*sqrt(max(D-{d0:.3f},0)); "
                 f"T(D)={t_ref:.6f}*(D/{d0:.3f})^k(D)"
@@ -690,21 +690,21 @@ def build_equation_rows(coeff_rows: list[dict], d0: float = D_MARATHON_KM) -> li
             )
             notes = "Piecewise log-quadratic: quadratic term active only above marathon"
         elif model == "hybrid_marathon_soft_regularized":
-            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
+            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
                 f"+{c:.6f}*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             )
             notes = "Same functional form as linear-ultra; k softly regularized to sub-marathon fit"
         elif model == "piecewise_marathon_linear_exponent":
-            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
+            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
                 f"+{c:.6f}*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             )
             notes = "k fit on up-to-marathon data; c fit on ultra data"
         else:
-            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})" f"+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
+            symbolic = f"T(D)=T_ref*exp(k*log(D/{d0:.3f})+c*log(D/{d0:.3f})*max(D-{d0:.3f},0))"
             fitted = (
                 f"T(D)={t_ref:.6f}*exp({k:.6f}*log(D/{d0:.3f})"
                 f"+{c:.6f}*log(D/{d0:.3f})*max(D-{d0:.3f},0))"

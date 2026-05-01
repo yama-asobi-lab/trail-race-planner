@@ -9,9 +9,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-import numpy as np
-import matplotlib.pyplot as plt
-from race_planner.models.tools import hms_to_seconds, hours_to_hms
+import numpy as np  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
+from race_planner.models.tools import hms_to_seconds, hours_to_hms  # noqa: E402
 
 OUT_DIR = Path(__file__).parent / "results" / "itra_scores"
 
@@ -236,7 +236,7 @@ for race, data in reference_races.items():
     ss_tot = np.sum((y - np.mean(y)) ** 2)
     r_squared = 1 - (ss_res / ss_tot)
 
-    print(f"\nComparison of curves calculated for two datapoints and all datapoints:")
+    print("\nComparison of curves calculated for two datapoints and all datapoints:")
     print(f"Reference race: {data['race_name']}")
     print(f"    R² (two datapoints) = {r_squared_single:.4f}")
     print(f"    R² (all datapoints) = {r_squared:.4f}")
@@ -252,8 +252,8 @@ for race, data in reference_races.items():
         data["scores"],
         alpha=0.6,
         s=50,
-        label='Actual data',
-        color='black',
+        label="Actual data",
+        color="black",
         zorder=3,
     )
 
@@ -265,10 +265,10 @@ for race, data in reference_races.items():
     ax.plot(
         t_range / 3600,
         score_single,
-        label=f'(a) Two datapoints: A={A_single:.1f}, B={B_single:.1f} (R²={r_squared_single:.4f})',
+        label=f"(a) Two datapoints: A={A_single:.1f}, B={B_single:.1f} (R²={r_squared_single:.4f})",
         linewidth=2,
-        linestyle='--',
-        color='blue',
+        linestyle="--",
+        color="blue",
     )
 
     # Curve from method (b) - all datapoints (least squares)
@@ -276,9 +276,9 @@ for race, data in reference_races.items():
     ax.plot(
         t_range / 3600,
         score_full,
-        label=f'(b) Least squares: A={A_full:.1f}, B={B_full:.1f} (R²={r_squared:.4f})',
+        label=f"(b) Least squares: A={A_full:.1f}, B={B_full:.1f} (R²={r_squared:.4f})",
         linewidth=2,
-        color='red',
+        color="red",
     )
 
     # Calculate target score predictions for every 1 point
@@ -297,25 +297,25 @@ for race, data in reference_races.items():
     ax.scatter(
         plot_times_hours,
         list(plot_scores),
-        marker='x',
+        marker="x",
         s=100,
         linewidths=2.5,
-        label='Target scores',
-        color='green',
+        label="Target scores",
+        color="green",
         zorder=4,
     )
 
-    ax.set_xlabel('Time (hours)', fontsize=12)
-    ax.set_ylabel('ITRA Score', fontsize=12)
+    ax.set_xlabel("Time (hours)", fontsize=12)
+    ax.set_ylabel("ITRA Score", fontsize=12)
     ax.set_title(
-        f'ITRA Score vs Time for {data["race_name"]}: Fitting score(t) = A − B·ln(t)',
+        f"ITRA Score vs Time for {data['race_name']}: Fitting score(t) = A − B·ln(t)",
         fontsize=14,
-        fontweight='bold',
+        fontweight="bold",
     )
     ax.legend(fontsize=10)
-    ax.grid(True, alpha=0.3, which='major')
+    ax.grid(True, alpha=0.3, which="major")
     ax.minorticks_on()
-    ax.grid(True, alpha=0.15, which='minor', linestyle=':')
+    ax.grid(True, alpha=0.15, which="minor", linestyle=":")
 
     plt.tight_layout()
 
@@ -329,7 +329,7 @@ for race, data in reference_races.items():
     print(f"Saved plot: {race_plot_path}")
 
     # Print time predictions table for every 50 points
-    print(f"\n\nTime predictions for target ITRA scores (using least squares fit):")
+    print("\n\nTime predictions for target ITRA scores (using least squares fit):")
     print(f"{'Score':<8} {'Time (h:mm:ss)':<15} {'Ratio vs 1000':<15}")
     print("-" * 40)
 
@@ -361,19 +361,19 @@ np.savetxt(
 )
 print(f"Saved ratios table: {ratios_export_path}")
 
-with open(config_path, 'r') as f:
+with open(config_path, "r") as f:
     lines = f.readlines()
 
 # Find where to insert the ratios
-with open(config_path, 'w') as f:
+with open(config_path, "w") as f:
     for line in lines:
         f.write(line)
-        if line.strip() == 'SCORE_TIME_RATIOS = {}':
+        if line.strip() == "SCORE_TIME_RATIOS = {}":
             # Write the ratios dictionary
-            f.write('SCORE_TIME_RATIOS = {\n')
+            f.write("SCORE_TIME_RATIOS = {\n")
             for score in sorted(ratios.keys(), reverse=True):
-                f.write(f'    {score}: {ratios[score]:.10f},\n')
-            f.write('}\n')
+                f.write(f"    {score}: {ratios[score]:.10f},\n")
+            f.write("}\n")
             # Skip the docstring that follows
             break
     # Write the docstring
@@ -389,7 +389,7 @@ print("TESTING THE PREDICTOR (UTMB ratios on Oku Long data)")
 print("=" * 60)
 
 # Import the predictor
-from race_planner.models.itra_predictor import ItraScorePredictor
+from race_planner.models.itra_predictor import ItraScorePredictor  # noqa: E402
 
 # Test with a reference datapoint from the Okumusashi Long race
 test_reference_time = reference_races["oku_long"]["times"][10]
@@ -416,7 +416,6 @@ for score in target_scores:
 
 # Add predictor results to the Okumusashi Long plot
 if oku_long_fig is not None and oku_long_ax is not None:
-
     # Predict times for all scores in range
     predicted_scores = list(predictions.keys())
     predicted_times_hours = list(predictions.values())
@@ -425,10 +424,10 @@ if oku_long_fig is not None and oku_long_ax is not None:
     oku_long_ax.plot(
         predicted_times_hours,
         predicted_scores,
-        label=f'Predictor (UTMB ratios, from 1 point: {test_reference_score}@{test_reference_time})',
+        label=f"Predictor (UTMB ratios, from 1 point: {test_reference_score}@{test_reference_time})",
         linewidth=2.5,
-        linestyle=':',
-        color='purple',
+        linestyle=":",
+        color="purple",
         zorder=5,
     )
 
@@ -436,20 +435,20 @@ if oku_long_fig is not None and oku_long_ax is not None:
     oku_long_ax.scatter(
         [test_reference_time_hours],
         [test_reference_score],
-        marker='*',
+        marker="*",
         s=500,
-        color='purple',
-        edgecolors='black',
+        color="purple",
+        edgecolors="black",
         linewidths=2,
-        label='Predictor reference point',
+        label="Predictor reference point",
         zorder=6,
     )
 
-    oku_long_ax.legend(fontsize=10, loc='best')
+    oku_long_ax.legend(fontsize=10, loc="best")
     oku_long_fig.tight_layout()
 
     predictor_plot_path = OUT_DIR / "itra_score_curve_oku_long_with_predictor.png"
     oku_long_fig.savefig(predictor_plot_path, dpi=170)
     print(f"Saved plot: {predictor_plot_path}")
 
-plt.close('all')
+plt.close("all")

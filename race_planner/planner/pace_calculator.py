@@ -163,7 +163,7 @@ class PaceCalculator:
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_athlete_config(cls, athlete_config: Dict) -> 'PaceCalculator':
+    def from_athlete_config(cls, athlete_config: Dict) -> "PaceCalculator":
         """
         Build a PaceCalculator from an athlete YAML config dict.
 
@@ -355,15 +355,15 @@ class PaceCalculator:
         full_df = course.df
 
         # Convert grade (%) → decimal for the GAP curve
-        grade_decimal_values = full_df['grade'].values / 100.0
+        grade_decimal_values = full_df["grade"].values / 100.0
         grade_correction_factors = self.grade_correction(grade_decimal_values)
-        point_distance_km_values = full_df['dist_m'].values / 1000.0
+        point_distance_km_values = full_df["dist_m"].values / 1000.0
 
         riegel_running_time_approx_s: float | None = None
 
         if override_total_running_time_s is not None:
             total_running_time_s = float(override_total_running_time_s)
-            riegel_method = 'target-override'
+            riegel_method = "target-override"
             grade_weighted_distance_km = point_distance_km_values * grade_correction_factors
             total_grade_weighted_distance_km = grade_weighted_distance_km.sum()
             seconds_per_weighted_km = (
@@ -386,14 +386,14 @@ class PaceCalculator:
                 course.total_elevation_gain_m,
             )
             if fed_distance_km <= 0:
-                raise ValueError('Computed FED distance must be positive')
+                raise ValueError("Computed FED distance must be positive")
             flat_equiv_avg_pace_s_per_km = riegel_running_time_approx_s / fed_distance_km
 
             # 3) Apply inverse-GAP pace adjustments point-by-point and integrate.
             point_times_s = (
                 point_distance_km_values * flat_equiv_avg_pace_s_per_km * grade_correction_factors
             )
-            riegel_method = 'FED'
+            riegel_method = "FED"
         else:
             # Flat pace from raw-distance Riegel.
             flat_time_s = self.predict_riegel_race_time_sec(
@@ -402,15 +402,15 @@ class PaceCalculator:
             )
             flat_pace_s_per_km = flat_time_s / course.total_distance_km
             point_times_s = point_distance_km_values * flat_pace_s_per_km * grade_correction_factors
-            riegel_method = 'flat-distance'
+            riegel_method = "flat-distance"
 
-        cumulative_distance_m_values = full_df['cum_dist_m'].values
+        cumulative_distance_m_values = full_df["cum_dist_m"].values
 
         # When no aid stations are configured treat the whole course as one segment.
         if not aid_stations:
             aid_stations = [
-                {'name': 'Start', 'distance_km': 0.0},
-                {'name': 'Finish', 'distance_km': course.total_distance_km},
+                {"name": "Start", "distance_km": 0.0},
+                {"name": "Finish", "distance_km": course.total_distance_km},
             ]
 
         rows = []
@@ -418,17 +418,17 @@ class PaceCalculator:
         total_stop_s = 0.0
 
         for i, aid in enumerate(aid_stations):
-            name = aid.get('name', 'Unknown')
-            jap_name = aid.get('jap_name', '')
+            name = aid.get("name", "Unknown")
+            jap_name = aid.get("jap_name", "")
             full_name = f"{name} ({jap_name})" if jap_name else name
 
-            aid_distance_km = float(aid.get('distance_km', 0.0))
+            aid_distance_km = float(aid.get("distance_km", 0.0))
             aid_distance_m = aid_distance_km * 1000.0
-            stop_time_s = float(aid.get('stop_time_s', 0))
+            stop_time_s = float(aid.get("stop_time_s", 0))
 
             aid_point = course.get_point_at_distance(aid_distance_m)
-            elevation_m = float(aid_point['ele_m'])
-            cum_ele_gain_m = float(aid_point['cum_ele_gain_m'])
+            elevation_m = float(aid_point["ele_m"])
+            cum_ele_gain_m = float(aid_point["cum_ele_gain_m"])
 
             if i == 0:
                 running_time_s = 0.0
@@ -436,14 +436,14 @@ class PaceCalculator:
                 seg_gain_m = 0.0
                 seg_loss_m = 0.0
             else:
-                prev_aid_distance_m = float(aid_stations[i - 1].get('distance_km', 0.0)) * 1000.0
+                prev_aid_distance_m = float(aid_stations[i - 1].get("distance_km", 0.0)) * 1000.0
                 segment_point_mask = (cumulative_distance_m_values >= prev_aid_distance_m) & (
                     cumulative_distance_m_values <= aid_distance_m
                 )
 
-                seg_dist_km = aid_distance_km - float(aid_stations[i - 1].get('distance_km', 0.0))
-                seg_gain_m = float(full_df['ele_gain_m'].values[segment_point_mask].sum())
-                seg_loss_m = float(full_df['ele_loss_m'].values[segment_point_mask].sum())
+                seg_dist_km = aid_distance_km - float(aid_stations[i - 1].get("distance_km", 0.0))
+                seg_gain_m = float(full_df["ele_gain_m"].values[segment_point_mask].sum())
+                seg_loss_m = float(full_df["ele_loss_m"].values[segment_point_mask].sum())
                 running_time_s = float(point_times_s[segment_point_mask].sum())
 
             cumulative_elapsed_time_s += running_time_s + stop_time_s
@@ -451,27 +451,27 @@ class PaceCalculator:
 
             rows.append(
                 {
-                    'Point Name': full_name,
-                    'Total Distance (km)': aid_distance_km,
-                    'Elevation (m)': round(elevation_m, 1),
-                    'Accum. Elevation Gain (m)': round(cum_ele_gain_m, 0),
-                    'Segment Distance (km)': round(seg_dist_km, 2),
-                    'Segment Elevation Gain (m)': round(seg_gain_m, 0),
-                    'Segment Elevation Loss (m)': round(seg_loss_m, 0),
-                    'Segment Running Time': seconds_to_hms(running_time_s),
-                    'Stop Time': seconds_to_hms(stop_time_s),
-                    'Elapsed Time': seconds_to_hms(cumulative_elapsed_time_s),
+                    "Point Name": full_name,
+                    "Total Distance (km)": aid_distance_km,
+                    "Elevation (m)": round(elevation_m, 1),
+                    "Accum. Elevation Gain (m)": round(cum_ele_gain_m, 0),
+                    "Segment Distance (km)": round(seg_dist_km, 2),
+                    "Segment Elevation Gain (m)": round(seg_gain_m, 0),
+                    "Segment Elevation Loss (m)": round(seg_loss_m, 0),
+                    "Segment Running Time": seconds_to_hms(running_time_s),
+                    "Stop Time": seconds_to_hms(stop_time_s),
+                    "Elapsed Time": seconds_to_hms(cumulative_elapsed_time_s),
                 }
             )
 
         df = pd.DataFrame(rows)
 
         total_running_s = cumulative_elapsed_time_s - total_stop_s
-        df.attrs['total_running_time_s'] = total_running_s
-        df.attrs['total_stop_time_s'] = total_stop_s
-        df.attrs['total_time_s'] = cumulative_elapsed_time_s
-        df.attrs['riegel_method'] = riegel_method
-        df.attrs['riegel_running_time_approx_s'] = riegel_running_time_approx_s
-        df.attrs['grade_adjusted_running_time_s'] = total_running_s
+        df.attrs["total_running_time_s"] = total_running_s
+        df.attrs["total_stop_time_s"] = total_stop_s
+        df.attrs["total_time_s"] = cumulative_elapsed_time_s
+        df.attrs["riegel_method"] = riegel_method
+        df.attrs["riegel_running_time_approx_s"] = riegel_running_time_approx_s
+        df.attrs["grade_adjusted_running_time_s"] = total_running_s
 
         return df

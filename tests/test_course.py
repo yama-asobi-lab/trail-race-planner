@@ -1,6 +1,5 @@
 """Tests for Course class."""
 
-import pytest
 from race_planner.course.course import Course
 
 

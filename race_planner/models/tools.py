@@ -25,14 +25,14 @@ def race_offset_to_clock_hhmm(start_h: float, race_offset_h: float) -> str:
 
 def hms_to_seconds(time_str: str) -> int:
     """Convert HH:MM:SS to total seconds."""
-    h, m, s = map(int, time_str.split(':'))
+    h, m, s = map(int, time_str.split(":"))
     return h * 3600 + m * 60 + s
 
 
 def pace_to_seconds_per_km(pace_str: str) -> float:
     """Convert a pace string like MM:SS/km or HH:MM:SS/km to sec/km."""
-    text = pace_str.strip().lower().replace('/km', '')
-    parts = text.split(':')
+    text = pace_str.strip().lower().replace("/km", "")
+    parts = text.split(":")
     if len(parts) == 2:
         minutes, seconds = map(int, parts)
         return float(minutes * 60 + seconds)
@@ -87,5 +87,5 @@ def hours_to_hms(hours: float) -> str:
 
 def hms_to_hours(time_str: str) -> float:
     """Convert HH:MM:SS to hours."""
-    h, m, s = map(int, time_str.split(':'))
+    h, m, s = map(int, time_str.split(":"))
     return h + m / 60 + s / 3600

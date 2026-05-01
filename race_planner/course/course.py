@@ -105,11 +105,11 @@ def _compute_point_stats(raw_points: List[Dict]) -> List[Dict]:
             else:
                 grade = 0.0
             if ele is not None and prev.get("ele_m") is not None:
-                g, l = _accumulate_elevation(prev["ele_m"], ele)
+                g, loss = _accumulate_elevation(prev["ele_m"], ele)
                 ele_gain = g
-                ele_loss = l
+                ele_loss = loss
                 cum_gain += g
-                cum_loss += l
+                cum_loss += loss
             else:
                 ele_gain = 0.0
                 ele_loss = 0.0

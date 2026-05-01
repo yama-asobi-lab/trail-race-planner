@@ -199,25 +199,25 @@ def test_grade_correction_downhill_constant_vertical_speed_tail():
 
 
 def test_calculate_pacing_returns_dataframe(carlos_calc, tgt_course, race_config):
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
     assert len(df) == len(aid_stations)
 
 
 def test_calculate_pacing_columns(carlos_calc, tgt_course, race_config):
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
     expected_cols = [
-        'Point Name',
-        'Total Distance (km)',
-        'Elevation (m)',
-        'Accum. Elevation Gain (m)',
-        'Segment Distance (km)',
-        'Segment Elevation Gain (m)',
-        'Segment Elevation Loss (m)',
-        'Segment Running Time',
-        'Stop Time',
-        'Elapsed Time',
+        "Point Name",
+        "Total Distance (km)",
+        "Elevation (m)",
+        "Accum. Elevation Gain (m)",
+        "Segment Distance (km)",
+        "Segment Elevation Gain (m)",
+        "Segment Elevation Loss (m)",
+        "Segment Running Time",
+        "Stop Time",
+        "Elapsed Time",
     ]
     for col in expected_cols:
         assert col in df.columns, f"Missing column: {col}"
@@ -225,69 +225,69 @@ def test_calculate_pacing_columns(carlos_calc, tgt_course, race_config):
 
 def test_calculate_pacing_start_row(carlos_calc, tgt_course, race_config):
     """Start row has zero segment distance and zero running time."""
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
-    assert df.iloc[0]['Segment Distance (km)'] == 0.0
-    assert df.iloc[0]['Segment Running Time'] == '0:00:00'
+    assert df.iloc[0]["Segment Distance (km)"] == 0.0
+    assert df.iloc[0]["Segment Running Time"] == "0:00:00"
 
 
 def test_calculate_pacing_elapsed_time_monotonic(carlos_calc, tgt_course, race_config):
     """Elapsed time must be strictly increasing across the course."""
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
 
     def hms_to_s(t):
-        h, m, s = map(int, t.split(':'))
+        h, m, s = map(int, t.split(":"))
         return h * 3600 + m * 60 + s
 
-    times = [hms_to_s(t) for t in df['Elapsed Time']]
+    times = [hms_to_s(t) for t in df["Elapsed Time"]]
     assert all(times[i] < times[i + 1] for i in range(len(times) - 1))
 
 
 def test_calculate_pacing_total_time_attrs(carlos_calc, tgt_course, race_config):
     """DataFrame attrs should carry total_time_s and riegel_method."""
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=True)
-    assert 'total_time_s' in df.attrs
-    assert df.attrs['riegel_method'] == 'FED'
-    assert df.attrs['total_time_s'] > 0
+    assert "total_time_s" in df.attrs
+    assert df.attrs["riegel_method"] == "FED"
+    assert df.attrs["total_time_s"] > 0
 
 
 def test_calculate_pacing_flat_distance_mode(carlos_calc, tgt_course, race_config):
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=False)
-    assert df.attrs['riegel_method'] == 'flat-distance'
+    assert df.attrs["riegel_method"] == "flat-distance"
 
 
 def test_calculate_pacing_fed_matches_fed_riegel_target(carlos_calc, tgt_course, race_config):
     """FED mode should expose both approximation and integrated running totals."""
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df_fed = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=True)
     expected_running_s = carlos_calc.predict_riegel_fed_race_time_sec(
         tgt_course.total_distance_km,
         tgt_course.total_elevation_gain_m,
     )
-    assert df_fed.attrs['riegel_running_time_approx_s'] == pytest.approx(
+    assert df_fed.attrs["riegel_running_time_approx_s"] == pytest.approx(
         expected_running_s, rel=0.01
     )
-    assert df_fed.attrs['grade_adjusted_running_time_s'] == pytest.approx(
-        df_fed.attrs['total_running_time_s'], rel=1e-9
+    assert df_fed.attrs["grade_adjusted_running_time_s"] == pytest.approx(
+        df_fed.attrs["total_running_time_s"], rel=1e-9
     )
-    assert df_fed.attrs['total_running_time_s'] > 0
+    assert df_fed.attrs["total_running_time_s"] > 0
 
 
 def test_calculate_pacing_reasonable_total_time(carlos_calc, tgt_course, race_config):
     """Carlos (3:30 marathon) on TGT 160km/11000m should finish in 20–40 h."""
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=True)
-    total_hours = df.attrs['total_time_s'] / 3600
+    total_hours = df.attrs["total_time_s"] / 3600
     assert 20 <= total_hours <= 40, f"Unexpected total time: {total_hours:.1f} h"
 
 
 def test_calculate_pacing_from_athlete_config(carlos_config, tgt_course, race_config):
     """End-to-end: build calculator from athlete YAML and run pacing plan."""
     calc = PaceCalculator.from_athlete_config(carlos_config)
-    aid_stations = race_config['aid_stations']
+    aid_stations = race_config["aid_stations"]
     df = calc.calculate_pacing(tgt_course, aid_stations)
     assert len(df) == len(aid_stations)
-    assert df.attrs['total_time_s'] > 0
+    assert df.attrs["total_time_s"] > 0
