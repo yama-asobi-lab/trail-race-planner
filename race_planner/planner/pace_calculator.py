@@ -501,6 +501,9 @@ class PaceCalculator:
                     "Segment Distance (km)": round(seg_dist_km, 2),
                     "Segment Elevation Gain (m)": round(seg_gain_m, 0),
                     "Segment Elevation Loss (m)": round(seg_loss_m, 0),
+                    "Segment Gain (%)": (
+                        round(seg_gain_m / seg_dist_km / 10, 1) if seg_dist_km > 0 else "-"
+                    ),
                     "Segment Running Time": seconds_to_hms(running_time_s),
                     "Avg Pace (mm:ss/km)": seg_avg_pace_mmss,
                     "Avg Grade-Adjusted Pace (mm:ss/km)": seg_avg_grade_adjusted_pace_mmss,

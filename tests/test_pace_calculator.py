@@ -297,6 +297,7 @@ def test_calculate_pacing_columns(carlos_calc, tgt_course, race_config):
         "Segment Distance (km)",
         "Segment Elevation Gain (m)",
         "Segment Elevation Loss (m)",
+        "Segment Gain (%)",
         "Segment Running Time",
         "Avg Pace (mm:ss/km)",
         "Avg Grade-Adjusted Pace (mm:ss/km)",

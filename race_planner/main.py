@@ -158,6 +158,7 @@ def _append_pacing_sheet(
         "Segment Distance (km)": 20,
         "Segment Elevation Gain (m)": 24,
         "Segment Elevation Loss (m)": 24,
+        "Segment Gain (%)": 14,
         "Segment Running Time": 20,
         "Avg Pace (mm:ss/km)": 20,
         "Avg Grade-Adjusted Pace (mm:ss/km)": 28,

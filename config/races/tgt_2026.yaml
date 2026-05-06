@@ -4,7 +4,7 @@ race:
   elevation_gain_m: 11000  # placeholder
   
   # File paths (relative to project root)
-  gpx_file: "config/gpx_repo/TGT_2025.gpx"
+  gpx_file: "config/gpx_repo/tgt_2026_strava.gpx"
   output_file: "results/tgt_2026_segment_analysis.xlsx"
   
   # Analysis settings
@@ -13,13 +13,13 @@ race:
 
   # ITRA score reference points for this race.
   itra_reference_points:
-    - reference_time: "30:00:00"   # estimated; calibrate with actual race data
+    - reference_time: "29:52:00"
       reference_score: 750
       notes: "Estimated based on online tool for new (2026) course"
 
   # Optional planning assumptions (can be overridden via CLI)
   planning:
-    fatigue_total_decay_pct: 10     # 10% linear decay from start to finish
+    fatigue_total_decay_pct: 14     # 14% linear decay from start to finish
 
 
 aid_stations:
@@ -38,17 +38,19 @@ aid_stations:
     notes: "Water only"
     jap_name: "大根山の神"
     gmaps_link: "https://maps.app.goo.gl/pVpMf4e4CHF1MbrW9"
+    test_run_reference_comments: "1:34 having fun in the downhill"
 
   - name: "Kawai"
-    distance_km: 19.3
+    distance_km: 19.4
     elevation_m: 300   # reference
     stop_time_s: 120
     notes: "Vending machines: 100 m detour towards Kawai station"
     jap_name: "川井"
     gmaps_link: "https://maps.app.goo.gl/mRWETr2MK5gvJ7fTA"
+    test_run_reference_comments: "1:48 having fun in the downhill"
 
   - name: "A1 Mitake Aid"
-    distance_km: 28.0
+    distance_km: 28.1
     elevation_m: 237   # reference
     stop_time_s: 180
     notes: "Famous Inner Fact Special Curry!"
@@ -58,17 +60,19 @@ aid_stations:
   - name: "CP2 Umegou"
     distance_km: 45
     elevation_m: 227   # reference
-    stop_time_s: 180
+    stop_time_s: 240
     notes: "Water only, 7-eleven and famima shortly before arriving"
     jap_name: "梅郷地区"
     gmaps_link: "https://maps.app.goo.gl/mSckttx7yYLFxYyh8"
+    test_run_reference_comments: "2:56 without pushing too hard"
 
   - name: "Hinode Oguno 7-eleven"
     distance_km: 59.0
     elevation_m: 196   # reference
-    stop_time_s: 120
+    stop_time_s: 180
     notes: "Convenience store!"
     gmaps_link: "https://maps.app.goo.gl/EnoRtMv31Qk9uGEZ8"
+    test_run_reference_comments: "2:20 getting lost a few times"
 
   - name: "A2 Jurigi (1)"
     distance_km: 71.0
@@ -77,17 +81,19 @@ aid_stations:
     notes: "Dropbag access! Minestrone soup at aid"
     jap_name: "十里木"
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
+    test_run_reference_comments: "1:55 with a few missed turns but at a strong pace"
 
   - name: "A3 Sanogawa"
-    distance_km: 88.5
+    distance_km: 88.3
     elevation_m: 310   # reference
     stop_time_s: 120
     notes: "Rice and Hiyashi ramen"
     jap_name: "佐野川"
     gmaps_link: "https://maps.app.goo.gl/8rQu4mRhLZ7AxtA49"
+    test_run_reference_comments: "3:38 at a strong pace"
 
   - name: "A4 Fujimi chaya"
-    distance_km: 100.8
+    distance_km: 100.5
     elevation_m: 212   # reference
     stop_time_s: 90
     notes: "Somen"
@@ -95,15 +101,16 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/tibMETRJcN3bsK7y7"
 
   - name: "Wada-toge"
-    distance_km: 117.9
+    distance_km: 117.7
     elevation_m: 693   # reference
     stop_time_s: 120
     notes: "Chicken kayu"
     jap_name: "和田峠"
     gmaps_link: "https://maps.app.goo.gl/gjXf43aMxvDZKTySA"
+    test_run_reference_comments: "2:27 jogging the uphills"
 
   - name: "A6 Jurigi (2)"
-    distance_km: 134.8
+    distance_km: 129
     elevation_m: 214   # reference
     stop_time_s: 90
     notes: "Dropbag access! Dashi chazuke"
@@ -111,7 +118,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
 
   - name: "Tomin no mori"
-    distance_km: 152.9
+    distance_km: 147.1
     elevation_m: 631   # reference
     stop_time_s: 90
     notes: "Wagashi"
@@ -119,9 +126,10 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/W8oppstGke3ejteU9"
 
   - name: "FINISH"
-    distance_km: 158.8
+    distance_km: 153.1
     elevation_m: 384   # reference
     stop_time_s: 0
     notes: "Goal!"
     jap_name: "奥多摩運動公園"
     gmaps_link: "https://maps.app.goo.gl/yFzLWtDt8DASVbFi7"
+    test_run_reference_comments: "3:50 from Jurigi with strong finish"
