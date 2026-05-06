@@ -10,8 +10,11 @@ Options:
                                  athlete_pb   — derive pace from athlete reference PB
                                  target_time  — plan to a given total finish time
                                  target_itra  — plan to a given target ITRA score
+                                 grade_adjusted_pace — plan from a GAP-weighted pace
     --target-time HH:MM:SS     Required for --mode target_time
     --target-itra-score N      Required for --mode target_itra
+    --target-grade-adjusted-pace MM:SS
+                               Required for --mode grade_adjusted_pace
 
 Notes:
     - For target_time, the provided time is the desired TOTAL finish time
@@ -33,7 +36,12 @@ from openpyxl.utils import get_column_letter
 
 from race_planner.course import analyze_course
 from race_planner.models.itra_predictor import ItraScorePredictor
-from race_planner.models.tools import hours_to_hms, seconds_to_hms, hms_to_seconds
+from race_planner.models.tools import (
+    hms_to_seconds,
+    hours_to_hms,
+    pace_to_seconds_per_km,
+    seconds_to_hms,
+)
 from race_planner.planner import PaceCalculator
 
 
@@ -100,6 +108,8 @@ def _append_pacing_sheet(
         "Segment Elevation Gain (m)": 24,
         "Segment Elevation Loss (m)": 24,
         "Segment Running Time": 20,
+        "Avg Pace (mm:ss/km)": 20,
+        "Avg Grade-Adjusted Pace (mm:ss/km)": 28,
         "Stop Time": 12,
         "Elapsed Time": 14,
     }
@@ -113,6 +123,11 @@ def _append_pacing_sheet(
         ("Planning mode", mode),
         ("Athlete", athlete_name),
         ("Total running time", seconds_to_hms(attrs.get("total_running_time_s", 0))),
+        ("Overall avg pace", attrs.get("overall_avg_pace_mmss", "-")),
+        (
+            "Overall avg grade-adjusted pace",
+            attrs.get("overall_avg_grade_adjusted_pace_mmss", "-"),
+        ),
         ("Total stop time", seconds_to_hms(attrs.get("total_stop_time_s", 0))),
         ("Total finish time", seconds_to_hms(attrs.get("total_time_s", 0))),
     ]
@@ -143,7 +158,7 @@ def main():
     )
     parser.add_argument(
         "--mode",
-        choices=["athlete_pb", "target_time", "target_itra"],
+        choices=["athlete_pb", "target_time", "target_itra", "grade_adjusted_pace"],
         default="athlete_pb",
         help="Planning mode (default: athlete_pb)",
     )
@@ -158,12 +173,24 @@ def main():
         metavar="N",
         help="Target ITRA score — required for --mode target_itra",
     )
+    parser.add_argument(
+        "--target-grade-adjusted-pace",
+        metavar="MM:SS",
+        help=(
+            "Target grade-adjusted running pace in MM:SS or MM:SS/km "
+            "— required for --mode grade_adjusted_pace"
+        ),
+    )
     args = parser.parse_args()
 
     if args.mode == "target_time" and not args.target_time:
         parser.error("--target-time HH:MM:SS is required when --mode target_time")
     if args.mode == "target_itra" and not args.target_itra_score:
         parser.error("--target-itra-score N is required when --mode target_itra")
+    if args.mode == "grade_adjusted_pace" and not args.target_grade_adjusted_pace:
+        parser.error(
+            "--target-grade-adjusted-pace MM:SS is required when --mode grade_adjusted_pace"
+        )
 
     # ------------------------------------------------------------------
     # Load configs
@@ -286,6 +313,38 @@ def main():
             f"stops: {seconds_to_hms(total_stop_s)})"
         )
 
+    elif args.mode == "grade_adjusted_pace":
+        calc = PaceCalculator.from_athlete_config(athlete_config)
+        try:
+            target_grade_adjusted_pace_s_per_km = pace_to_seconds_per_km(
+                args.target_grade_adjusted_pace
+            )
+        except ValueError as exc:
+            logger.error(f"Invalid --target-grade-adjusted-pace value: {exc}")
+            sys.exit(1)
+
+        if target_grade_adjusted_pace_s_per_km <= 0:
+            logger.error("--target-grade-adjusted-pace must be positive")
+            sys.exit(1)
+
+        planned_finish_distance_km = (
+            float(aid_stations[-1].get("distance_km", course.total_distance_km))
+            if aid_stations
+            else None
+        )
+        total_grade_weighted_km = calc.grade_weighted_distance_km(
+            course,
+            end_distance_km=planned_finish_distance_km,
+        )
+        override_running_time_s = total_grade_weighted_km * target_grade_adjusted_pace_s_per_km
+        total_stop_s = _total_stop_time_s(aid_stations)
+        logger.info(
+            f"Target grade-adjusted pace: {args.target_grade_adjusted_pace}  "
+            f"(weighted distance: {total_grade_weighted_km:.2f} km, "
+            f"running: {seconds_to_hms(override_running_time_s)}, "
+            f"stops: {seconds_to_hms(total_stop_s)})"
+        )
+
     # ------------------------------------------------------------------
     # 4. Pacing plan
     # ------------------------------------------------------------------
@@ -352,6 +411,11 @@ def main():
             f"  Running time:  " f"{seconds_to_hms(pacing_df.attrs['total_running_time_s'])}"
         )
     logger.info(f"  Stop time:     {seconds_to_hms(pacing_df.attrs['total_stop_time_s'])}")
+    logger.info(f"  Avg pace:      {pacing_df.attrs.get('overall_avg_pace_mmss', '-')}/km")
+    logger.info(
+        "  Avg grade-adjusted pace: "
+        f"{pacing_df.attrs.get('overall_avg_grade_adjusted_pace_mmss', '-')}/km"
+    )
     logger.info(f"  Finish time:   {seconds_to_hms(total_time_s)}")
     if itra_score_result is not None:
         logger.info(f"  ITRA score:    {itra_score_result}")

@@ -59,6 +59,14 @@ def seconds_per_km_to_pace(pace_sec_per_km: float) -> str:
     return f"{minutes}:{seconds:02d}/km"
 
 
+def seconds_per_km_to_mmss(pace_sec_per_km: float) -> str:
+    """Convert sec/km to an M:SS pace string (without unit suffix)."""
+    total = int(round(pace_sec_per_km))
+    minutes = total // 60
+    seconds = total % 60
+    return f"{minutes}:{seconds:02d}"
+
+
 def pace_to_speed_kmh(pace_sec_per_km: np.ndarray | float) -> np.ndarray | float:
     """Convert sec/km pace to horizontal speed in km/h."""
     return 3600.0 / pace_sec_per_km

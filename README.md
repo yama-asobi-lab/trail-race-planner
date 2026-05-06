@@ -146,6 +146,12 @@ python -m race_planner.main config/races/tgt_2026.yaml \
     --athlete carlos \
     --mode target_itra \
     --target-itra-score 750
+
+# Plan from a target grade-adjusted pace (MM:SS)
+python -m race_planner.main config/races/tgt_2026.yaml \
+  --athlete carlos \
+  --mode grade_adjusted_pace \
+  --target-grade-adjusted-pace 5:15
 ```
 
 Outputs land in `results/`:
@@ -173,8 +179,11 @@ Options:
     athlete_pb              Use athlete's reference PB to predict race time
     target_time             Back-solve to a given total finish time
     target_itra             Back-solve to a given ITRA performance score
+    grade_adjusted_pace    Back-solve from a target GAP-weighted pace
   --target-time HH:MM:SS    Required when --mode target_time
   --target-itra-score N     Required when --mode target_itra
+  --target-grade-adjusted-pace MM:SS
+                            Required when --mode grade_adjusted_pace
 ```
 
 Terminal output includes a summary block:
@@ -316,6 +325,8 @@ Adds running-time and stop-time columns to the above, plus a summary block:
 | Column | Description |
 |---|---|
 | Segment Running Time | Running time for this segment (H:MM:SS) |
+| Avg Pace (mm:ss/km) | Segment average pace by horizontal distance |
+| Avg Grade-Adjusted Pace (mm:ss/km) | Segment average pace on GAP-weighted distance |
 | Stop Time | Planned stop (H:MM:SS) |
 | Elapsed Time | Cumulative wall-clock time at station (H:MM:SS) |
 
@@ -325,6 +336,8 @@ Summary block below the table:
 Planning mode        athlete_pb
 Athlete              Carlos
 Total running time   28:01:44
+Overall avg pace     10:31
+Overall avg grade-adjusted pace 5:14
 Total stop time      1:00:00
 Total finish time    29:01:44
 Predicted ITRA score 752

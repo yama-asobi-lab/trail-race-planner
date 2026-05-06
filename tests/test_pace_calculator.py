@@ -216,6 +216,8 @@ def test_calculate_pacing_columns(carlos_calc, tgt_course, race_config):
         "Segment Elevation Gain (m)",
         "Segment Elevation Loss (m)",
         "Segment Running Time",
+        "Avg Pace (mm:ss/km)",
+        "Avg Grade-Adjusted Pace (mm:ss/km)",
         "Stop Time",
         "Elapsed Time",
     ]
@@ -251,6 +253,8 @@ def test_calculate_pacing_total_time_attrs(carlos_calc, tgt_course, race_config)
     assert "total_time_s" in df.attrs
     assert df.attrs["riegel_method"] == "FED"
     assert df.attrs["total_time_s"] > 0
+    assert "overall_avg_pace_mmss" in df.attrs
+    assert "overall_avg_grade_adjusted_pace_mmss" in df.attrs
 
 
 def test_calculate_pacing_flat_distance_mode(carlos_calc, tgt_course, race_config):
