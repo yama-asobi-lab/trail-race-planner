@@ -184,6 +184,14 @@ Options:
   --target-itra-score N     Required when --mode target_itra
   --target-grade-adjusted-pace MM:SS
                             Required when --mode grade_adjusted_pace
+  --fatigue-mode {none|athlete|race}
+                            Fatigue model source (default: none)
+                              none              No fatigue modeling
+                              race              Use race YAML planning defaults
+                              athlete           Use athlete physiology (TBD)
+  --fatigue-total-decay-pct PCT
+                            Override fatigue with linear decay PCT (0–100)
+                            Takes precedence over --fatigue-mode
 ```
 
 Terminal output includes a summary block:
@@ -196,6 +204,7 @@ RACE PLAN SUMMARY
   Riegel approx running time: 26:12:05
   Grade-adjusted running time: 28:01:44
   Stop time:     1:00:00
+  Fatigue model:  Linear decay 10.0%
   Finish time:   29:01:44
   ITRA score:    752
 ====================================================
@@ -231,6 +240,8 @@ athlete:
   preferences:                 # optional — informational only at present
     threshold_flat_pace_per_km: "3:50/km"
     aerobic_threshold_flat_pace_per_km: "4:40/km"
+  
+  fatigue_physiology: {}       # optional; reserved for process-based model (TBD)
 ```
 
 **Notes on the GAP curve**:
@@ -240,6 +251,15 @@ athlete:
 - The two anchor points at ±20% mark where the constant-vertical-speed tail
   begins; include them in your custom curve.
 - Points do **not** need to be sorted — the calculator sorts them internally.
+
+**Notes on fatigue modeling**:
+- Fatigue can be controlled via CLI (`--fatigue-mode` and `--fatigue-total-decay-pct`).
+- CLI override `--fatigue-total-decay-pct` takes precedence over all config defaults.
+- `--fatigue-mode none` (default): no fatigue modeling.
+- `--fatigue-mode race`: uses `race.planning.fatigue_total_decay_pct` if present.
+- `--fatigue-mode athlete`: reserved for future process-based physiological model.
+- Linear model: pace multiplier rises from 1.0 at start to 1.0 + (decay_pct/100) at finish.
+- Example: `--fatigue-total-decay-pct 10` means 10% slower pace at the finish.
 
 ---
 
@@ -263,6 +283,9 @@ race:
     - reference_time: "32:00:00"
       reference_score: 700
       notes: "estimated"
+  
+  planning:                    # optional; default planning assumptions
+    fatigue_total_decay_pct: 0 # 0 = no fatigue (delegated to athlete config or CLI); or 1–100 for linear decay model
 
 # An empty list is valid — the whole course is treated as one segment.
 aid_stations:

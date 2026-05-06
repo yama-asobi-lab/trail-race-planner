@@ -148,6 +148,7 @@ class PaceCalculator:
         ref_dist_km: float,
         ref_time_s: float,
         gap_curve: Optional[np.ndarray] = None,
+        fatigue_total_decay_pct: float = 0.0,
     ) -> None:
         self.model = PacingModel(
             ref_dist_km=ref_dist_km,
@@ -157,13 +158,18 @@ class PaceCalculator:
         self.ref_dist_km = self.model.ref_dist_km
         self.ref_time_s = self.model.ref_time_s
         self.gap_curve = self.model.gap_curve
+        self.fatigue_total_decay_pct = float(fatigue_total_decay_pct)
+        if not 0.0 <= self.fatigue_total_decay_pct <= 100.0:
+            raise ValueError("fatigue_total_decay_pct must be between 0 and 100")
 
     # ------------------------------------------------------------------
     # Construction helpers
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_athlete_config(cls, athlete_config: Dict) -> "PaceCalculator":
+    def from_athlete_config(
+        cls, athlete_config: Dict, fatigue_total_decay_pct: float = 0.0
+    ) -> "PaceCalculator":
         """
         Build a PaceCalculator from an athlete YAML config dict.
 
@@ -178,6 +184,7 @@ class PaceCalculator:
 
         Args:
             athlete_config: Loaded athlete YAML as a Python dict.
+            fatigue_total_decay_pct: Linear fatigue decay (0-100); optional override.
 
         Returns:
             PaceCalculator instance.
@@ -187,6 +194,7 @@ class PaceCalculator:
             ref_dist_km=model.ref_dist_km,
             ref_time_s=model.ref_time_s,
             gap_curve=model.gap_curve,
+            fatigue_total_decay_pct=fatigue_total_decay_pct,
         )
 
     # ------------------------------------------------------------------
@@ -251,6 +259,21 @@ class PaceCalculator:
         end_distance_m = float(end_distance_km) * 1000.0
         point_mask = course.df["cum_dist_m"].values <= end_distance_m
         return float(weighted_distance_km_values[point_mask].sum())
+
+    def fatigue_multiplier(self, progress_fraction_values: np.ndarray) -> np.ndarray:
+        """Converts “how far through the race am I?” into a pace slowdown multiplier.
+        Return per-point pace multipliers for linear fatigue model.
+
+        Pace multiplier rises linearly from 1.0 (start) to 1.0 + decay_fraction (finish).
+        """
+        if np.any(progress_fraction_values < 0.0) or np.any(progress_fraction_values > 1.0):
+            raise ValueError("progress_fraction_values must be between 0 and 1")
+
+        if self.fatigue_total_decay_pct == 0.0:
+            return np.ones_like(progress_fraction_values)
+
+        total_decay_fraction = self.fatigue_total_decay_pct / 100.0
+        return 1.0 + total_decay_fraction * progress_fraction_values
 
     # ------------------------------------------------------------------
     # Pacing plan
@@ -345,9 +368,30 @@ class PaceCalculator:
         planned_finish_distance_km = float(
             aid_stations[-1].get("distance_km", course.total_distance_km)
         )
-        planned_point_mask = cumulative_distance_m_values <= planned_finish_distance_km * 1000.0
+        planned_finish_distance_m = planned_finish_distance_km * 1000.0
+        planned_point_mask = cumulative_distance_m_values <= planned_finish_distance_m
         total_grade_weighted_distance_km = float(
             point_grade_weighted_distance_km_values[planned_point_mask].sum()
+        )
+
+        # Compute fatigue multipliers based on progress through the course
+        progress_distance_m_values = np.minimum(
+            cumulative_distance_m_values,
+            planned_finish_distance_m,
+        )
+        progress_fraction_values = (
+            progress_distance_m_values / planned_finish_distance_m
+            if planned_finish_distance_m > 0
+            else np.zeros_like(cumulative_distance_m_values)
+        )
+        fatigue_multiplier_values = self.fatigue_multiplier(progress_fraction_values)
+
+        # Effective distance = grade-weighted distance * fatigue multiplier
+        point_effective_weighted_distance_km_values = (
+            point_grade_weighted_distance_km_values * fatigue_multiplier_values
+        )
+        total_effective_weighted_distance_km = float(
+            point_effective_weighted_distance_km_values[planned_point_mask].sum()
         )
 
         riegel_running_time_approx_s: float | None = None
@@ -356,11 +400,11 @@ class PaceCalculator:
             total_running_time_s = float(override_total_running_time_s)
             riegel_method = "target-override"
             seconds_per_weighted_km = (
-                total_running_time_s / total_grade_weighted_distance_km
-                if total_grade_weighted_distance_km > 0
+                total_running_time_s / total_effective_weighted_distance_km
+                if total_effective_weighted_distance_km > 0
                 else 0.0
             )
-            point_times_s = point_grade_weighted_distance_km_values * seconds_per_weighted_km
+            point_times_s = point_effective_weighted_distance_km_values * seconds_per_weighted_km
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
             riegel_running_time_approx_s = self.predict_riegel_race_time_sec(
@@ -382,6 +426,7 @@ class PaceCalculator:
             point_times_s = (
                 point_distance_km_values * fed_baseline_pace_s_per_km * grade_correction_factors
             )
+            point_times_s = point_times_s * fatigue_multiplier_values
             riegel_method = "FED"
         else:
             # Flat pace from raw-distance Riegel.
@@ -391,6 +436,7 @@ class PaceCalculator:
             )
             flat_pace_s_per_km = flat_time_s / course.total_distance_km
             point_times_s = point_distance_km_values * flat_pace_s_per_km * grade_correction_factors
+            point_times_s = point_times_s * fatigue_multiplier_values
             riegel_method = "flat-distance"
 
         rows = []
@@ -483,5 +529,6 @@ class PaceCalculator:
             else "-"
         )
         df.attrs["total_grade_weighted_distance_km"] = total_grade_weighted_distance_km
+        df.attrs["fatigue_total_decay_pct"] = self.fatigue_total_decay_pct
 
         return df

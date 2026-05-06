@@ -194,6 +194,88 @@ def test_grade_correction_downhill_constant_vertical_speed_tail():
 
 
 # ---------------------------------------------------------------------------
+# Fatigue model
+# ---------------------------------------------------------------------------
+
+
+def test_fatigue_multiplier_zero_decay():
+    """Fatigue multiplier with 0% decay should return all 1.0."""
+    calc = PaceCalculator(
+        ref_dist_km=42.195,
+        ref_time_s=12600,
+        fatigue_total_decay_pct=0.0,
+    )
+    result = calc.fatigue_multiplier(np.array([0.0, 0.5, 1.0]))
+    np.testing.assert_allclose(result, np.array([1.0, 1.0, 1.0]), rtol=1e-10)
+
+
+def test_fatigue_multiplier_linear_progression():
+    """Fatigue multiplier with 10% decay should rise from 1.0 to 1.1."""
+    calc = PaceCalculator(
+        ref_dist_km=42.195,
+        ref_time_s=12600,
+        fatigue_total_decay_pct=10.0,
+    )
+    result = calc.fatigue_multiplier(np.array([0.0, 0.5, 1.0]))
+    np.testing.assert_allclose(result, np.array([1.0, 1.05, 1.10]), rtol=1e-10)
+
+
+def test_fatigue_total_decay_pct_rejects_negative_values():
+    with pytest.raises(ValueError, match="between 0 and 100"):
+        PaceCalculator(
+            ref_dist_km=42.195,
+            ref_time_s=12600,
+            fatigue_total_decay_pct=-1.0,
+        )
+
+
+def test_fatigue_total_decay_pct_rejects_values_above_100():
+    with pytest.raises(ValueError, match="between 0 and 100"):
+        PaceCalculator(
+            ref_dist_km=42.195,
+            ref_time_s=12600,
+            fatigue_total_decay_pct=101.0,
+        )
+
+
+def test_from_athlete_config_with_fatigue(carlos_config):
+    """from_athlete_config should accept and store fatigue_total_decay_pct."""
+    calc = PaceCalculator.from_athlete_config(carlos_config, fatigue_total_decay_pct=15.0)
+    assert calc.fatigue_total_decay_pct == 15.0
+
+
+def test_calculate_pacing_with_fatigue_increases_time(tgt_course, race_config):
+    """Fatigue model should increase total running time."""
+    aid_stations = race_config["aid_stations"]
+
+    # Calculate without fatigue
+    calc_no_fatigue = PaceCalculator(ref_dist_km=42.195, ref_time_s=2 * 3600 + 50 * 60)
+    df_no_fatigue = calc_no_fatigue.calculate_pacing(tgt_course, aid_stations, use_fed=True)
+
+    # Calculate with 10% fatigue
+    calc_with_fatigue = PaceCalculator(
+        ref_dist_km=42.195,
+        ref_time_s=2 * 3600 + 50 * 60,
+        fatigue_total_decay_pct=10.0,
+    )
+    df_with_fatigue = calc_with_fatigue.calculate_pacing(tgt_course, aid_stations, use_fed=True)
+
+    # With fatigue should take longer
+    assert (
+        df_with_fatigue.attrs["total_running_time_s"] > df_no_fatigue.attrs["total_running_time_s"]
+    )
+    assert df_with_fatigue.attrs["fatigue_total_decay_pct"] == 10.0
+
+
+def test_calculate_pacing_fatigue_attrs(carlos_calc, tgt_course, race_config):
+    """DataFrame attrs should include fatigue_total_decay_pct."""
+    aid_stations = race_config["aid_stations"]
+    df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
+    assert "fatigue_total_decay_pct" in df.attrs
+    assert df.attrs["fatigue_total_decay_pct"] == 0.0  # carlos_calc has default
+
+
+# ---------------------------------------------------------------------------
 # calculate_pacing
 # ---------------------------------------------------------------------------
 

@@ -27,6 +27,9 @@ athlete:
       - [-0.07, 0.865 ]  # −7 %: braking effect starts
       - [-0.20, 1.71  ]  # −20 % cutoff anchor for constant-vspeed tails
 
+  # Optional physiology parameters for future process-based fatigue model
+  fatigue_physiology: {}  # TBD: lactate threshold, fatigue sensitivity, etc.
+
   preferences:
     threshold_flat_pace_per_km: "3:50/km"  # LT2
     aerobic_threshold_flat_pace_per_km: "4:40/km"  # LT1

@@ -15,6 +15,10 @@ Options:
     --target-itra-score N      Required for --mode target_itra
     --target-grade-adjusted-pace MM:SS
                                Required for --mode grade_adjusted_pace
+    --fatigue-mode {none|athlete|race}
+                               Fatigue model source (default: none)
+    --fatigue-total-decay-pct PCT
+                               Override fatigue with linear decay (0–100); takes precedence
 
 Notes:
     - For target_time, the provided time is the desired TOTAL finish time
@@ -52,6 +56,53 @@ from race_planner.planner import PaceCalculator
 
 def _total_stop_time_s(aid_stations: list) -> float:
     return sum(float(aid.get("stop_time_s", 0)) for aid in aid_stations)
+
+
+def _resolve_fatigue_total_decay_pct(
+    fatigue_mode: str,
+    fatigue_total_decay_pct_cli: float | None,
+    race_config: dict,
+    athlete_config: dict,
+) -> float:
+    """
+    Resolve fatigue total decay percentage with precedence:
+    CLI override > race config > athlete config > 0 (default)
+
+    Args:
+        fatigue_mode: "none", "athlete", or "race"
+        fatigue_total_decay_pct_cli: Optional CLI override
+        race_config: Loaded race YAML
+        athlete_config: Loaded athlete YAML
+
+    Returns:
+        Decay percentage (0-100), or 0 if mode is "none"
+    """
+    # CLI override takes absolute precedence
+    if fatigue_total_decay_pct_cli is not None:
+        return float(fatigue_total_decay_pct_cli)
+
+    # If mode is "none", always 0
+    if fatigue_mode == "none":
+        return 0.0
+
+    # Mode "race": try race config planning section
+    if fatigue_mode == "race":
+        planning = race_config.get("race", {}).get("planning", {})
+        decay = planning.get("fatigue_total_decay_pct")
+        if decay is not None:
+            return float(decay)
+        logger.warning(
+            "--fatigue-mode race but no race.planning.fatigue_total_decay_pct found; defaulting to 0"
+        )
+        return 0.0
+
+    # Mode "athlete": try athlete config (once physiological params are designed)
+    if fatigue_mode == "athlete":
+        # TODO: implement when process-based model is designed
+        logger.warning("--fatigue-mode athlete not yet implemented; defaulting to 0")
+        return 0.0
+
+    return 0.0
 
 
 def _build_itra_predictor(race_config: dict) -> ItraScorePredictor | None:
@@ -131,6 +182,13 @@ def _append_pacing_sheet(
         ("Total stop time", seconds_to_hms(attrs.get("total_stop_time_s", 0))),
         ("Total finish time", seconds_to_hms(attrs.get("total_time_s", 0))),
     ]
+    if attrs.get("fatigue_total_decay_pct", 0) > 0:
+        summary.append(
+            (
+                "Fatigue model",
+                f"Linear decay {attrs['fatigue_total_decay_pct']:.1f}%",
+            )
+        )
     if itra_score is not None:
         summary.append(("Predicted ITRA score", itra_score))
 
@@ -181,6 +239,18 @@ def main():
             "— required for --mode grade_adjusted_pace"
         ),
     )
+    parser.add_argument(
+        "--fatigue-mode",
+        choices=["none", "athlete", "race"],
+        default="none",
+        help="Fatigue model source (default: none — no fatigue)",
+    )
+    parser.add_argument(
+        "--fatigue-total-decay-pct",
+        type=float,
+        metavar="PCT",
+        help="Override fatigue model with linear decay PCT (0–100); takes precedence over config",
+    )
     args = parser.parse_args()
 
     if args.mode == "target_time" and not args.target_time:
@@ -191,6 +261,11 @@ def main():
         parser.error(
             "--target-grade-adjusted-pace MM:SS is required when --mode grade_adjusted_pace"
         )
+
+    # Validate fatigue arguments
+    if args.fatigue_total_decay_pct is not None:
+        if not 0 <= args.fatigue_total_decay_pct <= 100:
+            parser.error("--fatigue-total-decay-pct must be between 0 and 100")
 
     # ------------------------------------------------------------------
     # Load configs
@@ -235,6 +310,18 @@ def main():
     logger.info(f"Athlete: {athlete_display_name}")
 
     # ------------------------------------------------------------------
+    # Resolve fatigue configuration (CLI > race > athlete > 0)
+    # ------------------------------------------------------------------
+    fatigue_total_decay_pct = _resolve_fatigue_total_decay_pct(
+        fatigue_mode=args.fatigue_mode,
+        fatigue_total_decay_pct_cli=args.fatigue_total_decay_pct,
+        race_config=race_config,
+        athlete_config=athlete_config,
+    )
+    if fatigue_total_decay_pct > 0:
+        logger.info(f"Fatigue model: linear decay {fatigue_total_decay_pct:.1f}%")
+
+    # ------------------------------------------------------------------
     # 1. Segment analysis — always runs; creates / updates the xlsx file
     # ------------------------------------------------------------------
     try:
@@ -268,7 +355,9 @@ def main():
     override_running_time_s: float | None = None
 
     if args.mode == "athlete_pb":
-        calc = PaceCalculator.from_athlete_config(athlete_config)
+        calc = PaceCalculator.from_athlete_config(
+            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+        )
         ref = athlete_info.get("reference_performance", {})
         logger.info(f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}")
 
@@ -282,7 +371,9 @@ def main():
                 f"({seconds_to_hms(total_stop_s)})"
             )
             sys.exit(1)
-        calc = PaceCalculator.from_athlete_config(athlete_config)
+        calc = PaceCalculator.from_athlete_config(
+            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+        )
         logger.info(
             f"Target finish time: {args.target_time}  "
             f"(running: {seconds_to_hms(override_running_time_s)}, "
@@ -305,7 +396,9 @@ def main():
                 f"than total stop time ({seconds_to_hms(total_stop_s)})"
             )
             sys.exit(1)
-        calc = PaceCalculator.from_athlete_config(athlete_config)
+        calc = PaceCalculator.from_athlete_config(
+            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+        )
         logger.info(
             f"ITRA score {args.target_itra_score} → "
             f"predicted finish time: {hours_to_hms(predicted_total_time_h)}  "
@@ -314,7 +407,9 @@ def main():
         )
 
     elif args.mode == "grade_adjusted_pace":
-        calc = PaceCalculator.from_athlete_config(athlete_config)
+        calc = PaceCalculator.from_athlete_config(
+            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+        )
         try:
             target_grade_adjusted_pace_s_per_km = pace_to_seconds_per_km(
                 args.target_grade_adjusted_pace
@@ -416,6 +511,10 @@ def main():
         "  Avg grade-adjusted pace: "
         f"{pacing_df.attrs.get('overall_avg_grade_adjusted_pace_mmss', '-')}/km"
     )
+    if pacing_df.attrs.get("fatigue_total_decay_pct", 0) > 0:
+        logger.info(
+            f"  Fatigue model:  Linear decay {pacing_df.attrs['fatigue_total_decay_pct']:.1f}%"
+        )
     logger.info(f"  Finish time:   {seconds_to_hms(total_time_s)}")
     if itra_score_result is not None:
         logger.info(f"  ITRA score:    {itra_score_result}")

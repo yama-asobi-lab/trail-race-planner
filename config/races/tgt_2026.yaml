@@ -17,6 +17,10 @@ race:
       reference_score: 750
       notes: "Estimated based on online tool for new (2026) course"
 
+  # Optional planning assumptions (can be overridden via CLI)
+  planning:
+    fatigue_total_decay_pct: 10     # 10% linear decay from start to finish
+
 
 aid_stations:
   - name: "START"
