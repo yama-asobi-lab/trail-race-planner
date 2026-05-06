@@ -286,7 +286,7 @@ class SegmentAnalyzer:
         )
 
 
-def analyze_race(
+def analyze_course(
     gpx_path: Path | str,
     race_config_path: Path | str,
     output_path: Path | str,

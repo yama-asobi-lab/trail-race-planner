@@ -31,7 +31,7 @@ from loguru import logger
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
-from race_planner.course import analyze_race
+from race_planner.course import analyze_course
 from race_planner.models.itra_predictor import ItraScorePredictor
 from race_planner.models.tools import hours_to_hms, seconds_to_hms, hms_to_seconds
 from race_planner.planner import PaceCalculator
@@ -211,7 +211,7 @@ def main():
     # 1. Segment analysis — always runs; creates / updates the xlsx file
     # ------------------------------------------------------------------
     try:
-        analyzer = analyze_race(
+        analyzer = analyze_course(
             gpx_path=gpx_path,
             race_config_path=race_config_path,
             output_path=output_path,

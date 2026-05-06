@@ -6,7 +6,7 @@ from pathlib import Path
 import warnings
 import pandas as pd
 
-from race_planner.course import Course, SegmentAnalyzer, analyze_race
+from race_planner.course import Course, SegmentAnalyzer, analyze_course
 
 
 def test_analyze_race_with_carlos_athlete(
@@ -25,7 +25,7 @@ def test_analyze_race_with_carlos_athlete(
     output_path = tmp_path / "carlos_output.xlsx"
 
     # Run analysis
-    analyzer = analyze_race(
+    analyzer = analyze_course(
         gpx_path=sample_gpx_path,
         race_config_path=race_config_path,
         output_path=output_path,
@@ -48,7 +48,7 @@ def test_analyze_race_defaults_to_yet_another_sato(tmp_path, sample_gpx_path, ra
     output_path = tmp_path / "default_output.xlsx"
 
     # Run analysis without athlete config (should default to Yet Another Sato)
-    analyzer = analyze_race(
+    analyzer = analyze_course(
         gpx_path=sample_gpx_path,
         race_config_path=race_config_path,
         output_path=output_path,
