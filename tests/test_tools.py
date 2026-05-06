@@ -4,11 +4,14 @@ import numpy as np
 import pytest
 
 from race_planner.models.tools import (
+    clock_time_to_seconds,
+    elapsed_hms_to_clock_time,
     hhmm_to_hours,
     pace_from_constant_vertical_speed,
     pace_to_seconds_per_km,
     pace_to_speed_kmh,
     race_offset_to_clock_hhmm,
+    seconds_to_clock_hhmm,
     seconds_per_km_to_pace,
     vertical_speed_m_per_h,
 )
@@ -89,3 +92,36 @@ def test_race_offset_to_clock_hhmm_midnight_rollover():
 
 def test_race_offset_to_clock_hhmm_zero_offset():
     assert race_offset_to_clock_hhmm(16.0, 0.0) == "16:00"
+
+
+def test_clock_time_to_seconds_parses_hh_mm():
+    assert clock_time_to_seconds("06:30") == 23_400
+
+
+def test_clock_time_to_seconds_parses_hh_mm_ss():
+    assert clock_time_to_seconds("06:30:15") == 23_415
+
+
+def test_clock_time_to_seconds_defaults_missing_to_midnight():
+    assert clock_time_to_seconds(None) == 0
+
+
+def test_clock_time_to_seconds_rejects_invalid_format():
+    with pytest.raises(ValueError, match="Expected HH:MM or HH:MM:SS"):
+        clock_time_to_seconds("06")
+
+
+def test_seconds_to_clock_hhmm_same_day():
+    assert seconds_to_clock_hhmm(8 * 3600 + 15 * 60) == "08:15"
+
+
+def test_seconds_to_clock_hhmm_rolls_over_midnight():
+    assert seconds_to_clock_hhmm(25 * 3600 + 15 * 60) == "01:15"
+
+
+def test_elapsed_hms_to_clock_time_same_day():
+    assert elapsed_hms_to_clock_time("2:15:00", clock_time_to_seconds("06:00:00")) == "08:15 · D1"
+
+
+def test_elapsed_hms_to_clock_time_rolls_to_next_day():
+    assert elapsed_hms_to_clock_time("3:15:00", clock_time_to_seconds("22:00:00")) == "01:15 · D2"

@@ -5,4 +5,7 @@ from race_planner.visualization.course_profile import (
     plot_course_profile,
 )
 
-__all__ = ["CourseProfilePlotter", "plot_course_profile"]
+__all__ = [
+    "CourseProfilePlotter",
+    "plot_course_profile",
+]

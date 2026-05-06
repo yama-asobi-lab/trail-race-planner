@@ -21,6 +21,9 @@ race:
   planning:
     fatigue_total_decay_pct: 14     # 14% linear decay from start to finish
 
+  # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
+  start_time: "15:50:00"
+
 
 aid_stations:
   - name: "START"
@@ -61,7 +64,7 @@ aid_stations:
     distance_km: 45
     elevation_m: 227   # reference
     stop_time_s: 240
-    notes: "Water only, 7-eleven and famima shortly before arriving"
+    notes: "Water only, famima 500 m before arriving"
     jap_name: "梅郷地区"
     gmaps_link: "https://maps.app.goo.gl/mSckttx7yYLFxYyh8"
     test_run_reference_comments: "2:56 without pushing too hard"

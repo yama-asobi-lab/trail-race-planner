@@ -6,6 +6,7 @@ race:
   output_file: "results/tgt_2026_segment_analysis.xlsx"
   resample_m: 5
   elevation_tolerance_m: 50
+  start_time: "15:50"
   itra_reference_points:
     - reference_time: "30:00:00"
       reference_score: 750
