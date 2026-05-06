@@ -118,7 +118,15 @@ class PacingModel:
     def flat_equivalent_distance_km(self, dist_km: float, gain_m: float) -> float:
         """Convert mountain course distance and gain to flat equivalent distance.
 
-        Only elevation gain contributes to FED in this model.
+        Only elevation *gain* contributes to FED in this model; descents are less
+        taxing and are not included in the standard trail-running FED formula.
+
+        Args:
+            dist_km: Horizontal course distance in km.
+            gain_m:  Total elevation gain in metres.
+
+        Returns:
+            Flat equivalent distance in km.
         """
         return dist_km + gain_m / self.FED_VERT_FACTOR_M_PER_KM
 
@@ -133,8 +141,17 @@ class PacingModel:
         Exponent model:
             k(D) = 1.06 + c*sqrt(max(D - D_ref, 0))
 
-        If ``use_flat_equivalent_distance`` is true, ``D`` is FED instead of
-        horizontal distance.
+        where ``c = PIECEWISE_RIEGEL_106_SQRT_C`` and ``D_ref`` is
+        ``self.ref_dist_km``. If ``use_flat_equivalent_distance`` is true, ``D``
+        is flat equivalent distance (FED) instead of horizontal distance.
+
+        Args:
+            target_distance_km: Horizontal course distance in km.
+            elevation_gain_m:   Total elevation gain in metres.
+            use_flat_equivalent_distance: If true, apply FED before Riegel.
+
+        Returns:
+            Predicted total race time in seconds (running only, no stops).
         """
         effective_distance_km = target_distance_km
         if use_flat_equivalent_distance:
@@ -167,41 +184,26 @@ class PacingModel:
             use_flat_equivalent_distance=True,
         )
 
-    def riegel(self, distance_km: float) -> float:
-        """Backward-compatible alias for predict_riegel_flat_race_time_sec."""
-        return self.predict_riegel_flat_race_time_sec(distance_km)
-
-    def flat_equivalent_dist_km(self, distance_km: float, elevation_gain_m: float) -> float:
-        """Backward-compatible alias for flat_equivalent_distance_km."""
-        return self.flat_equivalent_distance_km(distance_km, elevation_gain_m)
-
-    def riegel_fed(
-        self,
-        distance_km: float,
-        elevation_gain_m: float,
-        elevation_loss_m: float = 0.0,
-    ) -> float:
-        """Backward-compatible alias for predict_riegel_fed_race_time_sec."""
-        del elevation_loss_m
-        return self.predict_riegel_fed_race_time_sec(distance_km, elevation_gain_m)
-
     def grade_correction(self, grade_decimal_values: np.ndarray) -> np.ndarray:
-        """Compute GAP correction factors with constant-vspeed tails.
+        """Compute GAP correction factors for an array of grade values, with
+        constant-vspeed tails.
 
-        Interpolation uses the curve knots and linear edge extrapolation.
-        Beyond configured cutoff grades, tail behavior switches to:
+        Uses piecewise linear interpolation on the curve knots, and applies a
+        constant-vertical-speed tail beyond the configured cutoff grades.
 
             c(g) = c(g_cutoff) * g / g_cutoff
 
         which preserves signed vertical speed for a fixed flat pace.
 
         Args:
-            grade_decimal_values: Grade values as decimal rise/run
-                (e.g. 0.10 for +10%, -0.06 for -6%).
+            grade_decimal_values: 1-D array of grade values as decimal rise/run
+                (e.g. 0.10 for a 10% uphill, -0.06 for a 6% downhill).
 
         Returns:
-            Correction factors (dimensionless), one per input grade.
+            Array of dimensionless correction factors, same length as *grade_decimal_values*.
+
         """
+
         curve_grade_decimal = self.gap_curve[:, 0]
         curve_correction_factor = self.gap_curve[:, 1]
 

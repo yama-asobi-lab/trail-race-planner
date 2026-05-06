@@ -190,101 +190,6 @@ class PaceCalculator:
         )
 
     # ------------------------------------------------------------------
-    # Riegel's formula
-    # ------------------------------------------------------------------
-
-    def flat_equivalent_distance_km(self, dist_km: float, gain_m: float) -> float:
-        """
-        Convert a mountain course to its flat equivalent distance (FED).
-
-        Only elevation *gain* contributes to FED; descents are less taxing
-        and are not included in the standard trail-running FED formula.
-
-        Args:
-            dist_km: Horizontal course distance in km.
-            gain_m:  Total elevation gain in metres.
-
-        Returns:
-            Flat equivalent distance in km.
-        """
-        return self.model.flat_equivalent_distance_km(dist_km, gain_m)
-
-    def predict_riegel_race_time_sec(
-        self,
-        target_distance_km: float,
-        elevation_gain_m: float = 0.0,
-        use_flat_equivalent_distance: bool = False,
-    ) -> float:
-        """
-        Predict race time (seconds) using piecewise Riegel.
-
-        The exponent is distance-dependent and follows the validated
-        piecewise model:
-
-            k(D) = 1.06 + c*sqrt(max(D-D_ref, 0))
-
-        where ``c = PIECEWISE_RIEGEL_106_SQRT_C`` and ``D_ref`` is
-        ``self.ref_dist_km``. If ``use_flat_equivalent_distance`` is true,
-        FED replaces horizontal distance before applying the formula.
-
-        Args:
-            target_distance_km: Horizontal course distance in km.
-            elevation_gain_m:   Total elevation gain in metres.
-            use_flat_equivalent_distance: If true, apply FED before Riegel.
-
-        Returns:
-            Predicted total race time in seconds (running only, no stops).
-        """
-        return self.model.predict_riegel_race_time_sec(
-            target_distance_km=target_distance_km,
-            elevation_gain_m=elevation_gain_m,
-            use_flat_equivalent_distance=use_flat_equivalent_distance,
-        )
-
-    def predict_riegel_flat_race_time_sec(self, target_distance_km: float) -> float:
-        """Predict flat race time (seconds) for a horizontal target distance."""
-        return self.model.predict_riegel_flat_race_time_sec(target_distance_km)
-
-    def predict_riegel_fed_race_time_sec(
-        self, target_distance_km: float, elevation_gain_m: float
-    ) -> float:
-        """Predict race time (seconds) using FED-adjusted Riegel distance."""
-        return self.model.predict_riegel_fed_race_time_sec(target_distance_km, elevation_gain_m)
-
-    # Backward-compatible aliases
-    def riegel(self, dist_km: float) -> float:
-        """Backward-compatible alias for ``predict_riegel_flat_race_time_sec``."""
-        return self.model.riegel(dist_km)
-
-    def flat_equivalent_dist_km(self, dist_km: float, gain_m: float) -> float:
-        """Backward-compatible alias for ``flat_equivalent_distance_km``."""
-        return self.model.flat_equivalent_dist_km(dist_km, gain_m)
-
-    def riegel_fed(self, dist_km: float, gain_m: float, loss_m: float = 0.0) -> float:
-        """Backward-compatible alias for ``predict_riegel_fed_race_time_sec``."""
-        return self.model.riegel_fed(dist_km, gain_m, loss_m)
-
-    # ------------------------------------------------------------------
-    # Grade correction
-    # ------------------------------------------------------------------
-
-    def grade_correction(self, grade_decimal_values: np.ndarray) -> np.ndarray:
-        """
-        Compute GAP correction factors for an array of grade values.
-
-        Uses piecewise linear interpolation on the curve knots, and applies a
-        constant-vertical-speed tail beyond the configured cutoff grades.
-
-        Args:
-            grade_decimal_values: 1-D array of grade values as decimal rise/run
-                (e.g. 0.10 for a 10 % uphill, -0.06 for a 6 % downhill).
-
-        Returns:
-            Array of correction factors, same length as *grade_decimal_values*.
-        """
-        return self.model.grade_correction(grade_decimal_values)
-
-    # ------------------------------------------------------------------
     # Pacing plan
     # ------------------------------------------------------------------
 
@@ -356,7 +261,7 @@ class PaceCalculator:
 
         # Convert grade (%) → decimal for the GAP curve
         grade_decimal_values = full_df["grade"].values / 100.0
-        grade_correction_factors = self.grade_correction(grade_decimal_values)
+        grade_correction_factors = self.model.grade_correction(grade_decimal_values)
         point_distance_km_values = full_df["dist_m"].values / 1000.0
 
         riegel_running_time_approx_s: float | None = None
@@ -374,14 +279,14 @@ class PaceCalculator:
             point_times_s = grade_weighted_distance_km * seconds_per_weighted_km
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
-            riegel_running_time_approx_s = self.predict_riegel_race_time_sec(
+            riegel_running_time_approx_s = self.model.predict_riegel_race_time_sec(
                 target_distance_km=course.total_distance_km,
                 elevation_gain_m=course.total_elevation_gain_m,
                 use_flat_equivalent_distance=True,
             )
 
             # 2) Convert approximation into flat-equivalent average pace.
-            fed_distance_km = self.flat_equivalent_distance_km(
+            fed_distance_km = self.model.flat_equivalent_distance_km(
                 course.total_distance_km,
                 course.total_elevation_gain_m,
             )
@@ -396,7 +301,7 @@ class PaceCalculator:
             riegel_method = "FED"
         else:
             # Flat pace from raw-distance Riegel.
-            flat_time_s = self.predict_riegel_race_time_sec(
+            flat_time_s = self.model.predict_riegel_race_time_sec(
                 target_distance_km=course.total_distance_km,
                 use_flat_equivalent_distance=False,
             )
