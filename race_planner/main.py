@@ -541,12 +541,8 @@ def main():
             title=f"{race_name} — Race Plan",
         )
         logger.success(f"Race plan HTML report written to: {html_output_path}")
-    except Exception as exc:
-        logger.error(f"Race plan HTML report generation failed: {exc}")
-        import traceback
-
-        traceback.print_exc()
-        sys.exit(1)
+    except Exception:
+        logger.exception("Race plan HTML report generation failed; continuing without HTML report.")
 
 
 if __name__ == "__main__":
