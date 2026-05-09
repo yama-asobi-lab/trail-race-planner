@@ -45,7 +45,7 @@ def clock_time_to_seconds(time_str: str | None) -> int:
 
 def seconds_to_clock_hhmm(seconds: float | int) -> str:
     """Convert absolute seconds to HH:MM on a 24-hour clock."""
-    total_minutes = int(round(seconds / 60.0)) % (24 * 60)
+    total_minutes = int(seconds) // 60 % (24 * 60)
     hours = total_minutes // 60
     minutes = total_minutes % 60
     return f"{hours:02d}:{minutes:02d}"
