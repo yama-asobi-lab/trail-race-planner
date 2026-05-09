@@ -863,6 +863,11 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
                 + '" target="_blank" rel="noopener noreferrer">Map</a></div>'
             )
 
+        cutoff_inline = (
+            f'<span class="cutoff-inline"> (🚧 {escape(row.cutoff_in_time)})</span>'
+            if row.cutoff_in_time
+            else ""
+        )
         timing_html = "".join(
             (
                 f'<div class="cell-line"><span class="cell-label">⏱</span>'
@@ -871,7 +876,7 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
                 f'<span class="cell-value js-running">{escape(row.running_time)}</span></div>',
                 f'<div class="cell-line"><span class="cell-label">🕒</span>'
                 f'<span class="cell-value js-clock">{escape(row.clock_time)}</span>'
-                f'{("<span class=\"cutoff-inline\"> (🚧 " + escape(row.cutoff_in_time) + ")</span>") if row.cutoff_in_time else ""}</div>',
+                f"{cutoff_inline}</div>",
             )
         )
 
