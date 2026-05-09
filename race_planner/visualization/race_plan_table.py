@@ -549,8 +549,13 @@ def _format_extra_label(key: str) -> str:
 
 def _format_extra_value(value: Any) -> str:
     """Format extra field value."""
+    if isinstance(value, dict):
+        return "; ".join(
+            f"{_format_extra_label(str(key))}: {_format_extra_value(item)}"
+            for key, item in value.items()
+        )
     if isinstance(value, list):
-        return ", ".join(str(item) for item in value)
+        return ", ".join(_format_extra_value(item) for item in value)
     return str(value)
 
 
