@@ -29,6 +29,12 @@ _KNOWN_AID_STATION_FIELDS = {
     "stop_time_s",
     "notes",
     "gmaps_link",
+    "top_in_time",
+    "cutoff_in_time",
+    "cutoff_out_time",
+    "reference_last_time",
+    "cutoff_exempt",
+    "cutoff_note",
 }
 
 
@@ -135,6 +141,10 @@ _REPORT_CSS = """
       padding: 6px 8px;
       min-width: 118px;
       font-variant-numeric: tabular-nums;
+    }
+
+    .time-tune-input.small {
+      min-width: 84px;
     }
 
     .time-tune-button {
@@ -329,6 +339,11 @@ _REPORT_CSS = """
       font-size: 0.86rem;
     }
 
+    .cutoff-inline {
+      color: var(--text-soft);
+      font-size: 0.72rem;
+    }
+
     .metric-cell {
       text-align: right;
       font-variant-numeric: tabular-nums;
@@ -476,6 +491,7 @@ class TableRowViewModel:
     running_time: str
     running_seconds: int
     clock_time: str
+    cutoff_in_time: str
     avg_pace: str
     avg_pace_seconds: int
     avg_gap: str
@@ -491,6 +507,7 @@ class RacePlanReportViewModel:
     profile_meta: str
     total_time_seconds: int
     race_start_time_s: int
+    original_fatigue_decay_pct: float
     table_rows: tuple[TableRowViewModel, ...]
     plot_html: str
 
@@ -616,6 +633,7 @@ def _build_table_row_view_models(
                 running_time=str(row["Segment Running Time"]),
                 running_seconds=int(hms_to_seconds(str(row["Segment Running Time"]))),
                 clock_time=elapsed_hms_to_clock_time(str(row["Elapsed Time"]), race_start_time_s),
+                cutoff_in_time=str(aid_station.get("cutoff_in_time", "") or ""),
                 avg_pace=(
                     "-"
                     if str(row["Avg Pace (mm:ss/km)"]) == "-"
@@ -768,6 +786,7 @@ def _build_report_view_model(
         ),
         total_time_seconds=int(float(pacing_df.attrs.get("total_time_s", 0))),
         race_start_time_s=race_start_time_s,
+        original_fatigue_decay_pct=float(pacing_df.attrs.get("fatigue_total_decay_pct", 0.0)),
         table_rows=_build_table_row_view_models(
             pacing_df=pacing_df,
             aid_stations=normalized_aid_stations,
@@ -846,7 +865,8 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
                 f'<div class="cell-line"><span class="cell-label">🏃</span>'
                 f'<span class="cell-value js-running">{escape(row.running_time)}</span></div>',
                 f'<div class="cell-line"><span class="cell-label">🕒</span>'
-                f'<span class="cell-value js-clock">{escape(row.clock_time)}</span></div>',
+                f'<span class="cell-value js-clock">{escape(row.clock_time)}</span>'
+                f'{("<span class=\"cutoff-inline\"> (🚧 " + escape(row.cutoff_in_time) + ")</span>") if row.cutoff_in_time else ""}</div>',
             )
         )
 
@@ -899,6 +919,8 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
       <div class="time-tune">
         <label class="time-tune-label" for="target-time-input">Target</label>
         <input id="target-time-input" class="time-tune-input" type="text" value="{escape(seconds_to_hms(view_model.total_time_seconds))}" placeholder="HH:MM:SS" />
+        <label class="time-tune-label" for="fatigue-decay-input">Slowdown % (linear model)</label>
+        <input id="fatigue-decay-input" class="time-tune-input small" type="number" min="0" max="100" step="0.1" value="{view_model.original_fatigue_decay_pct:.1f}" />
         <button id="target-time-apply" class="time-tune-button" type="button">Apply</button>
         <button id="target-time-reset" class="time-tune-button" type="button">Reset</button>
         <span id="target-time-status" class="time-tune-status"></span>
@@ -939,7 +961,9 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
     (() => {{
       const originalTargetSeconds = {view_model.total_time_seconds};
       const startTimeSeconds = {view_model.race_start_time_s};
+      const originalFatigueDecayPct = {view_model.original_fatigue_decay_pct};
       const targetInput = document.getElementById("target-time-input");
+      const fatigueInput = document.getElementById("fatigue-decay-input");
       const applyButton = document.getElementById("target-time-apply");
       const resetButton = document.getElementById("target-time-reset");
       const status = document.getElementById("target-time-status");
@@ -972,48 +996,74 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
         return `${{minutes}}:${{String(seconds).padStart(2, "0")}}/km`;
       }}
 
-      function applyScale(targetSeconds) {{
+      function fatigueRatio(progress, newDecayPct) {{
+        const originalDecay = originalFatigueDecayPct / 100;
+        const newDecay = newDecayPct / 100;
+        const base = 1 + originalDecay * progress;
+        if (base <= 0) return 1;
+        return (1 + newDecay * progress) / base;
+      }}
+
+      function applyScale(targetSeconds, newDecayPct) {{
         const scale = targetSeconds / originalTargetSeconds;
+        let cumulativeBaseRunning = 0;
+        let cumulativeAdjustedRunning = 0;
+
         timingCells.forEach((cell) => {{
           const elapsedBase = Number(cell.dataset.elapsedS || "0");
           const runningBase = Number(cell.dataset.runningS || "0");
-          const elapsedScaled = elapsedBase * scale;
-          const runningScaled = runningBase * scale;
-          const clockScaled = startTimeSeconds + elapsedScaled;
+          cumulativeBaseRunning += runningBase;
+          const progress = originalTargetSeconds > 0 ? elapsedBase / originalTargetSeconds : 0;
+          const runningScaled = runningBase * scale * fatigueRatio(progress, newDecayPct);
+          cumulativeAdjustedRunning += runningScaled;
+
+          const baseStopCumulative = elapsedBase - cumulativeBaseRunning;
+          const adjustedElapsed = cumulativeAdjustedRunning + baseStopCumulative * scale;
+          const clockScaled = startTimeSeconds + adjustedElapsed;
 
           const elapsedNode = cell.querySelector(".js-elapsed");
           const runningNode = cell.querySelector(".js-running");
           const clockNode = cell.querySelector(".js-clock");
-          if (elapsedNode) elapsedNode.textContent = toHms(elapsedScaled);
+          if (elapsedNode) elapsedNode.textContent = toHms(adjustedElapsed);
           if (runningNode) runningNode.textContent = toHms(runningScaled);
           if (clockNode) clockNode.textContent = toHms(clockScaled);
         }});
 
-        paceCells.forEach((cell) => {{
+        paceCells.forEach((cell, index) => {{
           const paceBase = Number(cell.dataset.paceS || "-1");
           const gapBase = Number(cell.dataset.gapS || "-1");
+          const timingCell = timingCells[index];
+          const elapsedBase = Number(timingCell?.dataset.elapsedS || "0");
+          const progress = originalTargetSeconds > 0 ? elapsedBase / originalTargetSeconds : 0;
+          const paceScale = scale * fatigueRatio(progress, newDecayPct);
           const paceNode = cell.querySelector(".js-pace");
           const gapNode = cell.querySelector(".js-gap");
-          if (paceNode) paceNode.textContent = paceBase < 0 ? "-" : toPace(paceBase * scale);
-          if (gapNode) gapNode.textContent = gapBase < 0 ? "-" : toPace(gapBase * scale);
+          if (paceNode) paceNode.textContent = paceBase < 0 ? "-" : toPace(paceBase * paceScale);
+          if (gapNode) gapNode.textContent = gapBase < 0 ? "-" : toPace(gapBase * paceScale);
         }});
 
         if (summaryTarget) summaryTarget.textContent = toHms(targetSeconds);
-        status.textContent = `Scaled by x${{scale.toFixed(3)}}`;
+        status.textContent = `Scaled x${{scale.toFixed(3)}} · Slowdown ${{newDecayPct.toFixed(1)}}%`;
       }}
 
       applyButton?.addEventListener("click", () => {{
         const parsed = parseHms(targetInput?.value ?? "");
+        const parsedDecay = Number(fatigueInput?.value ?? `${{originalFatigueDecayPct}}`);
         if (!parsed || parsed <= 0) {{
           status.textContent = "Use HH:MM:SS";
           return;
         }}
-        applyScale(parsed);
+        if (!Number.isFinite(parsedDecay) || parsedDecay < 0 || parsedDecay > 100) {{
+          status.textContent = "Slowdown must be 0-100";
+          return;
+        }}
+        applyScale(parsed, parsedDecay);
       }});
 
       resetButton?.addEventListener("click", () => {{
         if (targetInput) targetInput.value = toHms(originalTargetSeconds);
-        applyScale(originalTargetSeconds);
+        if (fatigueInput) fatigueInput.value = originalFatigueDecayPct.toFixed(1);
+        applyScale(originalTargetSeconds, originalFatigueDecayPct);
         status.textContent = "Reset";
       }});
     }})();

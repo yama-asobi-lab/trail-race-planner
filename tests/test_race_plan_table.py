@@ -50,9 +50,11 @@ class TestRacePlanTable:
         assert 'class="section-meta"' in content
         assert "Planned finish" in content
         assert 'id="target-time-input"' in content
+        assert 'id="fatigue-decay-input"' in content
         assert 'id="target-time-apply"' in content
         assert 'id="target-time-reset"' in content
-        assert "function applyScale(targetSeconds)" in content
+        assert "function applyScale(targetSeconds, newDecayPct)" in content
+        assert "function fatigueRatio(progress, newDecayPct)" in content
         assert 'data-pace-s=' in content
         assert 'class="cell-value emphasized js-pace"' in content
         assert "function toPace(totalSeconds)" in content
@@ -239,3 +241,39 @@ class TestRacePlanTable:
         assert content.count(">Δ<") == len(sample_pacing_df)
         assert "+0 m" in content
         assert "-0 m" in content
+
+    def test_cutoff_time_renders_next_to_clock_line(
+        self, sample_course, sample_pacing_df, tmp_path
+    ):
+        """Cutoff should appear in timing column next to clock time instead of comments."""
+        from race_planner.visualization.race_plan_table import generate_race_plan_table_report
+
+        output_file = tmp_path / "report.html"
+        aid_stations = [
+            {
+                "name": "Start",
+                "distance_km": 0.0,
+                "elevation_m": 1000,
+                "stop_time_s": 0,
+            },
+            {
+                "name": "Finish",
+                "distance_km": 10.0,
+                "elevation_m": 1200,
+                "stop_time_s": 300,
+                "cutoff_in_time": "D3 16:00",
+            },
+        ]
+
+        result = generate_race_plan_table_report(
+            course=sample_course,
+            aid_stations=aid_stations,
+            pacing_df=sample_pacing_df,
+            output_path=output_file,
+            race_name="Test Race",
+            mode="target_time",
+            title="Test Race Plan",
+        )
+
+        content = result.read_text(encoding="utf-8")
+        assert "(🚧 D3 16:00)" in content
