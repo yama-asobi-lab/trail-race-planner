@@ -984,6 +984,15 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
         return `${{h}}:${{String(m).padStart(2, "0")}}:${{String(s).padStart(2, "0")}}`;
       }}
 
+      function toClockWithDay(totalSeconds) {{
+        const safe = Math.max(0, Math.floor(totalSeconds));
+        const day = Math.floor(safe / 86400) + 1;
+        const minutes = Math.floor((safe % 86400) / 60);
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${{String(hours).padStart(2, "0")}}:${{String(mins).padStart(2, "0")}} · D${{day}}`;
+      }}
+
       function parseHms(value) {{
         const match = /^\\s*(\\d+):(\\d{{1,2}}):(\\d{{1,2}})\\s*$/.exec(value || "");
         if (!match) return null;
@@ -1031,7 +1040,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
           const clockNode = cell.querySelector(".js-clock");
           if (elapsedNode) elapsedNode.textContent = toHms(adjustedElapsed);
           if (runningNode) runningNode.textContent = toHms(runningScaled);
-          if (clockNode) clockNode.textContent = toHms(clockScaled);
+          if (clockNode) clockNode.textContent = toClockWithDay(clockScaled);
         }});
 
         paceCells.forEach((cell, index) => {{

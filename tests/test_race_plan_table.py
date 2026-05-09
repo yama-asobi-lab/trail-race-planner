@@ -55,6 +55,8 @@ class TestRacePlanTable:
         assert 'id="target-time-reset"' in content
         assert "function applyScale(targetSeconds, newDecayPct)" in content
         assert "function fatigueRatio(progress, newDecayPct)" in content
+        assert "function toClockWithDay(totalSeconds)" in content
+        assert "clockNode.textContent = toClockWithDay(clockScaled);" in content
         assert 'data-pace-s=' in content
         assert 'class="cell-value emphasized js-pace"' in content
         assert "function toPace(totalSeconds)" in content
