@@ -19,7 +19,11 @@ import numpy as np
 from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from race_planner.models.nutrition import caffeine_concentration_mg_per_kg
+from race_planner.models.nutrition import (
+    CAFFEINE_DEFAULT_ABSORPTION_LAG_H,
+    CAFFEINE_DEFAULT_HALF_LIFE_H,
+    caffeine_concentration_mg_per_kg,
+)
 from race_planner.models.tools import race_offset_to_clock_hhmm, hhmm_to_hours
 
 matplotlib.use("Agg")
@@ -41,8 +45,8 @@ INGESTION_PLAN = [
 ]  # list of (time_hours, dose_mg) tuples
 
 # PK-style parameters
-ABSORPTION_LAG_H = 0.5
-HALF_LIFE_H = 5.5
+ABSORPTION_LAG_H = CAFFEINE_DEFAULT_ABSORPTION_LAG_H
+HALF_LIFE_H = CAFFEINE_DEFAULT_HALF_LIFE_H
 
 # Target range often discussed for endurance performance effects
 TARGET_MIN_MG_PER_KG = 3.0

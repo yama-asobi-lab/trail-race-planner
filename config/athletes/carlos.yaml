@@ -1,5 +1,8 @@
 athlete:
   name: "Carlos"
+  weight_kg: 65
+  hydration:
+    sweat_rate_ml_per_h: 750
 
   # ITRA performance index
   itra_points: 720

@@ -1,5 +1,6 @@
 athlete:
   name: "Yet Another Sato"  # Reference baseline athlete
+  weight_kg: 60
 
   # ITRA performance index (used by ItraScorePredictor)
   itra_points: 500

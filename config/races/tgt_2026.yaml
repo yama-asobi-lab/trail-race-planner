@@ -112,7 +112,7 @@ aid_stations:
   - name: "A6 Jurigi (2)"
     distance_km: 129
     elevation_m: 214   # reference
-    stop_time_s: 90
+    stop_time_s: 240
     notes: "Dropbag access! Dashi chazuke"
     jap_name: "十里木"
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
@@ -120,7 +120,7 @@ aid_stations:
   - name: "Tomin no mori"
     distance_km: 147.1
     elevation_m: 631   # reference
-    stop_time_s: 90
+    stop_time_s: 60
     notes: "Wagashi"
     jap_name: "都民の森"
     gmaps_link: "https://maps.app.goo.gl/W8oppstGke3ejteU9"
@@ -133,3 +133,56 @@ aid_stations:
     jap_name: "奥多摩運動公園"
     gmaps_link: "https://maps.app.goo.gl/yFzLWtDt8DASVbFi7"
     test_run_reference_comments: "3:50 from Jurigi with strong finish"
+
+
+nutrition:
+  target_carbs_g_per_h: 90
+  food_catalog_file: "config/nutrition/foods.yaml"
+
+  # Configuration defines WHAT will be used in each segment (and approximate proportion); planner computes HOW MUCH.
+  # Ratio is a carb-share weight (not servings/units). Example ratio 1:2 means
+  # one-third vs two-thirds of the carb target before unit/fraction rounding.
+  segment_foods:
+    default:
+      - { food: "Pocari doble", ratio: 1 }
+      - { food: "Self-made gel", ratio: 1.2 }
+      - { food: "Youkan", ratio: 0.33 }
+
+    # Optional overrides by arrival point name.
+    by_segment:
+      "A3 Sanogawa":
+        - { food: "Pocari doble", ratio: 1 }
+        - { food: "Self-made gel", ratio: 2 }
+        - { food: "Hoshi imo", ratio: 1 }
+      "Wada-toge":
+        - { food: "Pocari doble", ratio: 1 }
+        - { food: "Self-made gel", ratio: 2 }
+        - { food: "Hoshi imo", ratio: 1 }
+
+  # Aid-station intake (food with units).
+  aid_station_intake:
+    by_segment:
+      "A1 Mitake Aid":
+        - { food: "Banana", units: 0.5 }
+        - { food: "Rice curry", carbs_g: 30}
+      "Hinode Oguno 7-eleven":
+        - { food: "Potato salad", carbs_g: 30 }
+        - { food: "Coke", units: 1.0 }
+      "A3 Sanogawa":
+        - { food: "Hiyashi Ramen", carbs_g: 30 }
+        - { food: "Coke", units: 0.5 }
+      "A4 Fujimi chaya":
+        - { food: "Somen", carbs_g: 30 }
+      "Wada-toge":
+        - { food: "Coke", units: 0.5 }
+      "A6 Jurigi (2)":
+        - { food: "Dashi chazuke", carbs_g: 30 }
+
+  # Caffeine modeled with exact race-time doses (hours from start).
+  caffeine_plan:
+    ingestion_plan:
+      - { time_h: 5.0, dose_mg: 200 }
+      - { time_h: 8.0, dose_mg: 200 }
+      - { time_h: 13.0, dose_mg: 200 }
+      - { time_h: 22.0, dose_mg: 200 }
+      - { time_h: 27.0, dose_mg: 200 }

@@ -1,0 +1,119 @@
+foods:
+  - name: "Isotonic"
+    reference_size: "500 ml"
+    carbs_g: 25
+    protein_g: 0
+    fat_g: 0
+    sodium_mg: 600
+    notes: "One cup: 200 ml"
+
+  - name: "Pocari powder"
+    reference_size: "500 ml"
+    accepted_fractions: [0.5, 1.0]
+    carbs_g: 35
+    sodium_mg: 260
+
+  - name: "Pocari doble"
+    reference_size: "500 ml"
+    accepted_fractions: [0.5, 1.0]
+    carbs_g: 70
+    sodium_mg: 520
+
+  - name: "Salt tablet"
+    reference_size: "1 tablet"
+    carbs_g: 3
+    sodium_mg: 50
+    notes: "塩分チャージ"
+
+  - name: "Coke"
+    reference_size: "500 ml"
+    accepted_fractions: [0.5, 1.0]
+    carbs_g: 56
+    protein_g: 0
+    fat_g: 0
+
+  - name: "Banana"
+    reference_size: "Medium (100 gr)"
+    accepted_fractions: [0.5, 1.0]
+    carbs_g: 22
+    protein_g: 1
+    fat_g: 0
+
+  - name: "Youkan"
+    reference_size: "60 gr"
+    carbs_g: 38
+    accepted_fractions: [1.0]
+    protein_g: 2
+    fat_g: 0.4
+
+  - name: "White cereal bar"
+    reference_size: "One (37 gr)"
+    carbs_g: 23.9
+    protein_g: 1.6
+    fat_g: 10
+
+  - name: "Hoshi imo"
+    reference_size: "100 gr bag"
+    accepted_fractions: [0.5, 1.0]
+    carbs_g: 72.2
+    protein_g: 4
+    fat_g: 0.5
+    sodium_mg: 64
+
+  - name: "Energy jelly"
+    reference_size: "One (180 gr)"
+    accepted_fractions: [1.0]
+    carbs_g: 45
+    protein_g: 0
+    fat_g: 0
+
+  - name: "Self-made gel"
+    reference_size: "200 gr"
+    carbs_g: 125
+    accepted_fractions: [0.33, 0.5, 0.67, 1.0]
+    protein_g: 0
+    fat_g: 0
+    sodium_mg: 150
+
+  - name: "Udon"
+    reference_size: "One bowl"
+    carbs_g: 40
+    protein_g: 5
+    fat_g: 2
+
+  - name: "Shio onigiri"
+    reference_size: "One (90 gr)"
+    carbs_g: 27
+    protein_g: 2.2
+    fat_g: 0.2
+
+  - name: "Raisins"
+    reference_size: "3 handfuls (45 gr)"
+    carbs_g: 36
+    protein_g: 1.5
+    fat_g: 0.2
+
+  - name: "Fried potatoes (air)"
+    reference_size: "100 gr"
+    carbs_g: 20.7
+    protein_g: 2.6
+    fat_g: 4.1
+
+  - name: "Amazake"
+    reference_size: "100 ml"
+    carbs_g: 15.9
+    protein_g: 1.2
+    fat_g: 0.2
+
+  - name: "Mochi"
+    reference_size: "50 gr"
+    carbs_g: 27
+    protein_g: 1
+    fat_g: 0
+
+  - name: "Medallist Caffeine 200"
+    reference_size: "20 gr"
+    carbs_g: 7
+    protein_g: 1
+    fat_g: 0
+    caffeine_mg: 200

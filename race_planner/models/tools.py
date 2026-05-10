@@ -1,6 +1,28 @@
 """Generic tools library"""
 
+import re
+
 import numpy as np
+
+
+def canonical_point_name(point_name: str) -> str:
+    """Strip trailing Japanese alias suffix from aid/checkpoint name if present."""
+    value = str(point_name).strip()
+    if value.endswith(")") and " (" in value:
+        return value.rsplit(" (", 1)[0]
+    return value
+
+
+def format_decimal_quantity(value: float, decimals: int = 3) -> str:
+    """Format float with minimal trailing zeros, up to the given decimal precision."""
+    text = f"{float(value):.{decimals}f}".rstrip("0").rstrip(".")
+    return text if text else "0"
+
+
+def extract_volume_ml(reference_size: str) -> float:
+    """Extract ml volume from free-text reference size (e.g., '500 ml')."""
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*ml\b", str(reference_size), flags=re.IGNORECASE)
+    return float(match.group(1)) if match else 0.0
 
 
 def hhmm_to_hours(time_str: str) -> float:
@@ -97,3 +119,18 @@ def hms_to_hours(time_str: str) -> float:
     """Convert HH:MM:SS to hours."""
     h, m, s = map(int, time_str.split(":"))
     return h + m / 60 + s / 3600
+
+
+def parse_duration_to_seconds(value: object) -> float:
+    """Parse HH:MM:SS strings or numeric second values into seconds."""
+    if value is None:
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return 0.0
+    try:
+        return float(hms_to_seconds(text))
+    except Exception:
+        return 0.0
