@@ -1,4 +1,4 @@
-﻿"""Generate smartphone-friendly race plan HTML report with embedded elevation profile."""
+"""Generate smartphone-friendly race plan HTML report with embedded elevation profile."""
 
 from __future__ import annotations
 
@@ -549,8 +549,13 @@ def _format_extra_label(key: str) -> str:
 
 def _format_extra_value(value: Any) -> str:
     """Format extra field value."""
+    if isinstance(value, dict):
+        return "; ".join(
+            f"{_format_extra_label(str(key))}: {_format_extra_value(item)}"
+            for key, item in value.items()
+        )
     if isinstance(value, list):
-        return ", ".join(str(item) for item in value)
+        return ", ".join(_format_extra_value(item) for item in value)
     return str(value)
 
 
@@ -781,8 +786,8 @@ def _build_report_view_model(
         summary_items=summary_items,
         profile_meta=(
             f'{float(course.total_distance_km):.1f} km'
-            f' ┬╖ +{float(course.total_elevation_gain_m):.0f} m'
-            f' ┬╖ -{float(course.total_elevation_loss_m):.0f} m'
+            f' · +{float(course.total_elevation_gain_m):.0f} m'
+            f' · -{float(course.total_elevation_loss_m):.0f} m'
         ),
         total_time_seconds=int(float(pacing_df.attrs.get("total_time_s", 0))),
         race_start_time_s=race_start_time_s,
@@ -858,6 +863,11 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
                 + '" target="_blank" rel="noopener noreferrer">Map</a></div>'
             )
 
+        cutoff_inline = (
+            f'<span class="cutoff-inline"> (🚧 {escape(row.cutoff_in_time)})</span>'
+            if row.cutoff_in_time
+            else ""
+        )
         timing_html = "".join(
             (
                 f'<div class="cell-line"><span class="cell-label">⏱</span>'
@@ -866,7 +876,7 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
                 f'<span class="cell-value js-running">{escape(row.running_time)}</span></div>',
                 f'<div class="cell-line"><span class="cell-label">🕒</span>'
                 f'<span class="cell-value js-clock">{escape(row.clock_time)}</span>'
-                f'{("<span class=\"cutoff-inline\"> (🚧 " + escape(row.cutoff_in_time) + ")</span>") if row.cutoff_in_time else ""}</div>',
+                f"{cutoff_inline}</div>",
             )
         )
 
@@ -979,6 +989,15 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
         return `${{h}}:${{String(m).padStart(2, "0")}}:${{String(s).padStart(2, "0")}}`;
       }}
 
+      function toClockWithDay(totalSeconds) {{
+        const safe = Math.max(0, Math.floor(totalSeconds));
+        const day = Math.floor(safe / 86400) + 1;
+        const minutes = Math.floor((safe % 86400) / 60);
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${{String(hours).padStart(2, "0")}}:${{String(mins).padStart(2, "0")}} · D${{day}}`;
+      }}
+
       function parseHms(value) {{
         const match = /^\\s*(\\d+):(\\d{{1,2}}):(\\d{{1,2}})\\s*$/.exec(value || "");
         if (!match) return null;
@@ -1026,7 +1045,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
           const clockNode = cell.querySelector(".js-clock");
           if (elapsedNode) elapsedNode.textContent = toHms(adjustedElapsed);
           if (runningNode) runningNode.textContent = toHms(runningScaled);
-          if (clockNode) clockNode.textContent = toHms(clockScaled);
+          if (clockNode) clockNode.textContent = toClockWithDay(clockScaled);
         }});
 
         paceCells.forEach((cell, index) => {{
@@ -1043,7 +1062,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
         }});
 
         if (summaryTarget) summaryTarget.textContent = toHms(targetSeconds);
-        status.textContent = `Scaled x${{scale.toFixed(3)}} ┬╖ Slowdown ${{newDecayPct.toFixed(1)}}%`;
+        status.textContent = `Scaled x${{scale.toFixed(3)}} · Slowdown ${{newDecayPct.toFixed(1)}}%`;
       }}
 
       applyButton?.addEventListener("click", () => {{

@@ -952,6 +952,28 @@ def main():
         logger.info(f"  ITRA score:    {itra_score_result}")
     logger.info(sep)
 
+    # ------------------------------------------------------------------
+    # 7. Generate smartphone-friendly race plan HTML report
+    # ------------------------------------------------------------------
+    try:
+        race_name = race_info.get("name", "Race Plan")
+        race_start_time = race_info.get("start_time")
+        report_stem = output_path.stem.removesuffix("_segment_analysis")
+        html_output_path = output_path.parent / f"{report_stem}_race_plan.html"
+        generate_race_plan_table_report(
+            course=course,
+            aid_stations=aid_stations,
+            pacing_df=pacing_df,
+            output_path=html_output_path,
+            race_name=race_name,
+            mode=args.mode,
+            race_start_time=race_start_time,
+            title=f"{race_name} — Race Plan",
+        )
+        logger.success(f"Race plan HTML report written to: {html_output_path}")
+    except Exception:
+        logger.exception("Race plan HTML report generation failed; continuing without HTML report.")
+
 
 if __name__ == "__main__":
     main()

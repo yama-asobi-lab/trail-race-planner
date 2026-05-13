@@ -21,6 +21,9 @@ race:
   planning:
     fatigue_total_decay_pct: 14     # 14% linear decay from start to finish
 
+  # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
+  start_time: "15:50:00"
+
 
 aid_stations:
   - name: "START"
@@ -39,6 +42,7 @@ aid_stations:
     jap_name: "大根山の神"
     gmaps_link: "https://maps.app.goo.gl/pVpMf4e4CHF1MbrW9"
     test_run_reference_comments: "1:34 having fun in the downhill"
+    cutoff_in_time: "D1 19:00"
 
   - name: "Kawai"
     distance_km: 19.4
@@ -56,15 +60,17 @@ aid_stations:
     notes: "Famous Inner Fact Special Curry!"
     jap_name: "御岳エイド"
     gmaps_link: "https://maps.app.goo.gl/9KCFviW9vkiWuE7C9"
+    cutoff_in_time: "D2 01:30"
 
   - name: "CP2 Umegou"
     distance_km: 45
     elevation_m: 227   # reference
     stop_time_s: 240
-    notes: "Water only, 7-eleven and famima shortly before arriving"
+    notes: "Water only, famima 500 m before arriving"
     jap_name: "梅郷地区"
     gmaps_link: "https://maps.app.goo.gl/mSckttx7yYLFxYyh8"
     test_run_reference_comments: "2:56 without pushing too hard"
+    cutoff_in_time: "D2 06:00"
 
   - name: "Hinode Oguno 7-eleven"
     distance_km: 59.0
@@ -82,6 +88,10 @@ aid_stations:
     jap_name: "十里木"
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
     test_run_reference_comments: "1:55 with a few missed turns but at a strong pace"
+    cutoff_in_time: "D2 11:00"
+    course_change_gate: 
+      active_window: "D2 11:00 to 13:00"
+      rule: "Within this window, merge to 90 km course or DNF"
 
   - name: "A3 Sanogawa"
     distance_km: 88.3
@@ -91,6 +101,7 @@ aid_stations:
     jap_name: "佐野川"
     gmaps_link: "https://maps.app.goo.gl/8rQu4mRhLZ7AxtA49"
     test_run_reference_comments: "3:38 at a strong pace"
+    cutoff_in_time: "D2 17:00"
 
   - name: "A4 Fujimi chaya"
     distance_km: 100.5
@@ -99,6 +110,7 @@ aid_stations:
     notes: "Somen"
     jap_name: "富士見茶屋"
     gmaps_link: "https://maps.app.goo.gl/tibMETRJcN3bsK7y7"
+    cutoff_in_time: "D2 22:00"
 
   - name: "Wada-toge"
     distance_km: 117.7
@@ -108,6 +120,7 @@ aid_stations:
     jap_name: "和田峠"
     gmaps_link: "https://maps.app.goo.gl/gjXf43aMxvDZKTySA"
     test_run_reference_comments: "2:27 jogging the uphills"
+    cutoff_in_time: "D3 03:00"
 
   - name: "A6 Jurigi (2)"
     distance_km: 129
@@ -116,6 +129,7 @@ aid_stations:
     notes: "Dropbag access! Dashi chazuke"
     jap_name: "十里木"
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
+    cutoff_in_time: "D3 08:00"
 
   - name: "Tomin no mori"
     distance_km: 147.1
@@ -124,6 +138,7 @@ aid_stations:
     notes: "Wagashi"
     jap_name: "都民の森"
     gmaps_link: "https://maps.app.goo.gl/W8oppstGke3ejteU9"
+    cutoff_in_time: "D3 14:30"
 
   - name: "FINISH"
     distance_km: 153.1
@@ -133,6 +148,7 @@ aid_stations:
     jap_name: "奥多摩運動公園"
     gmaps_link: "https://maps.app.goo.gl/yFzLWtDt8DASVbFi7"
     test_run_reference_comments: "3:50 from Jurigi with strong finish"
+    cutoff_in_time: "D3 16:00"
 
 
 nutrition:
