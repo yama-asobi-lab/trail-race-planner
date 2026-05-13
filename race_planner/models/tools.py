@@ -8,25 +8,47 @@ def hhmm_to_hours(time_str: str) -> float:
     parts = time_str.split(":")
     if len(parts) != 2:
         raise ValueError(f"Invalid time format '{time_str}'. Expected HH:MM.")
-    hours = int(parts[0])
-    minutes = int(parts[1])
-    if not (0 <= hours <= 23 and 0 <= minutes <= 59):
-        raise ValueError(f"Invalid time value '{time_str}'.")
-    return hours + minutes / 60.0
+    return clock_time_to_seconds(time_str) / 3600.0
 
 
 def race_offset_to_clock_hhmm(start_h: float, race_offset_h: float) -> str:
     """Return wall-clock time in HH:MM (24h) for a given race offset from start_h."""
-    total_minutes = int(round((start_h + race_offset_h) * 60.0)) % (24 * 60)
-    hh = total_minutes // 60
-    mm = total_minutes % 60
-    return f"{hh:02d}:{mm:02d}"
+    total_seconds = int(round((start_h + race_offset_h) * 3600.0))
+    return seconds_to_clock_hhmm(total_seconds)
 
 
 def hms_to_seconds(time_str: str) -> int:
     """Convert HH:MM:SS to total seconds."""
     h, m, s = map(int, time_str.split(":"))
     return h * 3600 + m * 60 + s
+
+
+def clock_time_to_seconds(time_str: str | None) -> int:
+    """Convert HH:MM or HH:MM:SS to seconds since midnight."""
+    if not time_str:
+        return 0
+
+    parts = time_str.strip().split(":")
+    if len(parts) == 2:
+        hours, minutes = map(int, parts)
+        seconds = 0
+    elif len(parts) == 3:
+        hours, minutes, seconds = map(int, parts)
+    else:
+        raise ValueError(f"Invalid time format '{time_str}'. Expected HH:MM or HH:MM:SS.")
+
+    if not (0 <= hours <= 23 and 0 <= minutes <= 59 and 0 <= seconds <= 59):
+        raise ValueError(f"Invalid time value '{time_str}'.")
+
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def seconds_to_clock_hhmm(seconds: float | int) -> str:
+    """Convert absolute seconds to HH:MM on a 24-hour clock."""
+    total_minutes = int(seconds) // 60 % (24 * 60)
+    hours = total_minutes // 60
+    minutes = total_minutes % 60
+    return f"{hours:02d}:{minutes:02d}"
 
 
 def pace_to_seconds_per_km(pace_str: str) -> float:
@@ -49,6 +71,13 @@ def seconds_to_hms(seconds: float) -> str:
     m = (total % 3600) // 60
     s = total % 60
     return f"{h}:{m:02d}:{s:02d}"
+
+
+def elapsed_hms_to_clock_time(elapsed_time: str, start_time_s: int) -> str:
+    """Convert an elapsed H:MM:SS duration to a wall-clock time with day number."""
+    absolute_seconds = start_time_s + hms_to_seconds(elapsed_time)
+    day_number = absolute_seconds // 86400 + 1
+    return f"{seconds_to_clock_hhmm(absolute_seconds)} · D{day_number}"
 
 
 def seconds_per_km_to_pace(pace_sec_per_km: float) -> str:

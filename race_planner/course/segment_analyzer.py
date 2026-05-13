@@ -15,7 +15,6 @@ import pandas as pd
 import yaml
 
 from race_planner.course.course import Course
-from race_planner.visualization import plot_course_profile
 
 
 class SegmentAnalyzer:
@@ -275,6 +274,9 @@ class SegmentAnalyzer:
         logger.info(f"  Number of Aid Stations: {len(self.aid_stations)}")
 
         # Generate elevation profile plot
+        # Lazy import to avoid circular dependency
+        from race_planner.visualization import plot_course_profile
+
         plot_path = output_path.parent / f"{output_path.stem}_elevation_profile.html"
         race_name = self.race_config.get("race", {}).get("name", "Race Course")
         logger.info("Generating elevation profile plot...")
