@@ -51,6 +51,7 @@ from race_planner.models.tools import (
     seconds_to_hms,
 )
 from race_planner.planner import PaceCalculator
+from race_planner.visualization.race_plan_table import generate_race_plan_table_report
 
 
 # ---------------------------------------------------------------------------
@@ -891,6 +892,31 @@ def main():
                 logger.success("Dropbag plan written to sheet 'Dropbag Plan'")
         except Exception as exc:
             logger.error(f"Nutrition plan generation failed: {exc}")
+
+    # ------------------------------------------------------------------
+    # 8. Generate smartphone-friendly race plan HTML report
+    # ------------------------------------------------------------------
+    try:
+        race_name = race_info.get("name", "Race Plan")
+        race_start_time = race_info.get("start_time")
+        report_stem = output_path.stem.removesuffix("_segment_analysis")
+        html_output_path = output_path.parent / f"{report_stem}_race_plan.html"
+        generate_race_plan_table_report(
+            course=course,
+            aid_stations=aid_stations,
+            pacing_df=pacing_df,
+            output_path=html_output_path,
+            race_name=race_name,
+            mode=args.mode,
+            race_start_time=race_start_time,
+            title=f"{race_name} – Race Plan",
+        )
+        logger.success(f"Race plan HTML report written to: {html_output_path}")
+    except Exception as exc:
+        logger.error(f"Race plan HTML report generation failed: {exc}")
+        import traceback
+
+        traceback.print_exc()
 
     # ------------------------------------------------------------------
     # Summary

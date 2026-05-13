@@ -45,6 +45,36 @@ def race_offset_to_clock_hhmm(start_h: float, race_offset_h: float) -> str:
     return f"{hh:02d}:{mm:02d}"
 
 
+def clock_time_to_seconds(time_str: str | None) -> int:
+    """Convert HH:MM or HH:MM:SS to seconds since midnight."""
+    if not time_str:
+        return 0
+
+    parts = time_str.strip().split(":")
+    if len(parts) == 2:
+        hours, minutes = map(int, parts)
+        seconds = 0
+    elif len(parts) == 3:
+        hours, minutes, seconds = map(int, parts)
+    else:
+        raise ValueError(f"Invalid time format '{time_str}'. Expected HH:MM or HH:MM:SS.")
+
+    if not (0 <= hours <= 23 and 0 <= minutes <= 59 and 0 <= seconds <= 59):
+        raise ValueError(f"Invalid time value '{time_str}'.")
+
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def elapsed_hms_to_clock_time(elapsed_hms: str, race_start_time_s: int) -> str:
+    """Convert elapsed time HH:MM:SS and race start time (seconds since midnight) to wall-clock time."""
+    elapsed_s = hms_to_seconds(elapsed_hms)
+    total_s = (race_start_time_s + elapsed_s) % (24 * 3600)
+    hours = total_s // 3600
+    minutes = (total_s % 3600) // 60
+    seconds = total_s % 60
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
 def hms_to_seconds(time_str: str) -> int:
     """Convert HH:MM:SS to total seconds."""
     h, m, s = map(int, time_str.split(":"))
