@@ -19,6 +19,7 @@ Options:
                                Fatigue model source (default: none)
     --fatigue-total-decay-pct PCT
                                Override fatigue with linear decay (0–100); takes precedence
+    --nutrition {yes|no}      Include nutrition column in main HTML report (default: no)
 
 Notes:
     - For target_time, the provided time is the desired TOTAL finish time
@@ -51,10 +52,7 @@ from race_planner.models.tools import (
     seconds_to_hms,
 )
 from race_planner.planner import PaceCalculator
-from race_planner.visualization.race_plan_table import (
-    generate_race_plan_table_report,
-    generate_nutrition_plan_html,
-)
+from race_planner.visualization.race_plan_table import generate_race_plan_table_report
 
 
 # ---------------------------------------------------------------------------
@@ -592,6 +590,12 @@ def main():
         metavar="PCT",
         help="Override fatigue model with linear decay PCT (0–100); takes precedence over config",
     )
+    parser.add_argument(
+        "--nutrition",
+        choices=["yes", "no"],
+        default="no",
+        help="Include nutrition column in main HTML report (default: no)",
+    )
     args = parser.parse_args()
 
     if args.mode == "target_time" and not args.target_time:
@@ -830,6 +834,7 @@ def main():
     # ------------------------------------------------------------------
     # 7. Nutrition plan sheet (optional)
     # ------------------------------------------------------------------
+    carb_plan: dict | None = None
     nutrition_cfg = race_config.get("nutrition")
     if nutrition_cfg:
         try:
@@ -884,21 +889,6 @@ def main():
             )
             logger.success("Nutrition plan written to sheet 'Nutrition Plan'")
 
-            # Generate nutrition plan HTML
-            try:
-                race_name = race_info.get("name", "Race Plan")
-                report_stem = output_path.stem.removesuffix("_segment_analysis")
-                nutrition_html_path = output_path.parent / f"{report_stem}_nutrition_plan.html"
-                generate_nutrition_plan_html(
-                    nutrition_plan=carb_plan,
-                    output_path=nutrition_html_path,
-                    race_name=race_name,
-                    title=f"{race_name} – Nutrition Plan",
-                )
-                logger.success(f"Nutrition plan HTML written to: {nutrition_html_path}")
-            except Exception as exc:
-                logger.error(f"Nutrition plan HTML generation failed: {exc}")
-
             dropbag_points = _collect_dropbag_points(nutrition_cfg, aid_stations)
             dropbag_plan = _build_dropbag_plan(carb_plan, dropbag_points)
             if dropbag_plan:
@@ -919,6 +909,7 @@ def main():
         race_start_time = race_info.get("start_time")
         report_stem = output_path.stem.removesuffix("_segment_analysis")
         html_output_path = output_path.parent / f"{report_stem}_race_plan.html"
+        nutrition_plan_for_html = carb_plan if args.nutrition == "yes" else None
         generate_race_plan_table_report(
             course=course,
             aid_stations=aid_stations,
@@ -926,6 +917,7 @@ def main():
             output_path=html_output_path,
             race_name=race_name,
             mode=args.mode,
+            nutrition_plan=nutrition_plan_for_html,
             race_start_time=race_start_time,
             title=f"{race_name} – Race Plan",
         )
@@ -969,28 +961,6 @@ def main():
     if itra_score_result is not None:
         logger.info(f"  ITRA score:    {itra_score_result}")
     logger.info(sep)
-
-    # ------------------------------------------------------------------
-    # 7. Generate smartphone-friendly race plan HTML report
-    # ------------------------------------------------------------------
-    try:
-        race_name = race_info.get("name", "Race Plan")
-        race_start_time = race_info.get("start_time")
-        report_stem = output_path.stem.removesuffix("_segment_analysis")
-        html_output_path = output_path.parent / f"{report_stem}_race_plan.html"
-        generate_race_plan_table_report(
-            course=course,
-            aid_stations=aid_stations,
-            pacing_df=pacing_df,
-            output_path=html_output_path,
-            race_name=race_name,
-            mode=args.mode,
-            race_start_time=race_start_time,
-            title=f"{race_name} — Race Plan",
-        )
-        logger.success(f"Race plan HTML report written to: {html_output_path}")
-    except Exception:
-        logger.exception("Race plan HTML report generation failed; continuing without HTML report.")
 
 
 if __name__ == "__main__":

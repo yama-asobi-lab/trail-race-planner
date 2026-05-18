@@ -13,9 +13,10 @@ from loguru import logger
 
 from race_planner.course import Course
 from race_planner.models.tools import (
+    canonical_point_name,
     clock_time_to_seconds,
     elapsed_hms_to_clock_time,
-    extract_volume_ml,
+    format_decimal_quantity,
     hms_to_seconds,
     seconds_to_hms,
 )
@@ -407,6 +408,48 @@ _REPORT_CSS = """
       font-variant-numeric: tabular-nums;
     }
 
+    .fuel-cell {
+      min-width: 260px;
+    }
+
+    .fuel-group {
+      margin-bottom: 6px;
+    }
+
+    .fuel-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .fuel-group-label {
+      color: var(--text-soft);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 3px;
+    }
+
+    .fuel-chip {
+      display: inline-block;
+      margin: 2px 4px 2px 0;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .fuel-chip-running {
+      background: rgba(88, 208, 215, 0.17);
+      border: 1px solid rgba(88, 208, 215, 0.38);
+      color: #93edf2;
+    }
+
+    .fuel-chip-aid {
+      background: rgba(255, 200, 87, 0.18);
+      border: 1px solid rgba(255, 200, 87, 0.4);
+      color: #ffd88a;
+    }
+
     .profile-shell {
       margin-top: 8px;
       border: none;
@@ -498,6 +541,8 @@ class TableRowViewModel:
     avg_gap: str
     avg_gap_seconds: int
     comments: tuple[CommentsLineViewModel, ...]
+    running_fuel_items: tuple[str, ...]
+    aid_fuel_items: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -509,6 +554,7 @@ class RacePlanReportViewModel:
     total_time_seconds: int
     race_start_time_s: int
     original_fatigue_decay_pct: float
+    include_fuel_column: bool
     table_rows: tuple[TableRowViewModel, ...]
     plot_html: str
 
@@ -607,6 +653,7 @@ def _build_table_row_view_models(
     pacing_df: pd.DataFrame,
     aid_stations: list[dict[str, Any]],
     race_start_time_s: int,
+    nutrition_plan: dict[str, Any] | None = None,
 ) -> tuple[TableRowViewModel, ...]:
     """Build row view models for the aid station table."""
     if len(pacing_df) != len(aid_stations):
@@ -614,12 +661,68 @@ def _build_table_row_view_models(
             "Pacing rows and aid stations must have the same length to build the race table report."
         )
 
+    nutrition_rows = list((nutrition_plan or {}).get("rows", []))
+    nutrition_by_point_name: dict[str, dict[str, Any]] = {
+        canonical_point_name(str(row.get("point_name", ""))).lower(): row for row in nutrition_rows
+    }
+
     rows: list[TableRowViewModel] = []
     accum_loss_m = 0.0
-    for row, aid_station in zip(pacing_df.to_dict(orient="records"), aid_stations, strict=True):
+    for row_index, (row, aid_station) in enumerate(
+        zip(pacing_df.to_dict(orient="records"), aid_stations, strict=True)
+    ):
         split_loss_m = abs(float(row["Segment Elevation Loss (m)"]))
         accum_loss_m += split_loss_m
         station_name = str(aid_station.get("name", row.get("Point Name", "Unknown")))
+        nutrition_row = nutrition_by_point_name.get(canonical_point_name(station_name).lower())
+        if nutrition_row is None and row_index < len(nutrition_rows):
+            nutrition_row = nutrition_rows[row_index]
+
+        running_fuel_items: list[str] = []
+        aid_fuel_items: list[str] = []
+        if nutrition_row:
+            for allocation in nutrition_row.get("segment_allocations", []):
+                units = float(allocation.get("units", 0.0) or 0.0)
+                if units <= 0:
+                    continue
+                food_name = str(allocation.get("food", "")).strip()
+                reference_size = str(allocation.get("reference_size", "")).strip()
+                if reference_size.lower() == "custom":
+                    carbs_g = float(allocation.get("actual_carbs_g", 0.0) or 0.0)
+                    running_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(carbs_g, 1)} gr CH"
+                    )
+                else:
+                    running_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(units)} x {reference_size}"
+                    )
+
+            for allocation in nutrition_row.get("aid_allocations", []):
+                units = float(allocation.get("units", 0.0) or 0.0)
+                if units <= 0:
+                    continue
+                food_name = str(allocation.get("food", "")).strip()
+                reference_size = str(allocation.get("reference_size", "")).strip()
+                if reference_size.lower() == "custom":
+                    carbs_g = float(allocation.get("actual_carbs_g", 0.0) or 0.0)
+                    aid_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(carbs_g, 1)} gr CH"
+                    )
+                else:
+                    aid_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(units)} x {reference_size}"
+                    )
+
+            for caffeine_event in nutrition_row.get("segment_caffeine_events", []):
+                dose_mg = float(caffeine_event.get("dose_mg", 0.0) or 0.0)
+                if dose_mg <= 0:
+                    continue
+                time_h = float(caffeine_event.get("time_h", 0.0) or 0.0)
+                time_hms = seconds_to_hms(time_h * 3600.0)
+                running_fuel_items.append(
+                    f"Caffeine: {format_decimal_quantity(dose_mg)} mg @ {time_hms}"
+                )
+
         rows.append(
             TableRowViewModel(
                 station_name=station_name,
@@ -655,6 +758,8 @@ def _build_table_row_view_models(
                     str(row["Avg Grade-Adjusted Pace (mm:ss/km)"])
                 ),
                 comments=_build_comments_view_model(aid_station),
+                running_fuel_items=tuple(running_fuel_items),
+                aid_fuel_items=tuple(aid_fuel_items),
             )
         )
 
@@ -753,6 +858,7 @@ def _build_report_view_model(
     mode: str,
     race_start_time: str | None,
     title: str,
+    nutrition_plan: dict[str, Any] | None = None,
 ) -> RacePlanReportViewModel:
     """Build the report view model from course, pacing, and config data."""
     normalized_aid_stations = _normalized_aid_stations(pacing_df, aid_stations)
@@ -793,10 +899,12 @@ def _build_report_view_model(
         total_time_seconds=int(float(pacing_df.attrs.get("total_time_s", 0))),
         race_start_time_s=race_start_time_s,
         original_fatigue_decay_pct=float(pacing_df.attrs.get("fatigue_total_decay_pct", 0.0)),
+        include_fuel_column=nutrition_plan is not None,
         table_rows=_build_table_row_view_models(
             pacing_df=pacing_df,
             aid_stations=normalized_aid_stations,
             race_start_time_s=race_start_time_s,
+            nutrition_plan=nutrition_plan,
         ),
         plot_html=fig.to_html(include_plotlyjs=True, full_html=False),
     )
@@ -844,7 +952,40 @@ def _render_value_line(value: str, emphasize: bool = False) -> str:
     return f'<div class="value-line"><span class="{value_class}">{escape(value)}</span></div>'
 
 
-def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
+def _render_fuel_cell(
+    running_fuel_items: tuple[str, ...],
+    aid_fuel_items: tuple[str, ...],
+) -> str:
+    """Render fuel plan cell: running intake first, aid intake last."""
+    running_html = "".join(
+        f'<div class="fuel-chip fuel-chip-running">🏃 {escape(item)}</div>'
+        for item in running_fuel_items
+    )
+    aid_html = "".join(
+        f'<div class="fuel-chip fuel-chip-aid">🛟 {escape(item)}</div>' for item in aid_fuel_items
+    )
+
+    sections: list[str] = []
+    if running_html:
+        sections.append(
+            '<div class="fuel-group"><div class="fuel-group-label">During run</div>'
+            f"{running_html}</div>"
+        )
+    if aid_html:
+        sections.append(
+            '<div class="fuel-group"><div class="fuel-group-label">At aid</div>' f"{aid_html}</div>"
+        )
+
+    if not sections:
+        return '<div class="comments-empty">No fueling planned</div>'
+
+    return "".join(sections)
+
+
+def _render_table_rows(
+    table_rows: tuple[TableRowViewModel, ...],
+    include_fuel_column: bool,
+) -> str:
     """Render table row HTML."""
     rows_html: list[str] = []
     for row in table_rows:
@@ -888,6 +1029,12 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
             )
         )
 
+        fuel_cell_html = (
+            f'<td class="fuel-cell">{_render_fuel_cell(row.running_fuel_items, row.aid_fuel_items)}</td>'
+            if include_fuel_column
+            else ""
+        )
+
         rows_html.append(
             "<tr>"
             f'<th scope="row" class="sticky-col station-cell">{"".join(station_lines)}</th>'
@@ -900,6 +1047,7 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
             f'<td class="timing-cell" data-elapsed-s="{row.elapsed_seconds}" data-running-s="{row.running_seconds}">{timing_html}</td>'
             f'<td class="metric-cell metric-pace" data-pace-s="{row.avg_pace_seconds}" data-gap-s="{row.avg_gap_seconds}">{pace_html}</td>'
             f'<td class="comments-cell">{_render_comments_html(row.comments)}</td>'
+            f"{fuel_cell_html}"
             "</tr>"
         )
 
@@ -909,7 +1057,8 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
 def _render_report_html(view_model: RacePlanReportViewModel) -> str:
     """Render the complete report HTML from the view model."""
     summary_html = _render_summary_cards(view_model.summary_items)
-    table_rows_html = _render_table_rows(view_model.table_rows)
+    table_rows_html = _render_table_rows(view_model.table_rows, view_model.include_fuel_column)
+    fuel_header_html = "<th>Fuel</th>" if view_model.include_fuel_column else ""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -952,6 +1101,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
             <th>Time</th>
             <th>Pace</th>
             <th>Notes</th>
+            {fuel_header_html}
           </tr>
         </thead>
         <tbody>
@@ -1100,6 +1250,7 @@ def generate_race_plan_table_report(
     output_path: Path | str,
     race_name: str,
     mode: str,
+    nutrition_plan: dict[str, Any] | None = None,
     race_start_time: str | None = None,
     title: str = "Race Plan Table",
 ) -> Path:
@@ -1113,6 +1264,7 @@ def generate_race_plan_table_report(
         aid_stations=aid_stations,
         race_name=race_name,
         mode=mode,
+        nutrition_plan=nutrition_plan,
         race_start_time=race_start_time,
         title=title,
     )
@@ -1120,476 +1272,4 @@ def generate_race_plan_table_report(
 
     output_path.write_text(html, encoding="utf-8")
     logger.success(f"Race plan table saved to: {output_path}")
-    return output_path
-
-
-_NUTRITION_PLAN_CSS = """
-    :root {
-      --bg: #07131f;
-      --bg-panel: #0d2031;
-      --bg-sticky: #102539;
-      --bg-header: #183753;
-      --line: #2d4b68;
-      --line-strong: #47739d;
-      --text: #f3e9c6;
-      --text-soft: #cdbf93;
-      --accent: #58d0d7;
-      --accent-2: #ffc857;
-      --accent-3: #88aee0;
-      --success: #72d96e;
-      --warning: #ff9a4d;
-      --shadow: rgba(0, 0, 0, 0.28);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background:
-        radial-gradient(circle at top, rgba(88, 208, 215, 0.14), transparent 32%),
-        linear-gradient(180deg, #05101a 0%, var(--bg) 100%);
-      color: var(--text);
-      font-family: "Segoe UI", "Aptos", "Noto Sans JP", sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a {
-      color: var(--accent);
-    }
-
-    .page {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 8px 4px 14px;
-    }
-
-    .hero {
-      background: linear-gradient(180deg, rgba(19, 42, 63, 0.98), rgba(10, 23, 35, 0.96));
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 10px 12px;
-      box-shadow: 0 16px 40px var(--shadow);
-      margin-bottom: 8px;
-    }
-
-    .eyebrow {
-      color: var(--accent);
-      font-size: 0.72rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.45rem, 4.8vw, 2.2rem);
-      line-height: 1.04;
-    }
-
-    h2 {
-      margin: 12px 0 8px;
-      font-size: 0.94rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--accent-2);
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .summary-card {
-      background: rgba(7, 19, 31, 0.72);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 9px 11px;
-      min-height: 62px;
-    }
-
-    .summary-label {
-      display: block;
-      color: var(--text-soft);
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 5px;
-    }
-
-    .summary-value {
-      display: block;
-      color: var(--text);
-      font-size: 0.98rem;
-      font-weight: 700;
-    }
-
-    .section-header {
-      margin: 10px 0 6px;
-    }
-
-    .table-shell {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: auto;
-      background: linear-gradient(180deg, rgba(13, 32, 49, 0.98), rgba(8, 20, 31, 0.98));
-      box-shadow: 0 16px 40px var(--shadow);
-      max-height: 70vh;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
-
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 4;
-      background: var(--bg-header);
-      color: var(--text);
-      text-align: left;
-      padding: 8px;
-      font-size: 0.74rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--line-strong);
-      border-right: 1px solid var(--line);
-    }
-
-    tbody td {
-      padding: 7px 8px;
-      vertical-align: top;
-      border-bottom: 1px solid rgba(71, 115, 157, 0.28);
-      border-right: 1px solid rgba(71, 115, 157, 0.18);
-      background: rgba(9, 22, 34, 0.92);
-      font-size: 0.85rem;
-    }
-
-    tbody tr:nth-child(even) td {
-      background: rgba(12, 28, 43, 0.95);
-    }
-
-    .point-name {
-      font-weight: 700;
-      color: var(--accent-3);
-    }
-
-    .time-value {
-      font-variant-numeric: tabular-nums;
-      color: var(--text);
-    }
-
-    .caffeine-event {
-      background: rgba(255, 154, 77, 0.15);
-      color: var(--warning);
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-
-    .nutrition-event {
-      background: rgba(114, 217, 110, 0.15);
-      color: var(--success);
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-    }
-
-    .metric-card {
-      background: rgba(19, 42, 63, 0.72);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 8px;
-    }
-
-    .metric-label {
-      color: var(--text-soft);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .metric-value {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    @media (max-width: 720px) {
-      .page {
-        padding: 8px 6px 14px;
-      }
-
-      .hero {
-        padding: 9px 9px 8px;
-        border-radius: 16px;
-      }
-
-      .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      thead th,
-      tbody td {
-        padding: 6px;
-        font-size: 0.75rem;
-      }
-
-      .table-shell {
-        max-height: 65vh;
-      }
-    }
-"""
-
-
-@dataclass(frozen=True)
-class NutritionSegmentViewModel:
-    point_name: str
-    elapsed_hms: str
-    elapsed_seconds: int
-    carb_target_g: float
-    planned_carbs_g: float
-    water_ml: float
-    sports_drink_ml: float
-    gels_text: str
-    others_text: str
-    caffeine_events_text: str
-    notes: str
-
-
-def _build_nutrition_segment_view_models(
-    nutrition_plan: dict[str, Any],
-) -> tuple[NutritionSegmentViewModel, ...]:
-    """Build nutrition segment view models from nutrition plan."""
-    segments: list[NutritionSegmentViewModel] = []
-    
-    for row in nutrition_plan.get("rows", []):
-        point_name = str(row.get("point_name", "Unknown"))
-        elapsed_hms = str(row.get("elapsed_hms", "00:00:00"))
-        elapsed_seconds = int(hms_to_seconds(elapsed_hms))
-        
-        carb_target_g = float(row.get("row_target_carbs_g", 0.0))
-        planned_carbs_g = float(row.get("row_target_carbs_g", 0.0))
-        
-        # Summarize intake by category
-        allocations = list(row.get("segment_allocations", [])) + list(row.get("aid_allocations", []))
-        water_ml = float(row.get("row_supplemental_fluids_ml", 0.0))
-        sports_drink_ml = 0.0
-        gels_items = []
-        others_items = []
-        
-        for allocation in allocations:
-            food_name = str(allocation.get("food", "")).strip()
-            units = float(allocation.get("units", 0.0))
-            ref_size = str(allocation.get("reference_size", ""))
-            
-            if units < 1e-9:
-                continue
-            
-            if "water" in food_name.lower():
-                continue
-            elif any(t in food_name.lower() for t in ("pocari", "isotonic", "sports drink")):
-                volume_ml = extract_volume_ml(ref_size)
-                sports_drink_ml += units * volume_ml
-            elif any(t in food_name.lower() for t in ("gel", "jelly", "medallist")):
-                gels_items.append(f"{food_name} x{units:.1f}")
-            else:
-                others_items.append(f"{food_name} x{units:.1f}")
-        
-        gels_text = ", ".join(gels_items) if gels_items else "—"
-        others_text = ", ".join(others_items) if others_items else "—"
-        
-        # Format caffeine events
-        caffeine_events = row.get("segment_caffeine_events", [])
-        if caffeine_events:
-            caffeine_texts = []
-            for event in caffeine_events:
-                dose_mg = float(event.get("dose_mg", 0.0))
-                time_h = float(event.get("time_h", 0.0))
-                time_hms = seconds_to_hms(int(round(time_h * 3600.0)))
-                caffeine_texts.append(f"{dose_mg:.0f}mg @ {time_hms}")
-            caffeine_events_text = " | ".join(caffeine_texts)
-        else:
-            caffeine_events_text = "—"
-        
-        segments.append(
-            NutritionSegmentViewModel(
-                point_name=point_name,
-                elapsed_hms=elapsed_hms,
-                elapsed_seconds=elapsed_seconds,
-                carb_target_g=carb_target_g,
-                planned_carbs_g=planned_carbs_g,
-                water_ml=water_ml,
-                sports_drink_ml=sports_drink_ml,
-                gels_text=gels_text,
-                others_text=others_text,
-                caffeine_events_text=caffeine_events_text,
-                notes="",
-            )
-        )
-    
-    return tuple(segments)
-
-
-def _render_nutrition_table_rows(
-    segments: tuple[NutritionSegmentViewModel, ...],
-) -> str:
-    """Render nutrition table rows HTML."""
-    rows_html: list[str] = []
-    
-    for segment in segments:
-        caffeine_html = ""
-        if segment.caffeine_events_text != "—":
-            caffeine_html = f'<span class="caffeine-event">☕ {escape(segment.caffeine_events_text)}</span>'
-        
-        nutrition_items = []
-        if segment.gels_text != "—":
-            nutrition_items.append(f'<span class="nutrition-event">Gels: {escape(segment.gels_text)}</span>')
-        if segment.sports_drink_ml > 0:
-            nutrition_items.append(f'<span class="nutrition-event">Sports drink: {segment.sports_drink_ml:.0f}ml</span>')
-        if segment.water_ml > 0:
-            nutrition_items.append(f'<span class="nutrition-event">Water: {segment.water_ml:.0f}ml</span>')
-        if segment.others_text != "—":
-            nutrition_items.append(f'<span class="nutrition-event">Other: {escape(segment.others_text)}</span>')
-        
-        nutrition_html = "<br>".join(nutrition_items) if nutrition_items else "—"
-        
-        rows_html.append(
-            "<tr>"
-            f'<td class="point-name">{escape(segment.point_name)}</td>'
-            f'<td class="time-value">{escape(segment.elapsed_hms)}</td>'
-            f'<td>{segment.carb_target_g:.0f}g</td>'
-            f'<td>{nutrition_html}{("" + caffeine_html) if caffeine_html else ""}</td>'
-            "</tr>"
-        )
-    
-    return "".join(rows_html)
-
-
-def _render_nutrition_summary(nutrition_plan: dict[str, Any]) -> tuple[str, str, str]:
-    """Render nutrition summary cards and return HTML and summary stats."""
-    totals = nutrition_plan.get("totals", {})
-    
-    carbs_total = round(totals.get("planned_total_carbs_g", 0.0), 1)
-    carbs_per_h = round(totals.get("target_carbs_g_per_h", 0.0), 1)
-    duration_h = round(totals.get("total_time_h", 0.0), 2)
-    
-    hydration = totals.get("hydration", {})
-    fluids_planned_ml = round(hydration.get("planned_total_fluids_ml", 0.0), 1)
-    sweat_estimated_ml = round(hydration.get("estimated_total_sweat_loss_ml", 0.0), 1)
-    imbalance_ml = round(hydration.get("final_sweat_imbalance_ml", 0.0), 1)
-    
-    caffeine = totals.get("caffeine", {})
-    caffeine_total_mg = round(caffeine.get("total_dose_mg", 0.0), 1)
-    
-    summary_html = f"""
-    <div class="summary-grid">
-      <div class="summary-card">
-        <span class="summary-label">Total Carbs</span>
-        <span class="summary-value">{carbs_total}g</span>
-      </div>
-      <div class="summary-card">
-        <span class="summary-label">Target Carbs/h</span>
-        <span class="summary-value">{carbs_per_h}g/h</span>
-      </div>
-      <div class="summary-card">
-        <span class="summary-label">Planned Fluids</span>
-        <span class="summary-value">{fluids_planned_ml:.0f}ml</span>
-      </div>
-      <div class="summary-card">
-        <span class="summary-label">Caffeine Total</span>
-        <span class="summary-value">{caffeine_total_mg}mg</span>
-      </div>
-    </div>
-    """
-    
-    detail_html = f"""
-    <div class="metric-card">
-      <span class="metric-label">Carbohydrate Plan</span>
-      <span class="metric-value">{carbs_per_h}g/h × {duration_h}h = {carbs_total}g</span>
-    </div>
-    <div class="metric-card">
-      <span class="metric-label">Hydration Plan</span>
-      <span class="metric-value">{fluids_planned_ml}ml planned vs {sweat_estimated_ml}ml estimated sweat</span>
-      <div style="font-size: 0.85rem; color: var(--text-soft); margin-top: 4px;">
-        Final balance: {imbalance_ml}ml
-      </div>
-    </div>
-    """
-    
-    return summary_html, detail_html, f"{carbs_total}g carbs | {fluids_planned_ml:.0f}ml fluids | {caffeine_total_mg}mg caffeine"
-
-
-def generate_nutrition_plan_html(
-    nutrition_plan: dict[str, Any],
-    output_path: Path | str,
-    race_name: str,
-    title: str = "Nutrition Plan",
-) -> Path:
-    """Generate a detailed nutrition plan HTML report."""
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    segments = _build_nutrition_segment_view_models(nutrition_plan)
-    summary_html, detail_html, summary_text = _render_nutrition_summary(nutrition_plan)
-    table_rows_html = _render_nutrition_table_rows(segments)
-
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>{escape(title)} - {escape(race_name)}</title>
-  <style>
-{_NUTRITION_PLAN_CSS}
-  </style>
-</head>
-<body>
-  <main class="page">
-    <section class="hero">
-      <div class="eyebrow">Nutrition Plan</div>
-      <h1>{escape(title)}</h1>
-      {summary_html}
-    </section>
-
-    <div class="section-header">
-      <h2>Fueling Summary</h2>
-    </div>
-    {detail_html}
-
-    <div class="section-header">
-      <h2>Segment-by-Segment Plan</h2>
-    </div>
-    <section class="table-shell">
-      <table>
-        <thead>
-          <tr>
-            <th>Point</th>
-            <th>Elapsed Time</th>
-            <th>Carbs (g)</th>
-            <th>Intake Plan</th>
-          </tr>
-        </thead>
-        <tbody>
-          {table_rows_html}
-        </tbody>
-      </table>
-    </section>
-  </main>
-</body>
-</html>
-"""
-
-    output_path.write_text(html, encoding="utf-8")
-    logger.success(f"Nutrition plan HTML saved to: {output_path}")
     return output_path
