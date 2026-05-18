@@ -372,9 +372,9 @@ _REPORT_CSS = """
     }
 
     .comments-cell {
-      width: 280px;
-      min-width: 220px;
-      max-width: 280px;
+      width: 560px;
+      min-width: 440px;
+      max-width: 560px;
       white-space: normal;
     }
 
@@ -413,9 +413,9 @@ _REPORT_CSS = """
     }
 
     .fuel-cell {
-      width: 300px;
-      min-width: 240px;
-      max-width: 300px;
+      width: 600px;
+      min-width: 480px;
+      max-width: 600px;
     }
 
     .fuel-group {
@@ -511,15 +511,15 @@ _REPORT_CSS = """
       }
 
       .comments-cell {
-        width: 220px;
-        min-width: 180px;
-        max-width: 220px;
+        width: 440px;
+        min-width: 360px;
+        max-width: 440px;
       }
 
       .fuel-cell {
-        width: 240px;
-        min-width: 190px;
-        max-width: 240px;
+        width: 480px;
+        min-width: 380px;
+        max-width: 480px;
       }
     }
 """
@@ -659,7 +659,7 @@ def _build_comments_view_model(
             continue
         comments.append(
             CommentsLineViewModel(
-                tag=_format_extra_label(key),
+                tag="Notes",
                 value=_format_extra_value(value),
             )
         )
@@ -1064,8 +1064,8 @@ def _render_table_rows(
             f'{_render_value_line(row.split_loss)}</td>'
             f'<td class="timing-cell" data-elapsed-s="{row.elapsed_seconds}" data-running-s="{row.running_seconds}">{timing_html}</td>'
             f'<td class="metric-cell metric-pace" data-pace-s="{row.avg_pace_seconds}" data-gap-s="{row.avg_gap_seconds}">{pace_html}</td>'
-            f'<td class="comments-cell">{_render_comments_html(row.comments)}</td>'
             f"{fuel_cell_html}"
+            f'<td class="comments-cell">{_render_comments_html(row.comments)}</td>'
             "</tr>"
         )
 
@@ -1118,8 +1118,8 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
             <th>Loss</th>
             <th>Time</th>
             <th>Pace</th>
-            <th>Notes</th>
             {fuel_header_html}
+            <th>Notes</th>
           </tr>
         </thead>
         <tbody>
