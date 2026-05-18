@@ -368,25 +368,28 @@ _REPORT_CSS = """
     .comments-empty {
       color: var(--text-soft);
       font-size: 0.88rem;
-      white-space: nowrap;
+      white-space: normal;
     }
 
     .comments-cell {
-      white-space: nowrap;
-      width: 1%;
+      width: 280px;
+      min-width: 220px;
+      max-width: 280px;
+      white-space: normal;
     }
 
     .comments-text {
       color: var(--text);
       font-size: 0.88rem;
       line-height: 1.12;
+      white-space: normal;
     }
 
     .comments-line {
       display: flex;
       gap: 7px;
-      align-items: baseline;
-      white-space: nowrap;
+      align-items: flex-start;
+      white-space: normal;
       margin-bottom: 4px;
     }
 
@@ -404,12 +407,15 @@ _REPORT_CSS = """
 
     .comments-value {
       color: var(--text);
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
       font-variant-numeric: tabular-nums;
     }
 
     .fuel-cell {
-      min-width: 260px;
+      width: 300px;
+      min-width: 240px;
+      max-width: 300px;
     }
 
     .fuel-group {
@@ -502,6 +508,18 @@ _REPORT_CSS = """
 
       .table-shell {
         max-height: 62vh;
+      }
+
+      .comments-cell {
+        width: 220px;
+        min-width: 180px;
+        max-width: 220px;
+      }
+
+      .fuel-cell {
+        width: 240px;
+        min-width: 190px;
+        max-width: 240px;
       }
     }
 """
