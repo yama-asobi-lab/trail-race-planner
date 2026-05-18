@@ -51,7 +51,10 @@ from race_planner.models.tools import (
     seconds_to_hms,
 )
 from race_planner.planner import PaceCalculator
-from race_planner.visualization.race_plan_table import generate_race_plan_table_report
+from race_planner.visualization.race_plan_table import (
+    generate_race_plan_table_report,
+    generate_nutrition_plan_html,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -880,6 +883,21 @@ def main():
                 sheet_name="Nutrition Plan",
             )
             logger.success("Nutrition plan written to sheet 'Nutrition Plan'")
+
+            # Generate nutrition plan HTML
+            try:
+                race_name = race_info.get("name", "Race Plan")
+                report_stem = output_path.stem.removesuffix("_segment_analysis")
+                nutrition_html_path = output_path.parent / f"{report_stem}_nutrition_plan.html"
+                generate_nutrition_plan_html(
+                    nutrition_plan=carb_plan,
+                    output_path=nutrition_html_path,
+                    race_name=race_name,
+                    title=f"{race_name} – Nutrition Plan",
+                )
+                logger.success(f"Nutrition plan HTML written to: {nutrition_html_path}")
+            except Exception as exc:
+                logger.error(f"Nutrition plan HTML generation failed: {exc}")
 
             dropbag_points = _collect_dropbag_points(nutrition_cfg, aid_stations)
             dropbag_plan = _build_dropbag_plan(carb_plan, dropbag_points)
