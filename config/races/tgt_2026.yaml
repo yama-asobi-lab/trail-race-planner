@@ -160,19 +160,19 @@ nutrition:
   # one-third vs two-thirds of the carb target before unit/fraction rounding.
   segment_foods:
     default:
-      - { food: "Pocari doble", ratio: 1 }
-      - { food: "Self-made gel", ratio: 1.2 }
+      - { food: "Pocari doble", ratio: 1.25 }
+      - { food: "Self-made gel", ratio: 1 }
       - { food: "Youkan", ratio: 0.33 }
 
     # Optional overrides by arrival point name.
     by_segment:
       "A3 Sanogawa":
-        - { food: "Pocari doble", ratio: 1 }
-        - { food: "Self-made gel", ratio: 2 }
+        - { food: "Pocari doble", ratio: 1.2 }
+        - { food: "Self-made gel", ratio: 1 }
         - { food: "Hoshi imo", ratio: 1 }
       "Wada-toge":
-        - { food: "Pocari doble", ratio: 1 }
-        - { food: "Self-made gel", ratio: 2 }
+        - { food: "Pocari doble", ratio: 1.2 }
+        - { food: "Self-made gel", ratio: 1 }
         - { food: "Hoshi imo", ratio: 1 }
 
   # Aid-station intake (food with units).

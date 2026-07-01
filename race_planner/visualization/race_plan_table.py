@@ -470,6 +470,7 @@ _REPORT_CSS = """
     .profile-shell .plot-container {
       width: 100% !important;
       background: #1a1a1a !important;
+      touch-action: none;
     }
 
     @media (max-width: 720px) {
@@ -715,6 +716,14 @@ def _build_table_row_view_models(
                         f"{food_name}: {format_decimal_quantity(units)} x {reference_size}"
                     )
 
+            supplemental_water_ml = float(
+                nutrition_row.get("row_supplemental_fluids_ml", 0.0) or 0.0
+            )
+            if supplemental_water_ml > 0:
+                running_fuel_items.append(
+                    f"Water: {format_decimal_quantity(supplemental_water_ml, 1)} ml"
+                )
+
             for allocation in nutrition_row.get("aid_allocations", []):
                 units = float(allocation.get("units", 0.0) or 0.0)
                 if units <= 0:
@@ -924,7 +933,17 @@ def _build_report_view_model(
             race_start_time_s=race_start_time_s,
             nutrition_plan=nutrition_plan,
         ),
-        plot_html=fig.to_html(include_plotlyjs=True, full_html=False),
+        plot_html=fig.to_html(
+            include_plotlyjs=True,
+            full_html=False,
+            config={
+                "responsive": True,
+                "scrollZoom": True,
+                "displayModeBar": True,
+                "displaylogo": False,
+                "doubleClick": "reset+autosize",
+            },
+        ),
     )
 
 
@@ -1168,13 +1187,34 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
       }}
 
       function parseHms(value) {{
-        const match = /^\\s*(\\d+):(\\d{{1,2}}):(\\d{{1,2}})\\s*$/.exec(value || "");
+        const normalized = String(value || "")
+          .trim()
+          .replace(/[：﹕]/g, ":")
+          .replace(/\\s+/g, "");
+
+        const hhmmMatch = /^(\\d+):(\\d{{1,2}})$/.exec(normalized);
+        if (hhmmMatch) {{
+          const h = Number(hhmmMatch[1]);
+          const m = Number(hhmmMatch[2]);
+          if (m > 59) return null;
+          return h * 3600 + m * 60;
+        }}
+
+        const match = /^(\\d+):(\\d{{1,2}}):(\\d{{1,2}})$/.exec(normalized);
         if (!match) return null;
         const h = Number(match[1]);
         const m = Number(match[2]);
         const s = Number(match[3]);
         if (m > 59 || s > 59) return null;
         return h * 3600 + m * 60 + s;
+      }}
+
+      function parsePercent(value) {{
+        const normalized = String(value ?? "")
+          .trim()
+          .replace(/[，]/g, ",")
+          .replace(/,/g, ".");
+        return Number(normalized);
       }}
 
       function toPace(totalSeconds) {{
@@ -1221,7 +1261,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
           const paceBase = Number(cell.dataset.paceS || "-1");
           const gapBase = Number(cell.dataset.gapS || "-1");
           const timingCell = timingCells[index];
-          const elapsedBase = Number(timingCell?.dataset.elapsedS || "0");
+          const elapsedBase = Number(timingCell ? timingCell.dataset.elapsedS || "0" : "0");
           const progress = originalTargetSeconds > 0 ? elapsedBase / originalTargetSeconds : 0;
           const paceScale = scale * fatigueRatio(progress, newDecayPct);
           const paceNode = cell.querySelector(".js-pace");
@@ -1234,11 +1274,13 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
         status.textContent = `Scaled x${{scale.toFixed(3)}} · Slowdown ${{newDecayPct.toFixed(1)}}%`;
       }}
 
-      applyButton?.addEventListener("click", () => {{
-        const parsed = parseHms(targetInput?.value ?? "");
-        const parsedDecay = Number(fatigueInput?.value ?? `${{originalFatigueDecayPct}}`);
+      function onApply() {{
+        const parsed = parseHms(targetInput ? targetInput.value : "");
+        const parsedDecay = parsePercent(
+          fatigueInput ? fatigueInput.value : `${{originalFatigueDecayPct}}`
+        );
         if (!parsed || parsed <= 0) {{
-          status.textContent = "Use HH:MM:SS";
+          status.textContent = "Use HH:MM or HH:MM:SS";
           return;
         }}
         if (!Number.isFinite(parsedDecay) || parsedDecay < 0 || parsedDecay > 100) {{
@@ -1246,14 +1288,44 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
           return;
         }}
         applyScale(parsed, parsedDecay);
-      }});
+      }}
 
-      resetButton?.addEventListener("click", () => {{
+      function onReset() {{
         if (targetInput) targetInput.value = toHms(originalTargetSeconds);
         if (fatigueInput) fatigueInput.value = originalFatigueDecayPct.toFixed(1);
         applyScale(originalTargetSeconds, originalFatigueDecayPct);
         status.textContent = "Reset";
-      }});
+      }}
+
+      if (applyButton) {{
+        applyButton.addEventListener("click", onApply);
+        applyButton.addEventListener(
+          "touchend",
+          (event) => {{
+            event.preventDefault();
+            onApply();
+          }},
+          {{ passive: false }}
+        );
+      }}
+
+      if (resetButton) {{
+        resetButton.addEventListener("click", onReset);
+        resetButton.addEventListener(
+          "touchend",
+          (event) => {{
+            event.preventDefault();
+            onReset();
+          }},
+          {{ passive: false }}
+        );
+      }}
+
+      if (targetInput) {{
+        targetInput.addEventListener("keydown", (event) => {{
+          if (event.key === "Enter") onApply();
+        }});
+      }}
     }})();
   </script>
 </body>
