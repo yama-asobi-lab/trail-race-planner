@@ -1,5 +1,6 @@
 athlete:
   name: "Yet Another Sato"
+  weight_kg: 60
   itra_points: 650
   reference_performance:
     distance_km: 42.195

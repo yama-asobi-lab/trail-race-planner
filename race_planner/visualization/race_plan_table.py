@@ -13,8 +13,10 @@ from loguru import logger
 
 from race_planner.course import Course
 from race_planner.models.tools import (
+    canonical_point_name,
     clock_time_to_seconds,
     elapsed_hms_to_clock_time,
+    format_decimal_quantity,
     hms_to_seconds,
     seconds_to_hms,
 )
@@ -366,25 +368,28 @@ _REPORT_CSS = """
     .comments-empty {
       color: var(--text-soft);
       font-size: 0.88rem;
-      white-space: nowrap;
+      white-space: normal;
     }
 
     .comments-cell {
-      white-space: nowrap;
-      width: 1%;
+      width: 560px;
+      min-width: 440px;
+      max-width: 560px;
+      white-space: normal;
     }
 
     .comments-text {
       color: var(--text);
       font-size: 0.88rem;
       line-height: 1.12;
+      white-space: normal;
     }
 
     .comments-line {
       display: flex;
       gap: 7px;
-      align-items: baseline;
-      white-space: nowrap;
+      align-items: flex-start;
+      white-space: normal;
       margin-bottom: 4px;
     }
 
@@ -402,8 +407,53 @@ _REPORT_CSS = """
 
     .comments-value {
       color: var(--text);
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
       font-variant-numeric: tabular-nums;
+    }
+
+    .fuel-cell {
+      width: 600px;
+      min-width: 480px;
+      max-width: 600px;
+    }
+
+    .fuel-group {
+      margin-bottom: 6px;
+    }
+
+    .fuel-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .fuel-group-label {
+      color: var(--text-soft);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 3px;
+    }
+
+    .fuel-chip {
+      display: inline-block;
+      margin: 2px 4px 2px 0;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .fuel-chip-running {
+      background: rgba(88, 208, 215, 0.17);
+      border: 1px solid rgba(88, 208, 215, 0.38);
+      color: #93edf2;
+    }
+
+    .fuel-chip-aid {
+      background: rgba(255, 200, 87, 0.18);
+      border: 1px solid rgba(255, 200, 87, 0.4);
+      color: #ffd88a;
     }
 
     .profile-shell {
@@ -420,6 +470,7 @@ _REPORT_CSS = """
     .profile-shell .plot-container {
       width: 100% !important;
       background: #1a1a1a !important;
+      touch-action: none;
     }
 
     @media (max-width: 720px) {
@@ -459,6 +510,18 @@ _REPORT_CSS = """
       .table-shell {
         max-height: 62vh;
       }
+
+      .comments-cell {
+        width: 440px;
+        min-width: 360px;
+        max-width: 440px;
+      }
+
+      .fuel-cell {
+        width: 480px;
+        min-width: 380px;
+        max-width: 480px;
+      }
     }
 """
 
@@ -497,6 +560,8 @@ class TableRowViewModel:
     avg_gap: str
     avg_gap_seconds: int
     comments: tuple[CommentsLineViewModel, ...]
+    running_fuel_items: tuple[str, ...]
+    aid_fuel_items: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -508,6 +573,7 @@ class RacePlanReportViewModel:
     total_time_seconds: int
     race_start_time_s: int
     original_fatigue_decay_pct: float
+    include_fuel_column: bool
     table_rows: tuple[TableRowViewModel, ...]
     plot_html: str
 
@@ -594,7 +660,7 @@ def _build_comments_view_model(
             continue
         comments.append(
             CommentsLineViewModel(
-                tag=_format_extra_label(key),
+                tag="Notes",
                 value=_format_extra_value(value),
             )
         )
@@ -606,6 +672,7 @@ def _build_table_row_view_models(
     pacing_df: pd.DataFrame,
     aid_stations: list[dict[str, Any]],
     race_start_time_s: int,
+    nutrition_plan: dict[str, Any] | None = None,
 ) -> tuple[TableRowViewModel, ...]:
     """Build row view models for the aid station table."""
     if len(pacing_df) != len(aid_stations):
@@ -613,12 +680,76 @@ def _build_table_row_view_models(
             "Pacing rows and aid stations must have the same length to build the race table report."
         )
 
+    nutrition_rows = list((nutrition_plan or {}).get("rows", []))
+    nutrition_by_point_name: dict[str, dict[str, Any]] = {
+        canonical_point_name(str(row.get("point_name", ""))).lower(): row for row in nutrition_rows
+    }
+
     rows: list[TableRowViewModel] = []
     accum_loss_m = 0.0
-    for row, aid_station in zip(pacing_df.to_dict(orient="records"), aid_stations, strict=True):
+    for row_index, (row, aid_station) in enumerate(
+        zip(pacing_df.to_dict(orient="records"), aid_stations, strict=True)
+    ):
         split_loss_m = abs(float(row["Segment Elevation Loss (m)"]))
         accum_loss_m += split_loss_m
         station_name = str(aid_station.get("name", row.get("Point Name", "Unknown")))
+        nutrition_row = nutrition_by_point_name.get(canonical_point_name(station_name).lower())
+        if nutrition_row is None and row_index < len(nutrition_rows):
+            nutrition_row = nutrition_rows[row_index]
+
+        running_fuel_items: list[str] = []
+        aid_fuel_items: list[str] = []
+        if nutrition_row:
+            for allocation in nutrition_row.get("segment_allocations", []):
+                units = float(allocation.get("units", 0.0) or 0.0)
+                if units <= 0:
+                    continue
+                food_name = str(allocation.get("food", "")).strip()
+                reference_size = str(allocation.get("reference_size", "")).strip()
+                if reference_size.lower() == "custom":
+                    carbs_g = float(allocation.get("actual_carbs_g", 0.0) or 0.0)
+                    running_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(carbs_g, 1)} gr CH"
+                    )
+                else:
+                    running_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(units)} x {reference_size}"
+                    )
+
+            supplemental_water_ml = float(
+                nutrition_row.get("row_supplemental_fluids_ml", 0.0) or 0.0
+            )
+            if supplemental_water_ml > 0:
+                running_fuel_items.append(
+                    f"Water: {format_decimal_quantity(supplemental_water_ml, 1)} ml"
+                )
+
+            for allocation in nutrition_row.get("aid_allocations", []):
+                units = float(allocation.get("units", 0.0) or 0.0)
+                if units <= 0:
+                    continue
+                food_name = str(allocation.get("food", "")).strip()
+                reference_size = str(allocation.get("reference_size", "")).strip()
+                if reference_size.lower() == "custom":
+                    carbs_g = float(allocation.get("actual_carbs_g", 0.0) or 0.0)
+                    aid_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(carbs_g, 1)} gr CH"
+                    )
+                else:
+                    aid_fuel_items.append(
+                        f"{food_name}: {format_decimal_quantity(units)} x {reference_size}"
+                    )
+
+            for caffeine_event in nutrition_row.get("segment_caffeine_events", []):
+                dose_mg = float(caffeine_event.get("dose_mg", 0.0) or 0.0)
+                if dose_mg <= 0:
+                    continue
+                time_h = float(caffeine_event.get("time_h", 0.0) or 0.0)
+                time_hms = seconds_to_hms(time_h * 3600.0)
+                running_fuel_items.append(
+                    f"Caffeine: {format_decimal_quantity(dose_mg)} mg @ {time_hms}"
+                )
+
         rows.append(
             TableRowViewModel(
                 station_name=station_name,
@@ -654,6 +785,8 @@ def _build_table_row_view_models(
                     str(row["Avg Grade-Adjusted Pace (mm:ss/km)"])
                 ),
                 comments=_build_comments_view_model(aid_station),
+                running_fuel_items=tuple(running_fuel_items),
+                aid_fuel_items=tuple(aid_fuel_items),
             )
         )
 
@@ -752,6 +885,7 @@ def _build_report_view_model(
     mode: str,
     race_start_time: str | None,
     title: str,
+    nutrition_plan: dict[str, Any] | None = None,
 ) -> RacePlanReportViewModel:
     """Build the report view model from course, pacing, and config data."""
     normalized_aid_stations = _normalized_aid_stations(pacing_df, aid_stations)
@@ -792,12 +926,24 @@ def _build_report_view_model(
         total_time_seconds=int(float(pacing_df.attrs.get("total_time_s", 0))),
         race_start_time_s=race_start_time_s,
         original_fatigue_decay_pct=float(pacing_df.attrs.get("fatigue_total_decay_pct", 0.0)),
+        include_fuel_column=nutrition_plan is not None,
         table_rows=_build_table_row_view_models(
             pacing_df=pacing_df,
             aid_stations=normalized_aid_stations,
             race_start_time_s=race_start_time_s,
+            nutrition_plan=nutrition_plan,
         ),
-        plot_html=fig.to_html(include_plotlyjs=True, full_html=False),
+        plot_html=fig.to_html(
+            include_plotlyjs=True,
+            full_html=False,
+            config={
+                "responsive": True,
+                "scrollZoom": True,
+                "displayModeBar": True,
+                "displaylogo": False,
+                "doubleClick": "reset+autosize",
+            },
+        ),
     )
 
 
@@ -843,7 +989,40 @@ def _render_value_line(value: str, emphasize: bool = False) -> str:
     return f'<div class="value-line"><span class="{value_class}">{escape(value)}</span></div>'
 
 
-def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
+def _render_fuel_cell(
+    running_fuel_items: tuple[str, ...],
+    aid_fuel_items: tuple[str, ...],
+) -> str:
+    """Render fuel plan cell: running intake first, aid intake last."""
+    running_html = "".join(
+        f'<div class="fuel-chip fuel-chip-running">🏃 {escape(item)}</div>'
+        for item in running_fuel_items
+    )
+    aid_html = "".join(
+        f'<div class="fuel-chip fuel-chip-aid">🛟 {escape(item)}</div>' for item in aid_fuel_items
+    )
+
+    sections: list[str] = []
+    if running_html:
+        sections.append(
+            '<div class="fuel-group"><div class="fuel-group-label">During run</div>'
+            f"{running_html}</div>"
+        )
+    if aid_html:
+        sections.append(
+            '<div class="fuel-group"><div class="fuel-group-label">At aid</div>' f"{aid_html}</div>"
+        )
+
+    if not sections:
+        return '<div class="comments-empty">No fueling planned</div>'
+
+    return "".join(sections)
+
+
+def _render_table_rows(
+    table_rows: tuple[TableRowViewModel, ...],
+    include_fuel_column: bool,
+) -> str:
     """Render table row HTML."""
     rows_html: list[str] = []
     for row in table_rows:
@@ -887,6 +1066,12 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
             )
         )
 
+        fuel_cell_html = (
+            f'<td class="fuel-cell">{_render_fuel_cell(row.running_fuel_items, row.aid_fuel_items)}</td>'
+            if include_fuel_column
+            else ""
+        )
+
         rows_html.append(
             "<tr>"
             f'<th scope="row" class="sticky-col station-cell">{"".join(station_lines)}</th>'
@@ -898,6 +1083,7 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
             f'{_render_value_line(row.split_loss)}</td>'
             f'<td class="timing-cell" data-elapsed-s="{row.elapsed_seconds}" data-running-s="{row.running_seconds}">{timing_html}</td>'
             f'<td class="metric-cell metric-pace" data-pace-s="{row.avg_pace_seconds}" data-gap-s="{row.avg_gap_seconds}">{pace_html}</td>'
+            f"{fuel_cell_html}"
             f'<td class="comments-cell">{_render_comments_html(row.comments)}</td>'
             "</tr>"
         )
@@ -908,7 +1094,8 @@ def _render_table_rows(table_rows: tuple[TableRowViewModel, ...]) -> str:
 def _render_report_html(view_model: RacePlanReportViewModel) -> str:
     """Render the complete report HTML from the view model."""
     summary_html = _render_summary_cards(view_model.summary_items)
-    table_rows_html = _render_table_rows(view_model.table_rows)
+    table_rows_html = _render_table_rows(view_model.table_rows, view_model.include_fuel_column)
+    fuel_header_html = "<th>Fuel</th>" if view_model.include_fuel_column else ""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -950,6 +1137,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
             <th>Loss</th>
             <th>Time</th>
             <th>Pace</th>
+            {fuel_header_html}
             <th>Notes</th>
           </tr>
         </thead>
@@ -999,13 +1187,34 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
       }}
 
       function parseHms(value) {{
-        const match = /^\\s*(\\d+):(\\d{{1,2}}):(\\d{{1,2}})\\s*$/.exec(value || "");
+        const normalized = String(value || "")
+          .trim()
+          .replace(/[：﹕]/g, ":")
+          .replace(/\\s+/g, "");
+
+        const hhmmMatch = /^(\\d+):(\\d{{1,2}})$/.exec(normalized);
+        if (hhmmMatch) {{
+          const h = Number(hhmmMatch[1]);
+          const m = Number(hhmmMatch[2]);
+          if (m > 59) return null;
+          return h * 3600 + m * 60;
+        }}
+
+        const match = /^(\\d+):(\\d{{1,2}}):(\\d{{1,2}})$/.exec(normalized);
         if (!match) return null;
         const h = Number(match[1]);
         const m = Number(match[2]);
         const s = Number(match[3]);
         if (m > 59 || s > 59) return null;
         return h * 3600 + m * 60 + s;
+      }}
+
+      function parsePercent(value) {{
+        const normalized = String(value ?? "")
+          .trim()
+          .replace(/[，]/g, ",")
+          .replace(/,/g, ".");
+        return Number(normalized);
       }}
 
       function toPace(totalSeconds) {{
@@ -1052,7 +1261,7 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
           const paceBase = Number(cell.dataset.paceS || "-1");
           const gapBase = Number(cell.dataset.gapS || "-1");
           const timingCell = timingCells[index];
-          const elapsedBase = Number(timingCell?.dataset.elapsedS || "0");
+          const elapsedBase = Number(timingCell ? timingCell.dataset.elapsedS || "0" : "0");
           const progress = originalTargetSeconds > 0 ? elapsedBase / originalTargetSeconds : 0;
           const paceScale = scale * fatigueRatio(progress, newDecayPct);
           const paceNode = cell.querySelector(".js-pace");
@@ -1065,11 +1274,13 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
         status.textContent = `Scaled x${{scale.toFixed(3)}} · Slowdown ${{newDecayPct.toFixed(1)}}%`;
       }}
 
-      applyButton?.addEventListener("click", () => {{
-        const parsed = parseHms(targetInput?.value ?? "");
-        const parsedDecay = Number(fatigueInput?.value ?? `${{originalFatigueDecayPct}}`);
+      function onApply() {{
+        const parsed = parseHms(targetInput ? targetInput.value : "");
+        const parsedDecay = parsePercent(
+          fatigueInput ? fatigueInput.value : `${{originalFatigueDecayPct}}`
+        );
         if (!parsed || parsed <= 0) {{
-          status.textContent = "Use HH:MM:SS";
+          status.textContent = "Use HH:MM or HH:MM:SS";
           return;
         }}
         if (!Number.isFinite(parsedDecay) || parsedDecay < 0 || parsedDecay > 100) {{
@@ -1077,14 +1288,44 @@ def _render_report_html(view_model: RacePlanReportViewModel) -> str:
           return;
         }}
         applyScale(parsed, parsedDecay);
-      }});
+      }}
 
-      resetButton?.addEventListener("click", () => {{
+      function onReset() {{
         if (targetInput) targetInput.value = toHms(originalTargetSeconds);
         if (fatigueInput) fatigueInput.value = originalFatigueDecayPct.toFixed(1);
         applyScale(originalTargetSeconds, originalFatigueDecayPct);
         status.textContent = "Reset";
-      }});
+      }}
+
+      if (applyButton) {{
+        applyButton.addEventListener("click", onApply);
+        applyButton.addEventListener(
+          "touchend",
+          (event) => {{
+            event.preventDefault();
+            onApply();
+          }},
+          {{ passive: false }}
+        );
+      }}
+
+      if (resetButton) {{
+        resetButton.addEventListener("click", onReset);
+        resetButton.addEventListener(
+          "touchend",
+          (event) => {{
+            event.preventDefault();
+            onReset();
+          }},
+          {{ passive: false }}
+        );
+      }}
+
+      if (targetInput) {{
+        targetInput.addEventListener("keydown", (event) => {{
+          if (event.key === "Enter") onApply();
+        }});
+      }}
     }})();
   </script>
 </body>
@@ -1099,6 +1340,7 @@ def generate_race_plan_table_report(
     output_path: Path | str,
     race_name: str,
     mode: str,
+    nutrition_plan: dict[str, Any] | None = None,
     race_start_time: str | None = None,
     title: str = "Race Plan Table",
 ) -> Path:
@@ -1112,6 +1354,7 @@ def generate_race_plan_table_report(
         aid_stations=aid_stations,
         race_name=race_name,
         mode=mode,
+        nutrition_plan=nutrition_plan,
         race_start_time=race_start_time,
         title=title,
     )

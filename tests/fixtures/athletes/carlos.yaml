@@ -1,5 +1,6 @@
 athlete:
   name: "Carlos"
+  weight_kg: 65
   itra_points: 720
   reference_performance:
     distance_km: 42.195

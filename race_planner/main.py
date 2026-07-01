@@ -19,6 +19,7 @@ Options:
                                Fatigue model source (default: none)
     --fatigue-total-decay-pct PCT
                                Override fatigue with linear decay (0–100); takes precedence
+    --nutrition {yes|no}      Include nutrition column in main HTML report (default: no)
 
 Notes:
     - For target_time, the provided time is the desired TOTAL finish time
@@ -40,7 +41,11 @@ from openpyxl.utils import get_column_letter
 
 from race_planner.course import analyze_course
 from race_planner.models.itra_predictor import ItraScorePredictor
+from race_planner.models.nutrition import build_race_nutrition_plan, load_food_catalog
 from race_planner.models.tools import (
+    canonical_point_name,
+    extract_volume_ml,
+    format_decimal_quantity,
     hms_to_seconds,
     hours_to_hms,
     pace_to_seconds_per_km,
@@ -201,6 +206,338 @@ def _append_pacing_sheet(
     wb.save(output_path)
 
 
+def _format_allocations(allocations: list[dict], custom_as_carbs: bool = False) -> str:
+    if not allocations:
+        return "-"
+
+    rendered = []
+    for allocation in allocations:
+        units = float(allocation.get("units", 0.0))
+        if abs(units) < 1e-9:
+            continue
+        reference_size = str(allocation.get("reference_size", "")).strip()
+        if custom_as_carbs and reference_size.lower() == "custom":
+            carbs_g = float(allocation.get("actual_carbs_g", 0.0))
+            rendered.append(f"{allocation['food']}: {format_decimal_quantity(carbs_g, 1)} gr CH")
+            continue
+        rendered.append(
+            f"{allocation['food']}: {format_decimal_quantity(units)} x {reference_size}"
+        )
+
+    return "; ".join(rendered) if rendered else "-"
+
+
+def _format_segment_caffeine_events(events: list[dict]) -> str:
+    if not events:
+        return "-"
+
+    parts = []
+    for event in events:
+        dose_mg = float(event.get("dose_mg", 0.0))
+        if abs(dose_mg) < 1e-9:
+            continue
+        time_h = float(event.get("time_h", 0.0))
+        time_hms = seconds_to_hms(int(round(time_h * 3600.0)))
+        parts.append(f"{format_decimal_quantity(dose_mg)} [{time_hms}]")
+
+    return "; ".join(parts) if parts else "-"
+
+
+def _allocation_category(food_name: str) -> str:
+    value = food_name.strip().lower()
+    if "water" in value:
+        return "water"
+    if any(token in value for token in ("pocari", "isotonic", "sports drink")):
+        return "sports_drink"
+    if any(token in value for token in ("gel", "jelly", "medallist")):
+        return "gels"
+    return "others"
+
+
+def _summarize_row_intake_categories(row: dict) -> dict[str, object]:
+    allocations = list(row.get("segment_allocations", [])) + list(row.get("aid_allocations", []))
+    sports_drink_ml = 0.0
+    gel_allocations: list[dict] = []
+    other_allocations: list[dict] = []
+
+    for allocation in allocations:
+        food_name = str(allocation.get("food", "")).strip()
+        category = _allocation_category(food_name)
+        if category == "sports_drink":
+            volume_ml = extract_volume_ml(str(allocation.get("reference_size", "")))
+            sports_drink_ml += float(allocation.get("units", 0.0)) * volume_ml
+        elif category == "gels":
+            gel_allocations.append(allocation)
+        elif category == "others":
+            other_allocations.append(allocation)
+
+    # Keep water column as carried/plain water only.
+    plain_water_ml = float(row.get("row_supplemental_fluids_ml", 0.0))
+
+    others_text = _format_allocations(other_allocations, custom_as_carbs=True)
+
+    return {
+        "water_ml": plain_water_ml,
+        "sports_drink_ml": sports_drink_ml,
+        "gels_text": _format_allocations(gel_allocations),
+        "others_text": others_text,
+    }
+
+
+def _collect_dropbag_points(nutrition_cfg: dict, aid_stations: list[dict]) -> list[str]:
+    configured = nutrition_cfg.get("dropbag_points")
+    if isinstance(configured, list) and configured:
+        return [str(name).strip() for name in configured if str(name).strip()]
+
+    detected: list[str] = []
+    for aid in aid_stations or []:
+        notes = str(aid.get("notes", ""))
+        name = str(aid.get("name", "")).strip()
+        if name and "dropbag" in notes.lower():
+            detected.append(name)
+    return detected
+
+
+def _build_dropbag_plan(nutrition_plan: dict, dropbag_points: list[str]) -> list[dict]:
+    rows = nutrition_plan.get("rows", [])
+    if not rows or not dropbag_points:
+        return []
+
+    exact_to_index: dict[str, int] = {}
+    canonical_to_index: dict[str, int] = {}
+    for index, row in enumerate(rows):
+        point_name = str(row.get("point_name", "")).strip()
+        exact_to_index[point_name] = index
+        canonical_to_index[canonical_point_name(point_name)] = index
+
+    bag_indices: list[tuple[str, int]] = []
+    for name in dropbag_points:
+        raw_name = str(name).strip()
+        idx = exact_to_index.get(raw_name)
+        if idx is None:
+            idx = canonical_to_index.get(raw_name)
+        if idx is None:
+            idx = canonical_to_index.get(canonical_point_name(raw_name))
+        if idx is not None:
+            bag_indices.append((name, idx))
+
+    if not bag_indices:
+        return []
+
+    bag_indices.sort(key=lambda item: item[1])
+    plans: list[dict] = []
+
+    _, first_bag_idx = bag_indices[0]
+    if first_bag_idx > 0:
+        bag_indices.insert(0, ("START", -1))
+
+    for i, (bag_name, start_idx) in enumerate(bag_indices):
+        end_idx = bag_indices[i + 1][1] if i + 1 < len(bag_indices) else len(rows) - 1
+        if end_idx <= start_idx:
+            continue
+
+        by_food: dict[str, dict[str, float | str]] = {}
+        caffeine_events: list[dict] = []
+        for row in rows[start_idx + 1 : end_idx + 1]:
+            for allocation in row.get("segment_allocations", []):
+                units = float(allocation.get("units", 0.0))
+                if abs(units) < 1e-9:
+                    continue
+                food = str(allocation.get("food", "")).strip()
+                if not food:
+                    continue
+                stats = by_food.setdefault(
+                    food,
+                    {
+                        "units": 0.0,
+                        "reference_size": str(allocation.get("reference_size", "1 unit")),
+                    },
+                )
+                stats["units"] = float(stats["units"]) + units
+
+            caffeine_events.extend(row.get("segment_caffeine_events", []))
+
+        formatted_allocations = [
+            {
+                "food": food,
+                "units": values["units"],
+                "reference_size": values["reference_size"],
+            }
+            for food, values in sorted(by_food.items())
+        ]
+
+        plans.append(
+            {
+                "dropbag_point": bag_name,
+                "covers_until": rows[end_idx].get("point_name", ""),
+                "food_allocations": formatted_allocations,
+                "caffeine_events": sorted(
+                    caffeine_events,
+                    key=lambda event: float(event.get("time_h", 0.0)),
+                ),
+            }
+        )
+
+    return plans
+
+
+def _append_dropbag_sheet(output_path: Path, dropbag_plan: list[dict], sheet_name: str) -> None:
+    wb = load_workbook(output_path)
+    if sheet_name in wb.sheetnames:
+        del wb[sheet_name]
+    ws = wb.create_sheet(sheet_name)
+
+    headers = [
+        "Dropbag Point",
+        "Covers Segments Until",
+        "Stash Food Plan (qty)",
+        "Stash Caffeine Plan (mg [time])",
+    ]
+    for col_idx, name in enumerate(headers, start=1):
+        ws.cell(row=1, column=col_idx, value=name)
+
+    for row_idx, row in enumerate(dropbag_plan, start=2):
+        ws.cell(row=row_idx, column=1, value=row.get("dropbag_point", ""))
+        ws.cell(row=row_idx, column=2, value=row.get("covers_until", ""))
+        ws.cell(row=row_idx, column=3, value=_format_allocations(row.get("food_allocations", [])))
+        ws.cell(
+            row=row_idx,
+            column=4,
+            value=_format_segment_caffeine_events(row.get("caffeine_events", [])),
+        )
+
+    widths = {1: 26, 2: 30, 3: 70, 4: 34}
+    for col_idx, width in widths.items():
+        ws.column_dimensions[get_column_letter(col_idx)].width = width
+
+    wb.save(output_path)
+
+
+def _append_nutrition_sheet(output_path: Path, nutrition_plan: dict, sheet_name: str) -> None:
+    """Add (or replace) a sheet with nutrition quantities in the race workbook."""
+    wb = load_workbook(output_path)
+    if sheet_name in wb.sheetnames:
+        del wb[sheet_name]
+    ws = wb.create_sheet(sheet_name)
+
+    headers = [
+        "Point Name",
+        "Segment Time",
+        "Elapsed Time",
+        "Segment Carb Target (g)",
+        "Moving Plan Carbs (g)",
+        "Aid Plan Carbs (g)",
+        "Total Segment Carbs per Hour (g/h)",
+        "Estimated Sweat Loss (ml)",
+        "Total Planned Drink (ml)",
+        "Cum Sweat Imbalance (ml)",
+        "Cum Sweat Imbalance (%BW)",
+        "Segment Caffeine Intake (mg [time])",
+        "Caffeine Concentration (mg/kg)",
+        "Water (ml)",
+        "Sports Drink (ml)",
+        "Gels (qty)",
+        "Others (qty)",
+    ]
+    for col_idx, name in enumerate(headers, start=1):
+        ws.cell(row=1, column=col_idx, value=name)
+
+    for row_idx, row in enumerate(nutrition_plan["rows"], start=2):
+        category_summary = _summarize_row_intake_categories(row)
+        row_values = [
+            row["point_name"],
+            row["segment_time_hms"],
+            row["elapsed_hms"],
+            round(row["row_target_carbs_g"], 1),
+            round(row["segment_target_carbs_g"], 1),
+            round(row["aid_target_carbs_g"], 1),
+            round(row["row_carbs_per_h"], 1),
+            round(row.get("row_sweat_loss_ml", 0.0), 1),
+            round(row.get("row_total_fluids_ml", 0.0), 1),
+            round(row.get("cumulative_hydration_balance_ml", 0.0), 1),
+            round(row.get("cumulative_hydration_balance_pct_bw", 0.0), 2),
+            _format_segment_caffeine_events(row.get("segment_caffeine_events", [])),
+            round(row.get("caffeine_concentration_mg_per_kg", 0.0), 2),
+            round(float(category_summary["water_ml"]), 1),
+            round(float(category_summary["sports_drink_ml"]), 1),
+            str(category_summary["gels_text"]),
+            str(category_summary["others_text"]),
+        ]
+        for col_idx, value in enumerate(row_values, start=1):
+            ws.cell(row=row_idx, column=col_idx, value=value)
+
+    widths = {
+        1: 30,
+        2: 14,
+        3: 14,
+        4: 22,
+        5: 20,
+        6: 18,
+        7: 32,
+        8: 20,
+        9: 20,
+        10: 24,
+        11: 24,
+        12: 34,
+        13: 28,
+        14: 14,
+        15: 18,
+        16: 50,
+        17: 58,
+    }
+    for col_idx, width in widths.items():
+        ws.column_dimensions[get_column_letter(col_idx)].width = width
+
+    totals = nutrition_plan["totals"]
+    summary_start = len(nutrition_plan["rows"]) + 3
+    summary_rows = [
+        ("Target carbs per hour (g/h)", round(totals["target_carbs_g_per_h"], 1)),
+        ("Planned duration (h)", round(totals["total_time_h"], 2)),
+        ("Moving target carbs (g)", round(totals["moving_target_carbs_g"], 1)),
+        ("Planned total carbs (segment + aid) (g)", round(totals["planned_total_carbs_g"], 1)),
+        (
+            "Sweat loss estimate total (ml)",
+            round(totals.get("hydration", {}).get("estimated_total_sweat_loss_ml", 0.0), 1),
+        ),
+        (
+            "Planned drink total (ml)",
+            round(totals.get("hydration", {}).get("planned_total_fluids_ml", 0.0), 1),
+        ),
+        (
+            "Final sweat imbalance (ml)",
+            round(totals.get("hydration", {}).get("final_sweat_imbalance_ml", 0.0), 1),
+        ),
+        (
+            "Final sweat imbalance (%BW)",
+            round(totals.get("hydration", {}).get("final_sweat_imbalance_pct_bw", 0.0), 2),
+        ),
+        (
+            "Caffeine total dose (mg)",
+            round(totals.get("caffeine", {}).get("total_dose_mg", 0.0), 1),
+        ),
+        (
+            "Caffeine peak concentration (mg/kg)",
+            round(totals.get("caffeine", {}).get("peak_concentration_mg_per_kg", 0.0), 2),
+        ),
+    ]
+    for offset, (label, value) in enumerate(summary_rows):
+        ws.cell(row=summary_start + offset, column=1, value=label)
+        ws.cell(row=summary_start + offset, column=2, value=value)
+
+    food_rows_start = summary_start + len(summary_rows) + 2
+    ws.cell(row=food_rows_start, column=1, value="Food Totals")
+    ws.cell(row=food_rows_start, column=2, value="Units")
+    ws.cell(row=food_rows_start, column=3, value="Carbs (g)")
+
+    for offset, food_name in enumerate(sorted(totals["by_food"].keys()), start=1):
+        stats = totals["by_food"][food_name]
+        ws.cell(row=food_rows_start + offset, column=1, value=food_name)
+        ws.cell(row=food_rows_start + offset, column=2, value=round(stats["units"], 2))
+        ws.cell(row=food_rows_start + offset, column=3, value=round(stats["carbs_g"], 1))
+
+    wb.save(output_path)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -252,6 +589,12 @@ def main():
         type=float,
         metavar="PCT",
         help="Override fatigue model with linear decay PCT (0–100); takes precedence over config",
+    )
+    parser.add_argument(
+        "--nutrition",
+        choices=["yes", "no"],
+        default="no",
+        help="Include nutrition column in main HTML report (default: no)",
     )
     args = parser.parse_args()
 
@@ -489,6 +832,103 @@ def main():
     logger.success(f"Pacing plan written to sheet '{sheet_name}' in {output_path}")
 
     # ------------------------------------------------------------------
+    # 7. Nutrition plan sheet (optional)
+    # ------------------------------------------------------------------
+    carb_plan: dict | None = None
+    nutrition_cfg = race_config.get("nutrition")
+    if nutrition_cfg:
+        try:
+            target_carbs_g_per_h = float(nutrition_cfg.get("target_carbs_g_per_h"))
+            catalog_file = nutrition_cfg.get("food_catalog_file", "config/nutrition/foods.yaml")
+            catalog_path = project_root / catalog_file
+            if not catalog_path.exists():
+                raise FileNotFoundError(f"Food catalog file not found: {catalog_path}")
+
+            with open(catalog_path, "r", encoding="utf-8") as f:
+                catalog_cfg = yaml.safe_load(f)
+            food_catalog = load_food_catalog(catalog_cfg)
+
+            caffeine_ingestion_plan = [
+                (float(entry.get("time_h", 0.0)), float(entry.get("dose_mg", 0.0)))
+                for entry in nutrition_cfg.get("caffeine_plan", {}).get("ingestion_plan", [])
+            ]
+            athlete_weight_kg = float(
+                athlete_config.get("athlete", {}).get("weight_kg", 0.0) or 0.0
+            )
+            if caffeine_ingestion_plan and athlete_weight_kg <= 0:
+                raise ValueError(
+                    "Caffeine plan is configured but athlete.weight_kg is missing or invalid"
+                )
+
+            athlete_hydration_cfg = athlete_config.get("athlete", {}).get("hydration", {}) or {}
+            sweat_rate_ml_per_h = athlete_hydration_cfg.get("sweat_rate_ml_per_h")
+            if sweat_rate_ml_per_h is not None:
+                sweat_rate_ml_per_h = float(sweat_rate_ml_per_h)
+                if sweat_rate_ml_per_h < 0:
+                    raise ValueError("athlete.hydration.sweat_rate_ml_per_h must be >= 0")
+                if sweat_rate_ml_per_h > 0 and athlete_weight_kg <= 0:
+                    raise ValueError(
+                        "Hydration plan is configured but athlete.weight_kg is missing or invalid"
+                    )
+
+            carb_plan = build_race_nutrition_plan(
+                pacing_rows=pacing_df.to_dict(orient="records"),
+                target_carbs_g_per_h=target_carbs_g_per_h,
+                food_catalog=food_catalog,
+                segment_foods_cfg=nutrition_cfg.get("segment_foods", {}),
+                aid_station_intake_cfg=nutrition_cfg.get("aid_station_intake", {}),
+                caffeine_ingestion_plan=caffeine_ingestion_plan,
+                caffeine_weight_kg=athlete_weight_kg,
+                sweat_rate_ml_per_h=sweat_rate_ml_per_h,
+                hydration_weight_kg=athlete_weight_kg,
+            )
+            _append_nutrition_sheet(
+                output_path=output_path,
+                nutrition_plan=carb_plan,
+                sheet_name="Nutrition Plan",
+            )
+            logger.success("Nutrition plan written to sheet 'Nutrition Plan'")
+
+            dropbag_points = _collect_dropbag_points(nutrition_cfg, aid_stations)
+            dropbag_plan = _build_dropbag_plan(carb_plan, dropbag_points)
+            if dropbag_plan:
+                _append_dropbag_sheet(
+                    output_path=output_path,
+                    dropbag_plan=dropbag_plan,
+                    sheet_name="Dropbag Plan",
+                )
+                logger.success("Dropbag plan written to sheet 'Dropbag Plan'")
+        except Exception as exc:
+            logger.error(f"Nutrition plan generation failed: {exc}")
+
+    # ------------------------------------------------------------------
+    # 8. Generate smartphone-friendly race plan HTML report
+    # ------------------------------------------------------------------
+    try:
+        race_name = race_info.get("name", "Race Plan")
+        race_start_time = race_info.get("start_time")
+        report_stem = output_path.stem.removesuffix("_segment_analysis")
+        html_output_path = output_path.parent / f"{report_stem}_race_plan.html"
+        nutrition_plan_for_html = carb_plan if args.nutrition == "yes" else None
+        generate_race_plan_table_report(
+            course=course,
+            aid_stations=aid_stations,
+            pacing_df=pacing_df,
+            output_path=html_output_path,
+            race_name=race_name,
+            mode=args.mode,
+            nutrition_plan=nutrition_plan_for_html,
+            race_start_time=race_start_time,
+            title=f"{race_name} – Race Plan",
+        )
+        logger.success(f"Race plan HTML report written to: {html_output_path}")
+    except Exception as exc:
+        logger.error(f"Race plan HTML report generation failed: {exc}")
+        import traceback
+
+        traceback.print_exc()
+
+    # ------------------------------------------------------------------
     # Summary
     # ------------------------------------------------------------------
     sep = "=" * 52
@@ -521,28 +961,6 @@ def main():
     if itra_score_result is not None:
         logger.info(f"  ITRA score:    {itra_score_result}")
     logger.info(sep)
-
-    # ------------------------------------------------------------------
-    # 7. Generate smartphone-friendly race plan HTML report
-    # ------------------------------------------------------------------
-    try:
-        race_name = race_info.get("name", "Race Plan")
-        race_start_time = race_info.get("start_time")
-        report_stem = output_path.stem.removesuffix("_segment_analysis")
-        html_output_path = output_path.parent / f"{report_stem}_race_plan.html"
-        generate_race_plan_table_report(
-            course=course,
-            aid_stations=aid_stations,
-            pacing_df=pacing_df,
-            output_path=html_output_path,
-            race_name=race_name,
-            mode=args.mode,
-            race_start_time=race_start_time,
-            title=f"{race_name} — Race Plan",
-        )
-        logger.success(f"Race plan HTML report written to: {html_output_path}")
-    except Exception:
-        logger.exception("Race plan HTML report generation failed; continuing without HTML report.")
 
 
 if __name__ == "__main__":

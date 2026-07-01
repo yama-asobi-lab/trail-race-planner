@@ -41,7 +41,7 @@ aid_stations:
     notes: "Water only"
     jap_name: "大根山の神"
     gmaps_link: "https://maps.app.goo.gl/pVpMf4e4CHF1MbrW9"
-    test_run_reference_comments: "1:34 having fun in the downhill"
+    # test_run_reference_comments: "1:34 having fun in the downhill"
     cutoff_in_time: "D1 19:00"
 
   - name: "Kawai"
@@ -51,7 +51,7 @@ aid_stations:
     notes: "Vending machines: 100 m detour towards Kawai station"
     jap_name: "川井"
     gmaps_link: "https://maps.app.goo.gl/mRWETr2MK5gvJ7fTA"
-    test_run_reference_comments: "1:48 having fun in the downhill"
+    # test_run_reference_comments: "1:48 having fun in the downhill"
 
   - name: "A1 Mitake Aid"
     distance_km: 28.1
@@ -69,7 +69,7 @@ aid_stations:
     notes: "Water only, famima 500 m before arriving"
     jap_name: "梅郷地区"
     gmaps_link: "https://maps.app.goo.gl/mSckttx7yYLFxYyh8"
-    test_run_reference_comments: "2:56 without pushing too hard"
+    # test_run_reference_comments: "2:56 without pushing too hard"
     cutoff_in_time: "D2 06:00"
 
   - name: "Hinode Oguno 7-eleven"
@@ -78,16 +78,16 @@ aid_stations:
     stop_time_s: 180
     notes: "Convenience store!"
     gmaps_link: "https://maps.app.goo.gl/EnoRtMv31Qk9uGEZ8"
-    test_run_reference_comments: "2:20 getting lost a few times"
+    # test_run_reference_comments: "2:20 getting lost a few times"
 
   - name: "A2 Jurigi (1)"
-    distance_km: 71.0
+    distance_km: 70.5
     elevation_m: 214   # reference
     stop_time_s: 300
     notes: "Dropbag access! Minestrone soup at aid"
     jap_name: "十里木"
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
-    test_run_reference_comments: "1:55 with a few missed turns but at a strong pace"
+    # test_run_reference_comments: "1:55 with a few missed turns but at a strong pace"
     cutoff_in_time: "D2 11:00"
     course_change_gate: 
       active_window: "D2 11:00 to 13:00"
@@ -100,7 +100,7 @@ aid_stations:
     notes: "Rice and Hiyashi ramen"
     jap_name: "佐野川"
     gmaps_link: "https://maps.app.goo.gl/8rQu4mRhLZ7AxtA49"
-    test_run_reference_comments: "3:38 at a strong pace"
+    # test_run_reference_comments: "3:38 at a strong pace"
     cutoff_in_time: "D2 17:00"
 
   - name: "A4 Fujimi chaya"
@@ -113,19 +113,19 @@ aid_stations:
     cutoff_in_time: "D2 22:00"
 
   - name: "Wada-toge"
-    distance_km: 117.7
+    distance_km: 117.5
     elevation_m: 693   # reference
     stop_time_s: 120
     notes: "Chicken kayu"
     jap_name: "和田峠"
     gmaps_link: "https://maps.app.goo.gl/gjXf43aMxvDZKTySA"
-    test_run_reference_comments: "2:27 jogging the uphills"
+    # test_run_reference_comments: "2:27 jogging the uphills"
     cutoff_in_time: "D3 03:00"
 
   - name: "A6 Jurigi (2)"
     distance_km: 129
     elevation_m: 214   # reference
-    stop_time_s: 90
+    stop_time_s: 240
     notes: "Dropbag access! Dashi chazuke"
     jap_name: "十里木"
     gmaps_link: "https://maps.app.goo.gl/YcQbYpDJJNQZ7dUb9"
@@ -134,7 +134,7 @@ aid_stations:
   - name: "Tomin no mori"
     distance_km: 147.1
     elevation_m: 631   # reference
-    stop_time_s: 90
+    stop_time_s: 60
     notes: "Wagashi"
     jap_name: "都民の森"
     gmaps_link: "https://maps.app.goo.gl/W8oppstGke3ejteU9"
@@ -147,5 +147,58 @@ aid_stations:
     notes: "Goal!"
     jap_name: "奥多摩運動公園"
     gmaps_link: "https://maps.app.goo.gl/yFzLWtDt8DASVbFi7"
-    test_run_reference_comments: "3:50 from Jurigi with strong finish"
+    # test_run_reference_comments: "3:50 from Jurigi with strong finish"
     cutoff_in_time: "D3 16:00"
+
+
+nutrition:
+  target_carbs_g_per_h: 90
+  food_catalog_file: "config/nutrition/foods.yaml"
+
+  # Configuration defines WHAT will be used in each segment (and approximate proportion); planner computes HOW MUCH.
+  # Ratio is a carb-share weight (not servings/units). Example ratio 1:2 means
+  # one-third vs two-thirds of the carb target before unit/fraction rounding.
+  segment_foods:
+    default:
+      - { food: "Pocari doble", ratio: 1.25 }
+      - { food: "Self-made gel", ratio: 1 }
+      - { food: "Youkan", ratio: 0.33 }
+
+    # Optional overrides by arrival point name.
+    by_segment:
+      "A3 Sanogawa":
+        - { food: "Pocari doble", ratio: 1.2 }
+        - { food: "Self-made gel", ratio: 1 }
+        - { food: "Hoshi imo", ratio: 1 }
+      "Wada-toge":
+        - { food: "Pocari doble", ratio: 1.2 }
+        - { food: "Self-made gel", ratio: 1 }
+        - { food: "Hoshi imo", ratio: 1 }
+
+  # Aid-station intake (food with units).
+  aid_station_intake:
+    by_segment:
+      "A1 Mitake Aid":
+        - { food: "Banana", units: 0.5 }
+        - { food: "Rice curry", carbs_g: 30}
+      "Hinode Oguno 7-eleven":
+        - { food: "Potato salad", carbs_g: 30 }
+        - { food: "Coke", units: 1.0 }
+      "A3 Sanogawa":
+        - { food: "Hiyashi Ramen", carbs_g: 30 }
+        - { food: "Coke", units: 0.5 }
+      "A4 Fujimi chaya":
+        - { food: "Somen", carbs_g: 30 }
+      "Wada-toge":
+        - { food: "Coke", units: 0.5 }
+      "A6 Jurigi (2)":
+        - { food: "Dashi chazuke", carbs_g: 30 }
+
+  # Caffeine modeled with exact race-time doses (hours from start).
+  caffeine_plan:
+    ingestion_plan:
+      - { time_h: 5.0, dose_mg: 200 }
+      - { time_h: 8.0, dose_mg: 200 }
+      - { time_h: 13.0, dose_mg: 200 }
+      - { time_h: 22.0, dose_mg: 200 }
+      - { time_h: 27.0, dose_mg: 200 }
