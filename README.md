@@ -13,7 +13,8 @@ smartphone-friendly race plan HTML report.
 - [Overview](#overview)
 - [Key Models](#key-models)
 - [Installation](#installation)
-- [Quick Start](#quick-start)
+- [MVP First Run (Minimum Required)](#mvp-first-run-minimum-required)
+- [Comprehensive Quick Start](#quick-start)
 - [CLI Reference](#cli-reference)
 - [Configuration](#configuration)
   - [Athlete Profile](#athlete-profile-configathletesyaml)
@@ -156,7 +157,77 @@ pip install -r requirements.txt
 
 ---
 
-## Quick Start
+## MVP First Run (Minimum Required)
+
+If you are using this tool for the first time and only want a **working smartphone HTML race plan**,
+you only need:
+
+1. A GPX file for the course.
+2. One race YAML that points to that GPX.
+
+You can skip nutrition, ITRA references, custom GAP curves, and even custom aid stations for your
+first run.
+
+### 1) Put your GPX in the repo
+
+Example path:
+
+`config/gpx_repo/my_course.gpx`
+
+### 2) Use the minimal race config template
+
+Copy `config/races/my_course.yaml`:
+
+```yaml
+race:
+  name: "My Course"
+  gpx_file: "config/gpx_repo/my_course.gpx"
+  output_file: "results/my_course_segment_analysis.xlsx"
+
+# Empty list is valid for MVP.
+# The planner will automatically use Start (0 km) and Finish (course end).
+aid_stations: []
+```
+
+Minimum fields required for `race` are:
+- `name`
+- `gpx_file`
+- `output_file`
+
+### 3) Run the planner
+
+```bash
+python -m race_planner.main config/races/my_course.yaml
+```
+
+This uses the default athlete profile (`yet_another_sato`) and generates:
+
+- `results/my_course_segment_analysis.xlsx`
+- `results/my_course_segment_analysis_elevation_profile.html`
+- `results/my_course_race_plan.html`  (smartphone-friendly report)
+
+### 4) (Optional) Add basic aid stations next
+
+Once MVP works, you can add simple checkpoints for better split planning:
+
+```yaml
+aid_stations:
+  - name: "Start"
+    distance_km: 0.0
+    stop_time_s: 0
+  - name: "Aid 1"
+    distance_km: 25.0
+    stop_time_s: 180
+  - name: "Finish"
+    distance_km: 52.4
+    stop_time_s: 0
+```
+
+Only `name` and `distance_km` are required per aid station; other fields are optional.
+
+---
+
+## Comprehensive Quick Start
 
 ```bash
 # Predict Carlos's time for TGT 2026 based on his marathon PB

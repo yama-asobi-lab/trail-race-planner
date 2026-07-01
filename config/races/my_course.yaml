@@ -1,0 +1,8 @@
+race:
+  name: "My Course"
+  gpx_file: "config/gpx_repo/my_course.gpx"
+  output_file: "results/my_course_segment_analysis.xlsx"
+
+# Empty list is valid for MVP.
+# The planner will automatically use Start (0 km) and Finish (course end).
+aid_stations: []
