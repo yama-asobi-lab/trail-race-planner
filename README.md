@@ -144,7 +144,7 @@ The resulting concentration curve is reported at every checkpoint.
 Requires **Python 3.9+**.
 
 ```bash
-git clone https://github.com/your-user/trail-race-planner.git
+git clone https://github.com/yama-asobi-lab/trail-race-planner.git
 cd trail-race-planner
 python -m venv .venv
 # Windows
