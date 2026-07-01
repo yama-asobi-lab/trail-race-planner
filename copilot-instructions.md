@@ -140,3 +140,36 @@ The smartphone-friendly race plan report includes:
 5. **Test with fixtures** — use athlete/race configs in `tests/fixtures/`
 6. **Log progress** — use loguru
 7. **Update this file** if introducing new patterns
+
+## LLM Behavioral Guidelines (Karpathy-Inspired)
+
+These behavior rules are adapted from Karpathy-inspired `CLAUDE.md` guidance and merged for this project.
+Source reference: https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md
+
+### 1. Think Before Coding
+- State assumptions explicitly before implementation.
+- If there are multiple valid interpretations, present them instead of choosing silently.
+- If requirements are unclear, stop and ask a targeted clarifying question.
+- If a simpler approach is available, call it out.
+
+### 2. Simplicity First
+- Implement only what was requested.
+- Avoid speculative abstractions, options, and configuration knobs.
+- Avoid handling impossible scenarios unless requested.
+- Prefer minimal code paths that are easy to verify.
+
+### 3. Surgical Changes
+- Keep diffs tightly scoped to the request.
+- Do not refactor unrelated areas while implementing a task.
+- Match existing file style and local conventions.
+- Remove only unused code/imports introduced by your own changes.
+
+### 4. Goal-Driven Execution
+- Convert each task into explicit, testable success criteria.
+- For fixes, reproduce first (or define a failing condition), then verify resolution.
+- For multi-step tasks, keep a short step/check plan and verify each step.
+- Finish only after validation (tests, checks, or concrete output evidence).
+
+### Practical Tradeoff
+- These rules prioritize correctness and clarity over raw speed.
+- For trivial changes, apply judgment and keep overhead low.
