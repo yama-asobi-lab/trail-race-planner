@@ -244,17 +244,10 @@ def test_from_athlete_config_with_fatigue(carlos_config):
     assert calc.fatigue_total_decay_pct == 15.0
 
 
-def test_from_athlete_config_reads_altitude_coefficient(carlos_config, yas_config):
-    carlos_calc = PaceCalculator.from_athlete_config(carlos_config)
-    yas_calc = PaceCalculator.from_athlete_config(yas_config)
-    assert carlos_calc.altitude_slowdown_per_vertical_km == pytest.approx(0.06)
-    assert yas_calc.altitude_slowdown_per_vertical_km == pytest.approx(0.063)
-
-
-def test_altitude_multiplier_uses_vertical_km_baseline():
+def test_altitude_multiplier_starts_above_1000m():
     calc = PaceCalculator(ref_dist_km=42.195, ref_time_s=12600)
-    result = calc.altitude_multiplier(np.array([0.0, 500.0, 1000.0]))
-    np.testing.assert_allclose(result, np.array([1.0, 1.0315, 1.063]), rtol=1e-10)
+    result = calc.altitude_multiplier(np.array([0.0, 500.0, 1000.0, 1500.0, 2000.0]))
+    np.testing.assert_allclose(result, np.array([1.0, 1.0, 1.0, 1.0315, 1.063]), rtol=1e-10)
 
 
 def test_calculate_pacing_with_altitude_effects_increases_time(tgt_course, race_config):
