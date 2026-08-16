@@ -653,7 +653,7 @@ def _build_comments_view_model(
         comments.append(CommentsLineViewModel(tag="Notes", value=str(notes)))
 
     if aid_station.get("car_access") is True:
-        comments.append(CommentsLineViewModel(tag="Notes", value="🚗"))
+        comments.append(CommentsLineViewModel(tag="Access", value="🚗"))
 
     stop_time_s = float(aid_station.get("stop_time_s", 0) or 0)
     if stop_time_s > 0:
