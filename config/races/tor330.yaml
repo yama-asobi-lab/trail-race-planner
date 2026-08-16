@@ -46,7 +46,6 @@ aid_stations:
     elevation_m: 1486   # reference
     stop_time_s: 120
     notes: "Ristoro + Soccorso"
-    jap_name: "川井"
     gmaps_link: "https://maps.app.goo.gl/CyYXjmraJEe6FXb76"
     cutoff_in_time: "D2 15:30"
     car_access: true
