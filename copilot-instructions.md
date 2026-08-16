@@ -74,6 +74,12 @@ def _helper_function() -> None:
 
 ## Common Patterns
 
+### Virtual Environment
+Use `venv` for Python virtual environments. Activate with:
+```powershell
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& c:\Users\crabs\Documents\GitHub\trail-race-planner\.venv\Scripts\Activate.ps1)
+```
+
 ### Configuration Loading
 Race and athlete configs are loaded from YAML in the project root:
 - `config/races/*.yaml` — race definitions (gpx_file, output_file, aid stations, itra_reference_points, etc.)

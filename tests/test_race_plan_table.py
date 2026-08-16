@@ -244,6 +244,48 @@ class TestRacePlanTable:
         assert "+0 m" in content
         assert "-0 m" in content
 
+    def test_car_access_adds_car_emoji_to_notes_when_true(
+        self, sample_course, sample_pacing_df, tmp_path
+    ):
+        """Aid stations with car access should display a car emoji in the notes column."""
+        from race_planner.visualization.race_plan_table import generate_race_plan_table_report
+
+        output_file = tmp_path / "report.html"
+        aid_stations = [
+            {
+                "name": "Drive Aid",
+                "distance_km": 0.0,
+                "elevation_m": 1000,
+                "stop_time_s": 0,
+                "notes": "Water only",
+                "car_access": True,
+            },
+            {
+                "name": "Remote Aid",
+                "distance_km": 10.0,
+                "elevation_m": 1200,
+                "stop_time_s": 60,
+                "notes": "Crew access only",
+                "car_access": False,
+            },
+        ]
+
+        result = generate_race_plan_table_report(
+            course=sample_course,
+            aid_stations=aid_stations,
+            pacing_df=sample_pacing_df,
+            output_path=output_file,
+            race_name="Test Race",
+            mode="normal",
+            title="Test Race Plan",
+        )
+
+        content = result.read_text(encoding="utf-8")
+        assert "🚗" in content
+        assert content.count("🚗") == 1
+        assert "Water only" in content
+        assert "Crew access only" in content
+
     def test_cutoff_time_renders_next_to_clock_line(
         self, sample_course, sample_pacing_df, tmp_path
     ):
