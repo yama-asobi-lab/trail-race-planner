@@ -17,5 +17,11 @@ athlete:
   gap_curve:
     points: []
 
+  # Altitude-effects slowdown model.
+  # Baseline cohort value is 0.063 (6.3% per vertical-km), with inter-athlete
+  # variability around sigma ~0.025.
+  altitude_effects:
+    slowdown_per_vertical_km: 0.063
+
   preferences:
     target_finish_time: null

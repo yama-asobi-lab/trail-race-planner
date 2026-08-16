@@ -33,6 +33,12 @@ athlete:
   # Optional physiology parameters for future process-based fatigue model
   fatigue_physiology: {}  # TBD: lactate threshold, fatigue sensitivity, etc.
 
+  # Altitude-effects slowdown model.
+  # Baseline cohort value is 0.063 (6.3% per vertical-km), with inter-athlete
+  # variability around sigma ~0.025.
+  altitude_effects:
+    slowdown_per_vertical_km: 0.06
+
   preferences:
     threshold_flat_pace_per_km: "3:50/km"  # LT2
     aerobic_threshold_flat_pace_per_km: "4:40/km"  # LT1
