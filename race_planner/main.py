@@ -20,7 +20,11 @@ Options:
                                Use 'sigmoid' to enable the bi-phasic sigmoidal model.
     --fatigue-total-decay-pct PCT
                                Override fatigue with linear decay (0–100); takes precedence
+<<<<<<< HEAD
     --start-pct FLOAT          Override start_pct for sigmoid fatigue model (e.g. 0.55)
+=======
+    --altitude-effects {yes|no} Apply altitude-effects slowdown (default: yes)
+>>>>>>> remotes/origin/main
     --nutrition {yes|no}      Include nutrition column in main HTML report (default: no)
 
 Notes:
@@ -181,7 +185,9 @@ def _resolve_sigmoid_fatigue_model(
         ),
         circadian_period_hours=float(fatigue_params.get("circadian_period_hours", 24.0)),
         sleep_half_life_hours=float(
-            physiology.get("sleep_half_life_hours", fatigue_params.get("sleep_half_life_hours", 2.5))
+            physiology.get(
+                "sleep_half_life_hours", fatigue_params.get("sleep_half_life_hours", 2.5)
+            )
         ),
     )
 
@@ -613,12 +619,7 @@ def _append_nutrition_sheet(output_path: Path, nutrition_plan: dict, sheet_name:
     wb.save(output_path)
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
-
-def main():
+def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Trail race planner — segment analysis and pacing plan"
     )
@@ -675,11 +676,27 @@ def main():
         ),
     )
     parser.add_argument(
+        "--altitude-effects",
+        choices=["yes", "no"],
+        default="yes",
+        help="Apply altitude-effects slowdown in pacing/time predictions (default: yes)",
+    )
+    parser.add_argument(
         "--nutrition",
         choices=["yes", "no"],
         default="no",
         help="Include nutrition column in main HTML report (default: no)",
     )
+    return parser
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def main():
+    parser = _build_arg_parser()
     args = parser.parse_args()
 
     if args.mode == "target_time" and not args.target_time:
@@ -749,6 +766,7 @@ def main():
     )
     if fatigue_total_decay_pct > 0:
         logger.info(f"Fatigue model: linear decay {fatigue_total_decay_pct:.1f}%")
+    logger.info(f"Altitude effects: {'enabled' if args.altitude_effects == 'yes' else 'disabled'}")
 
     # Resolve sigmoid model if requested
     sigmoid_fatigue_model = None
@@ -783,9 +801,7 @@ def main():
                     athlete_config=athlete_config,
                     start_pct_cli=getattr(args, "start_pct", None),
                 )
-                logger.info(
-                    "Fatigue model: sigmoid (from race config fatigue_model_type=sigmoid)"
-                )
+                logger.info("Fatigue model: sigmoid (from race config fatigue_model_type=sigmoid)")
             except ValueError as exc:
                 logger.warning(
                     f"race.planning.fatigue_model_type=sigmoid but model setup failed: {exc}. "
@@ -830,6 +846,7 @@ def main():
             athlete_config,
             fatigue_total_decay_pct=fatigue_total_decay_pct,
             fatigue_model_instance=sigmoid_fatigue_model,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         ref = athlete_info.get("reference_performance", {})
         logger.info(f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}")
@@ -848,6 +865,7 @@ def main():
             athlete_config,
             fatigue_total_decay_pct=fatigue_total_decay_pct,
             fatigue_model_instance=sigmoid_fatigue_model,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         logger.info(
             f"Target finish time: {args.target_time}  "
@@ -875,6 +893,7 @@ def main():
             athlete_config,
             fatigue_total_decay_pct=fatigue_total_decay_pct,
             fatigue_model_instance=sigmoid_fatigue_model,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         logger.info(
             f"ITRA score {args.target_itra_score} → "
@@ -888,6 +907,7 @@ def main():
             athlete_config,
             fatigue_total_decay_pct=fatigue_total_decay_pct,
             fatigue_model_instance=sigmoid_fatigue_model,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         try:
             target_grade_adjusted_pace_s_per_km = pace_to_seconds_per_km(

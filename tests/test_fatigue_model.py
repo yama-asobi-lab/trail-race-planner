@@ -1,7 +1,5 @@
 """Tests for MultiDaySigmoidalFatigueModel."""
 
-import math
-
 import pytest
 
 from race_planner.models.fatigue_model import MultiDaySigmoidalFatigueModel
@@ -50,9 +48,7 @@ def test_construction_floor_must_be_less_than_threshold():
 
 def test_construction_invalid_start_pct():
     with pytest.raises(ValueError, match="start_pct"):
-        MultiDaySigmoidalFatigueModel(
-            threshold_speed_kmh=15.0, floor_speed_kmh=5.0, start_pct=0.0
-        )
+        MultiDaySigmoidalFatigueModel(threshold_speed_kmh=15.0, floor_speed_kmh=5.0, start_pct=0.0)
 
 
 def test_construction_invalid_steepness():
@@ -155,9 +151,9 @@ def test_one_hour_nap_recovery_20_to_30_pct(tor_model):
     nap_s = 3600.0  # 1 hour
     remaining_debt = tor_model.apply_nap_recovery(initial_debt_s, nap_s)
     recovery_fraction = 1.0 - remaining_debt / initial_debt_s
-    assert 0.20 <= recovery_fraction <= 0.30, (
-        f"Expected 20–30% recovery from 1-h nap, got {recovery_fraction:.1%}"
-    )
+    assert (
+        0.20 <= recovery_fraction <= 0.30
+    ), f"Expected 20–30% recovery from 1-h nap, got {recovery_fraction:.1%}"
 
 
 def test_nap_recovery_exponential_more_efficient_early(tor_model):

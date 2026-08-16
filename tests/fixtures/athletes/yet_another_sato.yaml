@@ -8,3 +8,5 @@ athlete:
     notes: "Stable test marathon PB"
   gap_curve:
     points: []
+  altitude_effects:
+    slowdown_per_vertical_km: 0.063

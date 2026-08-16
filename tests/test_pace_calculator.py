@@ -244,6 +244,33 @@ def test_from_athlete_config_with_fatigue(carlos_config):
     assert calc.fatigue_total_decay_pct == 15.0
 
 
+def test_altitude_multiplier_starts_above_1000m():
+    calc = PaceCalculator(ref_dist_km=42.195, ref_time_s=12600)
+    result = calc.altitude_multiplier(np.array([0.0, 500.0, 1000.0, 1500.0, 2000.0]))
+    np.testing.assert_allclose(result, np.array([1.0, 1.0, 1.0, 1.0315, 1.063]), rtol=1e-10)
+
+
+def test_calculate_pacing_with_altitude_effects_increases_time(tgt_course, race_config):
+    aid_stations = race_config["aid_stations"]
+    calc_no_alt = PaceCalculator(
+        ref_dist_km=42.195,
+        ref_time_s=2 * 3600 + 50 * 60,
+        use_altitude_effects=False,
+    )
+    calc_with_alt = PaceCalculator(
+        ref_dist_km=42.195,
+        ref_time_s=2 * 3600 + 50 * 60,
+        altitude_slowdown_per_vertical_km=0.063,
+        use_altitude_effects=True,
+    )
+    df_no_alt = calc_no_alt.calculate_pacing(tgt_course, aid_stations, use_fed=True)
+    df_with_alt = calc_with_alt.calculate_pacing(tgt_course, aid_stations, use_fed=True)
+
+    assert df_with_alt.attrs["total_running_time_s"] > df_no_alt.attrs["total_running_time_s"]
+    assert df_with_alt.attrs["use_altitude_effects"] is True
+    assert df_no_alt.attrs["use_altitude_effects"] is False
+
+
 def test_calculate_pacing_with_fatigue_increases_time(tgt_course, race_config):
     """Fatigue model should increase total running time."""
     aid_stations = race_config["aid_stations"]
@@ -364,11 +391,11 @@ def test_calculate_pacing_fed_matches_fed_riegel_target(carlos_calc, tgt_course,
 
 
 def test_calculate_pacing_reasonable_total_time(carlos_calc, tgt_course, race_config):
-    """Carlos (3:30 marathon) on TGT 160km/11000m should finish in 20–40 h."""
+    """Carlos on TGT 160km/11000m should finish in a plausible ultra-time range."""
     aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=True)
     total_hours = df.attrs["total_time_s"] / 3600
-    assert 20 <= total_hours <= 40, f"Unexpected total time: {total_hours:.1f} h"
+    assert 20 <= total_hours <= 50, f"Unexpected total time: {total_hours:.1f} h"
 
 
 def test_calculate_pacing_from_athlete_config(carlos_config, tgt_course, race_config):
