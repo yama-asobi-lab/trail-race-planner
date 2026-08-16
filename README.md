@@ -301,6 +301,9 @@ Options:
   --fatigue-total-decay-pct PCT
                             Override fatigue with linear decay PCT (0–100)
                             Takes precedence over --fatigue-mode
+  --altitude-effects {yes|no}
+                            Apply altitude-effects slowdown in pacing/time predictions
+                            (default: yes)
   --nutrition {yes|no}      Include nutrition/fueling column in main HTML report
                             (default: no)
 ```
@@ -353,6 +356,9 @@ athlete:
     # - [-0.07,  0.865 ]
     # - [-0.20,  1.71  ]  # -20% cutoff anchor
 
+  altitude_effects:
+    slowdown_per_vertical_km: 0.063   # baseline 6.3% slowdown per vertical-km
+
   preferences:                 # optional — informational only at present
     threshold_flat_pace_per_km: "3:50/km"
     aerobic_threshold_flat_pace_per_km: "4:40/km"
@@ -376,6 +382,12 @@ athlete:
 - `--fatigue-mode athlete`: reserved for future process-based physiological model.
 - Linear model: pace multiplier rises from 1.0 at start to 1.0 + (decay_pct/100) at finish.
 - Example: `--fatigue-total-decay-pct 10` means 10% slower pace at the finish.
+
+**Notes on altitude-effects modeling**:
+- Controlled via CLI `--altitude-effects {yes|no}` (default `yes`).
+- Athlete-specific coefficient lives in `athlete.altitude_effects.slowdown_per_vertical_km`.
+- Baseline cohort coefficient is **0.063** (6.3% slowdown per vertical-km).
+- Inter-athlete variability is approximately **sigma ~0.025** around that baseline.
 
 ---
 
@@ -895,6 +907,11 @@ Options:
   --fatigue-total-decay-pct PCT
                             Override fatigue with linear decay PCT (0–100)
                             Takes precedence over --fatigue-mode
+  --altitude-effects {yes|no}
+                            Apply altitude-effects slowdown in pacing/time predictions
+                            (default: yes)
+  --nutrition {yes|no}       Include nutrition/fueling column in main HTML report
+                            (default: no)
 ```
 
 Terminal output includes a summary block:
@@ -940,6 +957,9 @@ athlete:
     # - [-0.07,  0.865 ]
     # - [-0.20,  1.71  ]  # -20% cutoff anchor
 
+  altitude_effects:
+    slowdown_per_vertical_km: 0.063   # baseline 6.3% slowdown per vertical-km
+
   preferences:                 # optional — informational only at present
     threshold_flat_pace_per_km: "3:50/km"
     aerobic_threshold_flat_pace_per_km: "4:40/km"
@@ -963,6 +983,12 @@ athlete:
 - `--fatigue-mode athlete`: reserved for future process-based physiological model.
 - Linear model: pace multiplier rises from 1.0 at start to 1.0 + (decay_pct/100) at finish.
 - Example: `--fatigue-total-decay-pct 10` means 10% slower pace at the finish.
+
+**Notes on altitude-effects modeling**:
+- Controlled via CLI `--altitude-effects {yes|no}` (default `yes`).
+- Athlete-specific coefficient lives in `athlete.altitude_effects.slowdown_per_vertical_km`.
+- Baseline cohort coefficient is **0.063** (6.3% slowdown per vertical-km).
+- Inter-athlete variability is approximately **sigma ~0.025** around that baseline.
 
 ---
 

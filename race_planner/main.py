@@ -19,6 +19,7 @@ Options:
                                Fatigue model source (default: none)
     --fatigue-total-decay-pct PCT
                                Override fatigue with linear decay (0–100); takes precedence
+    --altitude-effects {yes|no} Apply altitude-effects slowdown (default: yes)
     --nutrition {yes|no}      Include nutrition column in main HTML report (default: no)
 
 Notes:
@@ -128,6 +129,68 @@ def _build_itra_predictor(race_config: dict) -> ItraScorePredictor | None:
     except Exception as exc:
         logger.warning(f"Could not build ITRA predictor from race config: {exc}")
         return None
+
+
+def _build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Trail race planner — segment analysis and pacing plan"
+    )
+    parser.add_argument("race_config", type=Path, help="Path to race YAML config")
+    parser.add_argument(
+        "--athlete",
+        default="yet_another_sato",
+        help="Athlete name (default: yet_another_sato)",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["athlete_pb", "target_time", "target_itra", "grade_adjusted_pace"],
+        default="athlete_pb",
+        help="Planning mode (default: athlete_pb)",
+    )
+    parser.add_argument(
+        "--target-time",
+        metavar="HH:MM:SS",
+        help="Desired total finish time — required for --mode target_time",
+    )
+    parser.add_argument(
+        "--target-itra-score",
+        type=int,
+        metavar="N",
+        help="Target ITRA score — required for --mode target_itra",
+    )
+    parser.add_argument(
+        "--target-grade-adjusted-pace",
+        metavar="MM:SS",
+        help=(
+            "Target grade-adjusted running pace in MM:SS or MM:SS/km "
+            "— required for --mode grade_adjusted_pace"
+        ),
+    )
+    parser.add_argument(
+        "--fatigue-mode",
+        choices=["none", "athlete", "race"],
+        default="none",
+        help="Fatigue model source (default: none — no fatigue)",
+    )
+    parser.add_argument(
+        "--fatigue-total-decay-pct",
+        type=float,
+        metavar="PCT",
+        help="Override fatigue model with linear decay PCT (0–100); takes precedence over config",
+    )
+    parser.add_argument(
+        "--altitude-effects",
+        choices=["yes", "no"],
+        default="yes",
+        help="Apply altitude-effects slowdown in pacing/time predictions (default: yes)",
+    )
+    parser.add_argument(
+        "--nutrition",
+        choices=["yes", "no"],
+        default="no",
+        help="Include nutrition column in main HTML report (default: no)",
+    )
+    return parser
 
 
 def _append_pacing_sheet(
@@ -544,58 +607,7 @@ def _append_nutrition_sheet(output_path: Path, nutrition_plan: dict, sheet_name:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Trail race planner — segment analysis and pacing plan"
-    )
-    parser.add_argument("race_config", type=Path, help="Path to race YAML config")
-    parser.add_argument(
-        "--athlete",
-        default="yet_another_sato",
-        help="Athlete name (default: yet_another_sato)",
-    )
-    parser.add_argument(
-        "--mode",
-        choices=["athlete_pb", "target_time", "target_itra", "grade_adjusted_pace"],
-        default="athlete_pb",
-        help="Planning mode (default: athlete_pb)",
-    )
-    parser.add_argument(
-        "--target-time",
-        metavar="HH:MM:SS",
-        help="Desired total finish time — required for --mode target_time",
-    )
-    parser.add_argument(
-        "--target-itra-score",
-        type=int,
-        metavar="N",
-        help="Target ITRA score — required for --mode target_itra",
-    )
-    parser.add_argument(
-        "--target-grade-adjusted-pace",
-        metavar="MM:SS",
-        help=(
-            "Target grade-adjusted running pace in MM:SS or MM:SS/km "
-            "— required for --mode grade_adjusted_pace"
-        ),
-    )
-    parser.add_argument(
-        "--fatigue-mode",
-        choices=["none", "athlete", "race"],
-        default="none",
-        help="Fatigue model source (default: none — no fatigue)",
-    )
-    parser.add_argument(
-        "--fatigue-total-decay-pct",
-        type=float,
-        metavar="PCT",
-        help="Override fatigue model with linear decay PCT (0–100); takes precedence over config",
-    )
-    parser.add_argument(
-        "--nutrition",
-        choices=["yes", "no"],
-        default="no",
-        help="Include nutrition column in main HTML report (default: no)",
-    )
+    parser = _build_arg_parser()
     args = parser.parse_args()
 
     if args.mode == "target_time" and not args.target_time:
@@ -665,6 +677,7 @@ def main():
     )
     if fatigue_total_decay_pct > 0:
         logger.info(f"Fatigue model: linear decay {fatigue_total_decay_pct:.1f}%")
+    logger.info(f"Altitude effects: {'enabled' if args.altitude_effects == 'yes' else 'disabled'}")
 
     # ------------------------------------------------------------------
     # 1. Segment analysis — always runs; creates / updates the xlsx file
@@ -701,7 +714,9 @@ def main():
 
     if args.mode == "athlete_pb":
         calc = PaceCalculator.from_athlete_config(
-            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+            athlete_config,
+            fatigue_total_decay_pct=fatigue_total_decay_pct,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         ref = athlete_info.get("reference_performance", {})
         logger.info(f"Reference performance: {ref.get('distance_km')} km in {ref.get('time')}")
@@ -717,7 +732,9 @@ def main():
             )
             sys.exit(1)
         calc = PaceCalculator.from_athlete_config(
-            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+            athlete_config,
+            fatigue_total_decay_pct=fatigue_total_decay_pct,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         logger.info(
             f"Target finish time: {args.target_time}  "
@@ -742,7 +759,9 @@ def main():
             )
             sys.exit(1)
         calc = PaceCalculator.from_athlete_config(
-            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+            athlete_config,
+            fatigue_total_decay_pct=fatigue_total_decay_pct,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         logger.info(
             f"ITRA score {args.target_itra_score} → "
@@ -753,7 +772,9 @@ def main():
 
     elif args.mode == "grade_adjusted_pace":
         calc = PaceCalculator.from_athlete_config(
-            athlete_config, fatigue_total_decay_pct=fatigue_total_decay_pct
+            athlete_config,
+            fatigue_total_decay_pct=fatigue_total_decay_pct,
+            use_altitude_effects=(args.altitude_effects == "yes"),
         )
         try:
             target_grade_adjusted_pace_s_per_km = pace_to_seconds_per_km(

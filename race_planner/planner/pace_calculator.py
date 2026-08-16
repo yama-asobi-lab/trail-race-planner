@@ -142,6 +142,9 @@ class PaceCalculator:
     RIEGEL_BASE_EXPONENT: float = PacingModel.RIEGEL_BASE_EXPONENT
     PIECEWISE_RIEGEL_106_SQRT_C: float = PacingModel.PIECEWISE_RIEGEL_106_SQRT_C
     FED_VERT_FACTOR_M_PER_KM: float = PacingModel.FED_VERT_FACTOR_M_PER_KM
+    # Baseline altitude-effects slowdown is 6.3% per vertical-km climbed.
+    # Typical inter-athlete variability is approximately sigma ~0.025.
+    ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM: float = 0.063
 
     def __init__(
         self,
@@ -149,6 +152,8 @@ class PaceCalculator:
         ref_time_s: float,
         gap_curve: Optional[np.ndarray] = None,
         fatigue_total_decay_pct: float = 0.0,
+        altitude_slowdown_per_vertical_km: float = ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM,
+        use_altitude_effects: bool = True,
     ) -> None:
         self.model = PacingModel(
             ref_dist_km=ref_dist_km,
@@ -161,6 +166,10 @@ class PaceCalculator:
         self.fatigue_total_decay_pct = float(fatigue_total_decay_pct)
         if not 0.0 <= self.fatigue_total_decay_pct <= 100.0:
             raise ValueError("fatigue_total_decay_pct must be between 0 and 100")
+        self.altitude_slowdown_per_vertical_km = float(altitude_slowdown_per_vertical_km)
+        if self.altitude_slowdown_per_vertical_km < 0.0:
+            raise ValueError("altitude_slowdown_per_vertical_km must be non-negative")
+        self.use_altitude_effects = bool(use_altitude_effects)
 
     # ------------------------------------------------------------------
     # Construction helpers
@@ -168,7 +177,10 @@ class PaceCalculator:
 
     @classmethod
     def from_athlete_config(
-        cls, athlete_config: Dict, fatigue_total_decay_pct: float = 0.0
+        cls,
+        athlete_config: Dict,
+        fatigue_total_decay_pct: float = 0.0,
+        use_altitude_effects: bool = True,
     ) -> "PaceCalculator":
         """
         Build a PaceCalculator from an athlete YAML config dict.
@@ -181,20 +193,33 @@ class PaceCalculator:
                 time: "HH:MM:SS"
               gap_curve:
                 points: []   # empty = use default, or list of [grade, factor] pairs
+              altitude_effects:
+                slowdown_per_vertical_km: 0.063
 
         Args:
             athlete_config: Loaded athlete YAML as a Python dict.
             fatigue_total_decay_pct: Linear fatigue decay (0-100); optional override.
+            use_altitude_effects: If false, disables altitude-effects slowdown.
 
         Returns:
             PaceCalculator instance.
         """
         model = PacingModel.from_athlete_config(athlete_config)
+        athlete = athlete_config.get("athlete", {})
+        altitude_cfg = athlete.get("altitude_effects", {}) or {}
+        altitude_slowdown_per_vertical_km = float(
+            altitude_cfg.get(
+                "slowdown_per_vertical_km",
+                cls.ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM,
+            )
+        )
         return cls(
             ref_dist_km=model.ref_dist_km,
             ref_time_s=model.ref_time_s,
             gap_curve=model.gap_curve,
             fatigue_total_decay_pct=fatigue_total_decay_pct,
+            altitude_slowdown_per_vertical_km=altitude_slowdown_per_vertical_km,
+            use_altitude_effects=use_altitude_effects,
         )
 
     # ------------------------------------------------------------------
@@ -274,6 +299,20 @@ class PaceCalculator:
 
         total_decay_fraction = self.fatigue_total_decay_pct / 100.0
         return 1.0 + total_decay_fraction * progress_fraction_values
+
+    def altitude_multiplier(self, cumulative_elevation_gain_m_values: np.ndarray) -> np.ndarray:
+        """Return per-point pace multipliers for altitude-effects slowdown.
+
+        Slowdown grows linearly with cumulative vertical gain at the athlete-specific
+        coefficient, where baseline is 6.3% per vertical-km.
+        """
+        if not self.use_altitude_effects:
+            return np.ones_like(cumulative_elevation_gain_m_values, dtype=float)
+        cumulative_gain_m = np.maximum(
+            np.asarray(cumulative_elevation_gain_m_values, dtype=float), 0.0
+        )
+        vertical_km_values = cumulative_gain_m / 1000.0
+        return 1.0 + self.altitude_slowdown_per_vertical_km * vertical_km_values
 
     # ------------------------------------------------------------------
     # Pacing plan
@@ -361,6 +400,12 @@ class PaceCalculator:
         grade_decimal_values = full_df["grade"].values / 100.0
         grade_correction_factors = self.grade_correction(grade_decimal_values)
         point_distance_km_values = full_df["dist_m"].values / 1000.0
+        if "cum_ele_gain_m" in full_df:
+            cumulative_elevation_gain_m_values = full_df["cum_ele_gain_m"].values
+        else:
+            cumulative_elevation_gain_m_values = np.cumsum(
+                np.maximum(full_df["ele_gain_m"].values, 0.0)
+            )
         point_grade_weighted_distance_km_values = (
             point_distance_km_values * grade_correction_factors
         )
@@ -385,10 +430,13 @@ class PaceCalculator:
             else np.zeros_like(cumulative_distance_m_values)
         )
         fatigue_multiplier_values = self.fatigue_multiplier(progress_fraction_values)
+        altitude_multiplier_values = self.altitude_multiplier(cumulative_elevation_gain_m_values)
 
-        # Effective distance = grade-weighted distance * fatigue multiplier
+        # Effective distance = grade-weighted distance * fatigue * altitude multipliers
         point_effective_weighted_distance_km_values = (
-            point_grade_weighted_distance_km_values * fatigue_multiplier_values
+            point_grade_weighted_distance_km_values
+            * fatigue_multiplier_values
+            * altitude_multiplier_values
         )
         total_effective_weighted_distance_km = float(
             point_effective_weighted_distance_km_values[planned_point_mask].sum()
@@ -427,6 +475,7 @@ class PaceCalculator:
                 point_distance_km_values * fed_baseline_pace_s_per_km * grade_correction_factors
             )
             point_times_s = point_times_s * fatigue_multiplier_values
+            point_times_s = point_times_s * altitude_multiplier_values
             riegel_method = "FED"
         else:
             # Flat pace from raw-distance Riegel.
@@ -437,6 +486,7 @@ class PaceCalculator:
             flat_pace_s_per_km = flat_time_s / course.total_distance_km
             point_times_s = point_distance_km_values * flat_pace_s_per_km * grade_correction_factors
             point_times_s = point_times_s * fatigue_multiplier_values
+            point_times_s = point_times_s * altitude_multiplier_values
             riegel_method = "flat-distance"
 
         rows = []
@@ -533,5 +583,7 @@ class PaceCalculator:
         )
         df.attrs["total_grade_weighted_distance_km"] = total_grade_weighted_distance_km
         df.attrs["fatigue_total_decay_pct"] = self.fatigue_total_decay_pct
+        df.attrs["use_altitude_effects"] = self.use_altitude_effects
+        df.attrs["altitude_slowdown_per_vertical_km"] = self.altitude_slowdown_per_vertical_km
 
         return df
