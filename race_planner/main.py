@@ -17,14 +17,11 @@ Options:
                                Required for --mode grade_adjusted_pace
     --fatigue-mode {none|athlete|race|sigmoid}
                                Fatigue model source (default: none).
-                               Use 'sigmoid' to enable the bi-phasic sigmoidal model.
+                               Use 'sigmoid' to enable the sigmoidal model.
     --fatigue-total-decay-pct PCT
                                Override fatigue with linear decay (0–100); takes precedence
-<<<<<<< HEAD
     --start-pct FLOAT          Override start_pct for sigmoid fatigue model (e.g. 0.55)
-=======
     --altitude-effects {yes|no} Apply altitude-effects slowdown (default: yes)
->>>>>>> remotes/origin/main
     --nutrition {yes|no}      Include nutrition column in main HTML report (default: no)
 
 Notes:
@@ -35,8 +32,11 @@ Notes:
     - The pacing plan is written as a new sheet in the existing
       segment-analysis Excel file defined by race.output_file.
     - For sigmoid fatigue mode, the athlete config must include a
-      fatigue_physiology block with threshold_speed_kmh and floor_speed_kmh.
+      fatigue_physiology block with floor_speed_kmh and calibration params.
+      Threshold speed is derived from preferences.threshold_flat_pace_per_km.
       The race config may include a fatigue_parameters block under planning.
+    - fatigue_model_type in the race config can be "linear" or "sigmoid" to
+      enable the corresponding model automatically without a CLI flag.
 """
 
 import argparse
@@ -135,7 +135,9 @@ def _resolve_sigmoid_fatigue_model(
     3. Model defaults
 
     Athlete physiology is read from ``athlete.fatigue_physiology`` in the
-    athlete YAML.  Required fields: ``threshold_speed_kmh``, ``floor_speed_kmh``.
+    athlete YAML.  ``floor_speed_kmh`` is required; ``threshold_speed_kmh``
+    is derived from ``athlete.preferences.threshold_flat_pace_per_km`` when
+    not explicitly set.
 
     Args:
         race_config: Loaded race YAML dict.
@@ -148,18 +150,28 @@ def _resolve_sigmoid_fatigue_model(
     Raises:
         ValueError: If required athlete physiology fields are missing.
     """
-    physiology = athlete_config.get("athlete", {}).get("fatigue_physiology") or {}
-    threshold_speed_kmh = physiology.get("threshold_speed_kmh")
+    athlete_info = athlete_config.get("athlete", {})
+    physiology = athlete_info.get("fatigue_physiology") or {}
     floor_speed_kmh = physiology.get("floor_speed_kmh")
 
-    if threshold_speed_kmh is None or floor_speed_kmh is None:
+    if floor_speed_kmh is None:
         raise ValueError(
-            "Sigmoid fatigue model requires athlete.fatigue_physiology.threshold_speed_kmh "
-            "and athlete.fatigue_physiology.floor_speed_kmh in the athlete config."
+            "Sigmoid fatigue model requires athlete.fatigue_physiology.floor_speed_kmh "
+            "in the athlete config."
         )
 
+    # Derive threshold speed from preferences.threshold_flat_pace_per_km
+    preferences = athlete_info.get("preferences") or {}
+    threshold_pace_str = preferences.get("threshold_flat_pace_per_km")
+    if threshold_pace_str is None:
+        raise ValueError(
+            "Sigmoid fatigue model requires athlete.preferences.threshold_flat_pace_per_km "
+            "in the athlete config."
+        )
+    threshold_pace_s = pace_to_seconds_per_km(threshold_pace_str)
+    threshold_speed_kmh = 3600.0 / threshold_pace_s
+
     planning = race_config.get("race", {}).get("planning", {}) or {}
-    # Check if race config declares fatigue_model_type = "sigmoid"
     fatigue_params = planning.get("fatigue_parameters") or {}
 
     # Resolve start_pct: CLI > race config > default
@@ -168,15 +180,15 @@ def _resolve_sigmoid_fatigue_model(
     elif "start_pct" in fatigue_params:
         start_pct = float(fatigue_params["start_pct"])
     else:
-        start_pct = 0.55  # TOR default
+        start_pct = 0.55
 
     return MultiDaySigmoidalFatigueModel(
-        threshold_speed_kmh=float(threshold_speed_kmh),
+        threshold_speed_kmh=threshold_speed_kmh,
         floor_speed_kmh=float(floor_speed_kmh),
-        floor_vertical_ascent_speed_kmh=physiology.get("floor_vertical_ascent_speed_kmh"),
         start_pct=start_pct,
-        phase1_distance_km=float(fatigue_params.get("phase1_distance_km", 100.0)),
-        inflection_steepness_k=float(fatigue_params.get("inflection_steepness_k", 3.0)),
+        s_0=float(physiology.get("s_0", 0.65)),
+        t_0_hours=float(physiology.get("t_0_hours", 18.0)),
+        k_0=float(physiology.get("k_0", 0.45)),
         circadian_amplitude=float(
             physiology.get(
                 "circadian_amplitude_fraction",
@@ -789,7 +801,7 @@ def main():
     elif getattr(args, "start_pct", None) is not None:
         logger.warning("--start-pct is only used when --fatigue-mode sigmoid; ignoring.")
 
-    # Also auto-detect sigmoid from race config planning.fatigue_model_type
+    # Also auto-detect fatigue model type from race config planning.fatigue_model_type
     if sigmoid_fatigue_model is None and args.fatigue_mode == "none":
         race_fatigue_type = (
             race_config.get("race", {}).get("planning", {}).get("fatigue_model_type", "")
@@ -806,6 +818,15 @@ def main():
                 logger.warning(
                     f"race.planning.fatigue_model_type=sigmoid but model setup failed: {exc}. "
                     "Falling back to no fatigue."
+                )
+        elif race_fatigue_type == "linear" and fatigue_total_decay_pct == 0:
+            planning = race_config.get("race", {}).get("planning", {}) or {}
+            decay = planning.get("fatigue_total_decay_pct")
+            if decay is not None:
+                fatigue_total_decay_pct = float(decay)
+                logger.info(
+                    f"Fatigue model: linear decay {fatigue_total_decay_pct:.1f}% "
+                    "(from race config fatigue_model_type=linear)"
                 )
 
     # ------------------------------------------------------------------

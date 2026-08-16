@@ -30,24 +30,24 @@ athlete:
       - [-0.07, 0.865 ]  # −7 %: braking effect starts
       - [-0.20, 1.71  ]  # −20 % cutoff anchor for constant-vspeed tails
 
-  # Optional physiology parameters for future process-based fatigue model
+  # Optional physiology parameters for the sigmoidal fatigue model.
   fatigue_physiology:
-    # Lactate Threshold speed (km/h).
-    # Carlos marathon PB 2:45:00 = 42.195 km / 9900 s ≈ 15.3 km/h
-    threshold_speed_kmh: 15.3
-
     # Minimum sustainable speed for expedition-length races (biological floor).
-    # Typical brisk hiking / walk-jog pace at late-race fatigue.
     floor_speed_kmh: 5.0
-
-    # Optional: vertical ascent speed at the fatigue floor (m/h) for GAP calculations.
-    floor_vertical_ascent_speed_kmh: 600
 
     # Sleep recovery half-life for Process S exponential model (hours).
     sleep_half_life_hours: 2.5
 
     # Circadian rhythm amplitude as a fraction of floor speed (±15% default).
     circadian_amplitude_fraction: 0.15
+
+    # Power-law calibration parameters for the sigmoid model.
+    # Reference relative intensity S_0 and inflection time t_0 (hours) at S_0.
+    # For Carlos: at S_0=0.65 the velocity drop inflection occurs at ~18 h.
+    s_0: 0.65
+    t_0_hours: 18.0
+    # Sigmoid steepness (h⁻¹) at reference intensity S_0.
+    k_0: 0.45
 
   # Altitude-effects slowdown model.
   # Baseline cohort value is 0.063 (6.3% per vertical-km), with inter-athlete

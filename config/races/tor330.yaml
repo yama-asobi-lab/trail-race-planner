@@ -30,13 +30,6 @@ race:
       # TOR athletes start close to the fatigue floor (~55% of LT).
       start_pct: 0.55
 
-      # Distance (km) over which Phase 1 degradation occurs.
-      # After ~100 km, compensatory mechanisms stabilise performance.
-      phase1_distance_km: 100
-
-      # Sigmoid sharpness: higher = sharper Phase 1 drop.
-      inflection_steepness_k: 3.0
-
       # Circadian rhythm amplitude (fraction of floor speed): ±15%.
       circadian_amplitude: 0.15
 
