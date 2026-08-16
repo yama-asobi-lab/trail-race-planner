@@ -19,7 +19,29 @@ race:
 
   # Optional planning assumptions (can be overridden via CLI)
   planning:
-    fatigue_total_decay_pct: 14     # 14% linear decay from start to finish
+    fatigue_total_decay_pct: 14     # 14% linear decay from start to finish (used when fatigue-mode=race)
+
+    # Sigmoidal fatigue model configuration (used when --fatigue-mode sigmoid).
+    # Set fatigue_model_type to "sigmoid" to enable automatically without CLI flag.
+    fatigue_model_type: "sigmoid"
+
+    fatigue_parameters:
+      # Starting speed as a fraction of Lactate Threshold.
+      # TOR athletes start close to the fatigue floor (~55% of LT).
+      start_pct: 0.55
+
+      # Distance (km) over which Phase 1 degradation occurs.
+      # After ~100 km, compensatory mechanisms stabilise performance.
+      phase1_distance_km: 100
+
+      # Sigmoid sharpness: higher = sharper Phase 1 drop.
+      inflection_steepness_k: 3.0
+
+      # Circadian rhythm amplitude (fraction of floor speed): ±15%.
+      circadian_amplitude: 0.15
+
+      # Circadian period in hours (standard 24 h cycle).
+      circadian_period_hours: 24
 
   # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
   start_time: "10:00:00"
@@ -80,6 +102,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/kSAJQTMEeX4RmFfY8"
     cutoff_in_time: "D2 5:00"
     car_access: true
+    is_sleep_opportunity: true
 
   - name: "Rifugio Chalet de L'epée"
     distance_km: 54.9
@@ -121,6 +144,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
     cutoff_in_time: "D3 04:00"
     car_access: true
+    is_sleep_opportunity: true
 
   - name: "Goilles Dessous"
     distance_km: 109.8
@@ -161,6 +185,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/weej3znGKYnM7h2o8"
     cutoff_in_time: "D4 00:00"
     car_access: true
+    is_sleep_opportunity: true
 
   - name: "Perloz"
     distance_km: 155.6
@@ -231,6 +256,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
     cutoff_in_time: "D4 23:00"
     car_access: true
+    is_sleep_opportunity: true
 
   - name: "Rifugio Alpenzu"
     distance_km: 208.9
@@ -265,6 +291,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/Dprw9RcpNrkbsedj7"
     cutoff_in_time: "D5 19:00"
     car_access: true
+    is_sleep_opportunity: true
 
   - name: "Rifugio Barmasse"
     distance_km: 242.3
@@ -327,6 +354,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"
     cutoff_in_time: "D6 17:00"
     car_access: true
+    is_sleep_opportunity: true
 
   - name: "Rifugio Champillon"
     distance_km: 291.2

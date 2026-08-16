@@ -12,6 +12,7 @@ smartphone-friendly race plan HTML report.
 
 - [Overview](#overview)
 - [Key Models](#key-models)
+  - [Bi-phasic Sigmoidal Fatigue Model](#bi-phasic-sigmoidal-fatigue-model-expedition-races)
 - [Installation](#installation)
 - [MVP First Run (Minimum Required)](#mvp-first-run-minimum-required)
 - [Comprehensive Quick Start](#quick-start)
@@ -136,6 +137,77 @@ maximum body-weight-loss threshold (default 1.5 % BW).
 **Caffeine**: An exact-time ingestion plan (dose + race-time hours) is modelled
 with first-order absorption (absorption lag) and first-order elimination (half-life).
 The resulting concentration curve is reported at every checkpoint.
+
+### Bi-phasic Sigmoidal Fatigue Model (Expedition Races)
+
+For multi-day expedition races like **Tor des Géants (TOR 330)**, the simple linear
+decay model does not capture the physiological reality. This tool implements a
+**`MultiDaySigmoidalFatigueModel`** (`race_planner/models/fatigue_model.py`) based
+on peer-reviewed sports science of TOR finishers.
+
+#### Why a sigmoidal model for TOR?
+
+Research on TOR finishers reveals a paradox: athletes exhibit *less* acute
+neuromuscular damage than shorter-distance ultra finishers. The brain's central
+governor forces a *very low starting intensity* (50–60 % of Lactate Threshold —
+already near the fatigue floor), and a bi-phasic adaptation pattern:
+
+| Phase | Distance | Behaviour |
+|---|---|---|
+| **Phase 1** | 0–100 km (~20–30 h) | Steady postural degradation — sigmoid decay from start speed toward floor speed |
+| **Phase 2** | 100+ km | Compensatory mechanisms stabilise output at the biological floor; sleep and circadian rhythm dominate |
+
+#### Mathematical foundation
+
+**Phase 1** — logistic (sigmoid) decay:
+
+$$V(d) = V_\text{floor} + \frac{V_\text{start} - V_\text{floor}}{1 + e^{k(d - d_0)}}$$
+
+where $d_0 = \text{phase1\_distance\_km}/2$ and $k = \text{inflection\_steepness\_k}/\text{phase1\_distance\_km}$.
+
+**Phase 2** — circadian oscillation around floor:
+
+$$V(t) = V_\text{floor} + A \cdot \sin\!\left(\frac{2\pi(t-\phi)}{T}\right) + \Delta V_\text{sleep}$$
+
+**Sleep recovery** — Process S exponential decay (Borbély, 1982):
+
+$$\Delta V_\text{sleep} = (V_\text{start} - V_\text{floor}) \cdot \left(1 - e^{-\lambda \cdot t_\text{sleep}}\right)$$
+
+where $\lambda = \ln 2 / \text{sleep\_half\_life\_hours}$.  A 1-hour nap clears ~20–30 %
+of accumulated sleep debt — the curve is steepest early, so short nap blocks are
+disproportionately efficient.
+
+#### Key parameters and tuning
+
+| Parameter | TOR default | Guidance |
+|---|---|---|
+| `start_pct` | 0.55 | 55 % of LT. Use 0.75–0.80 for 100-mile ultras. CLI override: `--start-pct` |
+| `phase1_distance_km` | 100 | ~100 km marks the Phase 1/2 boundary for TOR-class races |
+| `inflection_steepness_k` | 3.0 | Higher → sharper crash. 3–5 is typical |
+| `circadian_amplitude` | 0.15 | ±15 % around floor. Reduce for flatter circadian response |
+| `sleep_half_life_hours` | 2.5 | Process S half-life; 2–3 h based on biomathematical models |
+| `floor_speed_kmh` | 5.0 km/h | Brisk hiking pace; athlete-specific |
+
+#### Aid station sleep opportunities
+
+Mark Base Vita or other sleep stops with `is_sleep_opportunity: true` in the race
+YAML. The model accumulates sleep at these checkpoints and applies exponential
+recovery from that point onward:
+
+```yaml
+aid_stations:
+  - name: "**COGNE**"
+    distance_km: 104
+    stop_time_s: 3600      # 1-hour sleep block
+    is_sleep_opportunity: true
+```
+
+#### Enabling the model
+
+1. Add `fatigue_physiology` to your athlete YAML (see Configuration below).
+2. Either set `fatigue_model_type: "sigmoid"` in your race YAML `planning` block
+   (auto-detection), or pass `--fatigue-mode sigmoid` on the CLI.
+3. Override `start_pct` per run: `--start-pct 0.60`.
 
 ---
 
@@ -293,16 +365,31 @@ Options:
   --target-itra-score N     Required when --mode target_itra
   --target-grade-adjusted-pace MM:SS
                             Required when --mode grade_adjusted_pace
-  --fatigue-mode {none|athlete|race}
+  --fatigue-mode {none|athlete|race|sigmoid}
                             Fatigue model source (default: none)
                               none              No fatigue modeling
-                              race              Use race YAML planning defaults
+                              race              Use race YAML planning defaults (linear)
                               athlete           Use athlete physiology (TBD)
+                              sigmoid           Bi-phasic sigmoidal model (expedition races)
   --fatigue-total-decay-pct PCT
                             Override fatigue with linear decay PCT (0–100)
                             Takes precedence over --fatigue-mode
+  --start-pct FLOAT         Starting speed as fraction of Lactate Threshold (e.g. 0.55)
+                            Only used when --fatigue-mode sigmoid
   --nutrition {yes|no}      Include nutrition/fueling column in main HTML report
                             (default: no)
+```
+
+### Sigmoid fatigue model — quick start
+
+```bash
+# TOR 330 with sigmoidal fatigue at 55% threshold start
+python -m race_planner.main config/races/tor330.yaml \
+    --athlete carlos --fatigue-mode sigmoid
+
+# Override start percentage from CLI
+python -m race_planner.main config/races/tor330.yaml \
+    --athlete carlos --fatigue-mode sigmoid --start-pct 0.60
 ```
 
 Terminal output includes a summary block:
@@ -315,7 +402,7 @@ RACE PLAN SUMMARY
   Riegel approx running time: 26:12:05
   Grade-adjusted running time: 28:01:44
   Stop time:     1:00:00
-  Fatigue model:  Linear decay 10.0%
+  Fatigue model:  Sigmoid bi-phasic (start=55%, floor=5.0 km/h)
   Finish time:   29:01:44
   ITRA score:    752
 ====================================================
@@ -357,7 +444,23 @@ athlete:
     threshold_flat_pace_per_km: "3:50/km"
     aerobic_threshold_flat_pace_per_km: "4:40/km"
 
-  fatigue_physiology: {}       # optional; reserved for future process-based model
+  fatigue_physiology:
+    # Lactate Threshold speed (km/h); derive from marathon PB: distance/time.
+    # Example: 42.195 km / 9900 s * 3600 = 15.3 km/h
+    threshold_speed_kmh: 15.3
+
+    # Minimum sustainable speed (biological floor) for expedition-length races.
+    # Typical brisk hiking / walk-jog pace at late-race fatigue.
+    floor_speed_kmh: 5.0
+
+    # Optional: vertical ascent speed at fatigue floor (m/h) for GAP calculations.
+    floor_vertical_ascent_speed_kmh: 600
+
+    # Sleep recovery half-life for Process S exponential model (hours).
+    sleep_half_life_hours: 2.5
+
+    # Circadian rhythm amplitude as a fraction of floor speed (±15% default).
+    circadian_amplitude_fraction: 0.15
 ```
 
 **Notes on the GAP curve**:
@@ -369,13 +472,14 @@ athlete:
 - Points do **not** need to be sorted — the calculator sorts them internally.
 
 **Notes on fatigue modeling**:
-- Fatigue can be controlled via CLI (`--fatigue-mode` and `--fatigue-total-decay-pct`).
+- Two fatigue models are available: **linear decay** (default) and **bi-phasic sigmoidal**.
 - CLI override `--fatigue-total-decay-pct` takes precedence over all config defaults.
 - `--fatigue-mode none` (default): no fatigue modeling.
-- `--fatigue-mode race`: uses `race.planning.fatigue_total_decay_pct` if present.
-- `--fatigue-mode athlete`: reserved for future process-based physiological model.
+- `--fatigue-mode race`: uses `race.planning.fatigue_total_decay_pct` (linear).
+- `--fatigue-mode sigmoid`: bi-phasic sigmoidal model for expedition-length races.
 - Linear model: pace multiplier rises from 1.0 at start to 1.0 + (decay_pct/100) at finish.
 - Example: `--fatigue-total-decay-pct 10` means 10% slower pace at the finish.
+- The sigmoidal model requires `fatigue_physiology` in the athlete config (see below).
 
 ---
 
