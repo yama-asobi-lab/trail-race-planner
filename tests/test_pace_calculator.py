@@ -210,14 +210,16 @@ def test_fatigue_multiplier_zero_decay():
 
 
 def test_fatigue_multiplier_linear_progression():
-    """Fatigue multiplier with 10% decay should rise from 1.0 to 1.1."""
+    """Fatigue multiplier with 10% decay should rise from 1.0 to ~1.111 at finish."""
     calc = PaceCalculator(
         ref_dist_km=42.195,
         ref_time_s=12600,
         fatigue_total_decay_pct=10.0,
     )
     result = calc.fatigue_multiplier(np.array([0.0, 0.5, 1.0]))
-    np.testing.assert_allclose(result, np.array([1.0, 1.05, 1.10]), rtol=1e-10)
+    # LinearFatigueModel uses 1 / (1 - decay_pct/100 * progress)
+    expected = np.array([1.0 / (1.0 - 0.1 * p) for p in [0.0, 0.5, 1.0]])
+    np.testing.assert_allclose(result, expected, rtol=1e-10)
 
 
 def test_fatigue_total_decay_pct_rejects_negative_values():

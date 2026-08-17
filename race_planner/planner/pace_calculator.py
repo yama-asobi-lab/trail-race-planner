@@ -146,17 +146,16 @@ class PaceCalculator:
                      sorted.  Defaults to the built-in table described in
                      the module docstring.
         fatigue_total_decay_pct:
-            Linear fatigue decay (0–100 %).  Used only when
-            ``fatigue_model_instance`` is ``None`` or not a
-            :class:`~race_planner.models.fatigue_model.LinearFatigueModel`.
-            Kept for backward compatibility.
+            Convenience shorthand for a linear fatigue model (0–100 %).
+            When non-zero and ``fatigue_model_instance`` is ``None``, a
+            :class:`~race_planner.models.fatigue_model.LinearFatigueModel`
+            is automatically created with this value.
         fatigue_model_instance:
             Optional fatigue model instance — either a
             :class:`~race_planner.models.fatigue_model.LinearFatigueModel`
             or a
             :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`.
-            When provided, all fatigue calculations are delegated to this
-            object and ``fatigue_total_decay_pct`` is ignored.
+            When provided, takes precedence over ``fatigue_total_decay_pct``.
     """
 
     # Expose model constants from the pure-model layer.
@@ -191,6 +190,10 @@ class PaceCalculator:
         self.fatigue_total_decay_pct = float(fatigue_total_decay_pct)
         if not 0.0 <= self.fatigue_total_decay_pct <= 100.0:
             raise ValueError("fatigue_total_decay_pct must be between 0 and 100")
+        # Auto-wrap a bare fatigue_total_decay_pct into a LinearFatigueModel so
+        # that all fatigue logic is centralised in the model layer.
+        if fatigue_model_instance is None and self.fatigue_total_decay_pct > 0.0:
+            fatigue_model_instance = LinearFatigueModel(total_decay_pct=self.fatigue_total_decay_pct)
         self.fatigue_model_instance = fatigue_model_instance
         self.altitude_slowdown_per_vertical_km = float(altitude_slowdown_per_vertical_km)
         if self.altitude_slowdown_per_vertical_km < 0.0:
@@ -331,8 +334,7 @@ class PaceCalculator:
         - If ``fatigue_model_instance`` is a
           :class:`~race_planner.models.fatigue_model.LinearFatigueModel`,
           ``progress_fraction_values`` is used.
-        - If no ``fatigue_model_instance`` is set, falls back to the legacy
-          ``fatigue_total_decay_pct``-based linear computation.
+        - If no ``fatigue_model_instance`` is set, returns all-ones (no fatigue).
 
         Args:
             progress_fraction_values: Race completion fraction per point, in [0, 1].
@@ -364,13 +366,7 @@ class PaceCalculator:
                 ]
             )
 
-        # Legacy path: fatigue_total_decay_pct with no model instance.
-        if np.any(progress_fraction_values < 0.0) or np.any(progress_fraction_values > 1.0):
-            raise ValueError("progress_fraction_values must be between 0 and 1")
-        if self.fatigue_total_decay_pct == 0.0:
-            return np.ones_like(progress_fraction_values)
-        total_decay_fraction = self.fatigue_total_decay_pct / 100.0
-        return 1.0 + total_decay_fraction * progress_fraction_values
+        return np.ones_like(progress_fraction_values, dtype=float)
 
     def altitude_multiplier(self, elevation_m_values: np.ndarray) -> np.ndarray:
         """Return per-point pace multipliers for altitude-effects slowdown.
@@ -697,14 +693,13 @@ class PaceCalculator:
         df.attrs["fatigue_total_decay_pct"] = (
             self.fatigue_model_instance.total_decay_pct
             if isinstance(self.fatigue_model_instance, LinearFatigueModel)
-            else self.fatigue_total_decay_pct
+            else 0.0
         )
         df.attrs["fatigue_model_type"] = (
             "sigmoid"
             if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel)
             else "linear"
             if isinstance(self.fatigue_model_instance, LinearFatigueModel)
-            or self.fatigue_total_decay_pct > 0
             else "none"
         )
         df.attrs["use_altitude_effects"] = self.use_altitude_effects
