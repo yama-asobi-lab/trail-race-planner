@@ -15,12 +15,19 @@ Options:
     --target-itra-score N      Required for --mode target_itra
     --target-grade-adjusted-pace MM:SS
                                Required for --mode grade_adjusted_pace
-    --fatigue-mode {none|athlete|race|sigmoid}
-                               Fatigue model source (default: none).
-                               Use 'sigmoid' to enable the sigmoidal model.
-    --fatigue-total-decay-pct PCT
-                               Override fatigue with linear decay (0–100); takes precedence
-    --start-pct FLOAT          Override start_pct for sigmoid fatigue model (e.g. 0.55)
+    --fatigue-mode {none|linear|sigmoid}
+                               Fatigue model type (default: none — no fatigue).
+                               Use 'linear' for percentage-based decay, 'sigmoid' for the
+                               physiologically-grounded sigmoidal model.
+                               If fatigue_model_type is set in the race YAML, it is used
+                               automatically without this flag.
+    --linear-fatigue-total-decay-pct PCT
+                               Total speed decay for the linear model (0–100 %); takes
+                               precedence over the athlete/race config values.
+    --sigmoid-fatigue-start-thrsld-ratio FLOAT
+                               Override starting speed as a fraction of threshold for the
+                               sigmoid model (e.g. 0.55 = 55 % of LT).
+                               Only used when --fatigue-mode sigmoid.
     --altitude-effects {yes|no} Apply altitude-effects slowdown (default: yes)
     --nutrition {yes|no}      Include nutrition column in main HTML report (default: no)
 
@@ -37,6 +44,8 @@ Notes:
       The race config may include a fatigue_parameters block under planning.
     - fatigue_model_type in the race config can be "linear" or "sigmoid" to
       enable the corresponding model automatically without a CLI flag.
+      Coefficients for both models are read from the athlete config and can be
+      overridden in the race config's fatigue_parameters block.
 """
 
 import argparse
@@ -49,7 +58,7 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
 from race_planner.course import analyze_course
-from race_planner.models.fatigue_model import MultiDaySigmoidalFatigueModel
+from race_planner.models.fatigue_model import LinearFatigueModel, MultiDaySigmoidalFatigueModel
 from race_planner.models.itra_predictor import ItraScorePredictor
 from race_planner.models.nutrition import build_race_nutrition_plan, load_food_catalog
 from race_planner.models.tools import (
@@ -81,43 +90,38 @@ def _resolve_fatigue_total_decay_pct(
     athlete_config: dict,
 ) -> float:
     """
-    Resolve fatigue total decay percentage with precedence:
-    CLI override > race config > athlete config > 0 (default)
+    Resolve fatigue total decay percentage for the linear model.
+
+    Precedence: CLI override > race config fatigue_parameters > 0 (default).
 
     Args:
-        fatigue_mode: "none", "athlete", "race", or "sigmoid"
-        fatigue_total_decay_pct_cli: Optional CLI override
+        fatigue_mode: "none", "linear", or "sigmoid"
+        fatigue_total_decay_pct_cli: Optional CLI override (from
+            --linear-fatigue-total-decay-pct)
         race_config: Loaded race YAML
         athlete_config: Loaded athlete YAML
 
     Returns:
-        Decay percentage (0-100), or 0 if mode is "none" or "sigmoid"
+        Decay percentage (0-100), or 0 if mode is not "linear".
     """
+    if fatigue_mode != "linear":
+        return 0.0
+
     # CLI override takes absolute precedence
     if fatigue_total_decay_pct_cli is not None:
         return float(fatigue_total_decay_pct_cli)
 
-    # If mode is "none" or "sigmoid", always 0 for linear decay
-    if fatigue_mode in ("none", "sigmoid"):
-        return 0.0
+    # Try race config planning section
+    planning = race_config.get("race", {}).get("planning", {}) or {}
+    decay = planning.get("fatigue_parameters", {}).get("fatigue_total_decay_pct")
+    if decay is not None:
+        return float(decay)
+    # Fallback: top-level fatigue_total_decay_pct (legacy key)
+    decay = planning.get("fatigue_total_decay_pct")
+    if decay is not None:
+        return float(decay)
 
-    # Mode "race": try race config planning section
-    if fatigue_mode == "race":
-        planning = race_config.get("race", {}).get("planning", {})
-        decay = planning.get("fatigue_total_decay_pct")
-        if decay is not None:
-            return float(decay)
-        logger.warning(
-            "--fatigue-mode race but no race.planning.fatigue_total_decay_pct found; defaulting to 0"
-        )
-        return 0.0
-
-    # Mode "athlete": try athlete config (once physiological params are designed)
-    if fatigue_mode == "athlete":
-        # TODO: implement when process-based model is designed
-        logger.warning("--fatigue-mode athlete not yet implemented; defaulting to 0")
-        return 0.0
-
+    logger.warning("--fatigue-mode linear but no fatigue_total_decay_pct found; defaulting to 0")
     return 0.0
 
 
@@ -130,19 +134,22 @@ def _resolve_sigmoid_fatigue_model(
 
     Parameter resolution order (highest priority first):
 
-    1. CLI ``--start-pct`` flag (overrides race config)
-    2. ``race.planning.fatigue_parameters.start_pct`` in race YAML
+    1. CLI ``--sigmoid-fatigue-start-thrsld-ratio`` flag
+    2. ``race.planning.fatigue_parameters.start_threshold_fraction`` in race YAML
     3. Model defaults
 
     Athlete physiology is read from ``athlete.fatigue_physiology`` in the
     athlete YAML.  ``floor_speed_kmh`` is required; ``threshold_speed_kmh``
-    is derived from ``athlete.preferences.threshold_flat_pace_per_km`` when
-    not explicitly set.
+    is derived from ``athlete.preferences.threshold_flat_pace_per_km``.
+    Sigmoid calibration parameters (``s_0``, ``t_0_hours``, ``k_0``) are also
+    read from ``athlete.fatigue_physiology`` and can be overridden per-race in
+    ``race.planning.fatigue_parameters``.
 
     Args:
         race_config: Loaded race YAML dict.
         athlete_config: Loaded athlete YAML dict.
-        start_pct_cli: Optional CLI override for ``start_pct``.
+        start_pct_cli: Optional CLI override for the starting speed fraction
+            (from ``--sigmoid-fatigue-start-thrsld-ratio``).
 
     Returns:
         Configured ``MultiDaySigmoidalFatigueModel`` instance.
@@ -174,11 +181,12 @@ def _resolve_sigmoid_fatigue_model(
     planning = race_config.get("race", {}).get("planning", {}) or {}
     fatigue_params = planning.get("fatigue_parameters") or {}
 
-    # Resolve start_pct: CLI > race config > default
+    # Resolve starting threshold fraction: CLI > race config > default.
+    # The race config key is start_threshold_fraction (dimensionless ratio, e.g. 0.55).
     if start_pct_cli is not None:
         start_pct = float(start_pct_cli)
-    elif "start_pct" in fatigue_params:
-        start_pct = float(fatigue_params["start_pct"])
+    elif "start_threshold_fraction" in fatigue_params:
+        start_pct = float(fatigue_params["start_threshold_fraction"])
     else:
         start_pct = 0.55
 
@@ -282,7 +290,7 @@ def _append_pacing_sheet(
         ("Total stop time", seconds_to_hms(attrs.get("total_stop_time_s", 0))),
         ("Total finish time", seconds_to_hms(attrs.get("total_time_s", 0))),
     ]
-    if attrs.get("fatigue_total_decay_pct", 0) > 0:
+    if attrs.get("fatigue_total_decay_pct", 0) > 0 and attrs.get("fatigue_model_type") == "linear":
         summary.append(
             (
                 "Fatigue model",
@@ -668,23 +676,29 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--fatigue-mode",
-        choices=["none", "athlete", "race", "sigmoid"],
+        choices=["none", "linear", "sigmoid"],
         default="none",
-        help="Fatigue model source (default: none — no fatigue). Use 'sigmoid' for bi-phasic model.",
+        help=(
+            "Fatigue model type (default: none — no fatigue). "
+            "Use 'linear' for percentage-based decay or 'sigmoid' for the sigmoidal model. "
+            "If fatigue_model_type is set in the race YAML it is used automatically."
+        ),
     )
     parser.add_argument(
-        "--fatigue-total-decay-pct",
+        "--linear-fatigue-total-decay-pct",
         type=float,
         metavar="PCT",
-        help="Override fatigue model with linear decay PCT (0–100); takes precedence over config",
+        dest="linear_fatigue_total_decay_pct",
+        help="Total speed decay for linear fatigue (0–100 %%); takes precedence over race config",
     )
     parser.add_argument(
-        "--start-pct",
+        "--sigmoid-fatigue-start-thrsld-ratio",
         type=float,
         metavar="FLOAT",
+        dest="sigmoid_fatigue_start_thrsld_ratio",
         help=(
-            "Override start_pct for sigmoid fatigue model (e.g. 0.55 = 55%% of threshold). "
-            "Only used when --fatigue-mode sigmoid."
+            "Starting speed as a fraction of threshold for sigmoid model "
+            "(e.g. 0.55 = 55%% of LT). Only used when --fatigue-mode sigmoid."
         ),
     )
     parser.add_argument(
@@ -721,9 +735,9 @@ def main():
         )
 
     # Validate fatigue arguments
-    if args.fatigue_total_decay_pct is not None:
-        if not 0 <= args.fatigue_total_decay_pct <= 100:
-            parser.error("--fatigue-total-decay-pct must be between 0 and 100")
+    if args.linear_fatigue_total_decay_pct is not None:
+        if not 0 <= args.linear_fatigue_total_decay_pct <= 100:
+            parser.error("--linear-fatigue-total-decay-pct must be between 0 and 100")
 
     # ------------------------------------------------------------------
     # Load configs
@@ -768,11 +782,21 @@ def main():
     logger.info(f"Athlete: {athlete_display_name}")
 
     # ------------------------------------------------------------------
-    # Resolve fatigue configuration (CLI > race > athlete > 0)
+    # Resolve fatigue configuration
     # ------------------------------------------------------------------
+    # Determine effective fatigue mode: CLI flag > race config auto-detect
+    effective_fatigue_mode = args.fatigue_mode
+    if effective_fatigue_mode == "none":
+        race_fatigue_type = (
+            race_config.get("race", {}).get("planning", {}).get("fatigue_model_type", "")
+        )
+        if race_fatigue_type in ("linear", "sigmoid"):
+            effective_fatigue_mode = race_fatigue_type
+            logger.info(f"Fatigue model auto-detected from race config: {effective_fatigue_mode}")
+
     fatigue_total_decay_pct = _resolve_fatigue_total_decay_pct(
-        fatigue_mode=args.fatigue_mode,
-        fatigue_total_decay_pct_cli=args.fatigue_total_decay_pct,
+        fatigue_mode=effective_fatigue_mode,
+        fatigue_total_decay_pct_cli=args.linear_fatigue_total_decay_pct,
         race_config=race_config,
         athlete_config=athlete_config,
     )
@@ -782,52 +806,37 @@ def main():
 
     # Resolve sigmoid model if requested
     sigmoid_fatigue_model = None
-    if args.fatigue_mode == "sigmoid":
+    if effective_fatigue_mode == "sigmoid":
         try:
             sigmoid_fatigue_model = _resolve_sigmoid_fatigue_model(
                 race_config=race_config,
                 athlete_config=athlete_config,
-                start_pct_cli=getattr(args, "start_pct", None),
+                start_pct_cli=args.sigmoid_fatigue_start_thrsld_ratio,
             )
             logger.info(
                 f"Fatigue model: sigmoid "
                 f"(threshold={sigmoid_fatigue_model.threshold_speed_kmh:.1f} km/h, "
                 f"floor={sigmoid_fatigue_model.floor_speed_kmh:.1f} km/h, "
-                f"start_pct={sigmoid_fatigue_model.start_pct:.0%})"
+                f"start={sigmoid_fatigue_model.start_pct:.0%})"
             )
         except ValueError as exc:
             logger.error(f"Sigmoid fatigue model configuration error: {exc}")
             sys.exit(1)
-    elif getattr(args, "start_pct", None) is not None:
-        logger.warning("--start-pct is only used when --fatigue-mode sigmoid; ignoring.")
-
-    # Also auto-detect fatigue model type from race config planning.fatigue_model_type
-    if sigmoid_fatigue_model is None and args.fatigue_mode == "none":
-        race_fatigue_type = (
-            race_config.get("race", {}).get("planning", {}).get("fatigue_model_type", "")
+    elif args.sigmoid_fatigue_start_thrsld_ratio is not None:
+        logger.warning(
+            "--sigmoid-fatigue-start-thrsld-ratio is only used when --fatigue-mode sigmoid; "
+            "ignoring."
         )
-        if race_fatigue_type == "sigmoid":
-            try:
-                sigmoid_fatigue_model = _resolve_sigmoid_fatigue_model(
-                    race_config=race_config,
-                    athlete_config=athlete_config,
-                    start_pct_cli=getattr(args, "start_pct", None),
-                )
-                logger.info("Fatigue model: sigmoid (from race config fatigue_model_type=sigmoid)")
-            except ValueError as exc:
-                logger.warning(
-                    f"race.planning.fatigue_model_type=sigmoid but model setup failed: {exc}. "
-                    "Falling back to no fatigue."
-                )
-        elif race_fatigue_type == "linear" and fatigue_total_decay_pct == 0:
-            planning = race_config.get("race", {}).get("planning", {}) or {}
-            decay = planning.get("fatigue_total_decay_pct")
-            if decay is not None:
-                fatigue_total_decay_pct = float(decay)
-                logger.info(
-                    f"Fatigue model: linear decay {fatigue_total_decay_pct:.1f}% "
-                    "(from race config fatigue_model_type=linear)"
-                )
+
+    # Build the single fatigue_model_instance to pass to PaceCalculator.
+    # If sigmoid mode is active, use the resolved sigmoid model.
+    # If linear mode is active, wrap the decay pct in a LinearFatigueModel.
+    # Otherwise no fatigue model is used.
+    fatigue_model_instance = None
+    if sigmoid_fatigue_model is not None:
+        fatigue_model_instance = sigmoid_fatigue_model
+    elif fatigue_total_decay_pct > 0:
+        fatigue_model_instance = LinearFatigueModel(total_decay_pct=fatigue_total_decay_pct)
 
     # ------------------------------------------------------------------
     # 1. Segment analysis — always runs; creates / updates the xlsx file
@@ -865,8 +874,7 @@ def main():
     if args.mode == "athlete_pb":
         calc = PaceCalculator.from_athlete_config(
             athlete_config,
-            fatigue_total_decay_pct=fatigue_total_decay_pct,
-            fatigue_model_instance=sigmoid_fatigue_model,
+            fatigue_model_instance=fatigue_model_instance,
             use_altitude_effects=(args.altitude_effects == "yes"),
         )
         ref = athlete_info.get("reference_performance", {})
@@ -884,8 +892,7 @@ def main():
             sys.exit(1)
         calc = PaceCalculator.from_athlete_config(
             athlete_config,
-            fatigue_total_decay_pct=fatigue_total_decay_pct,
-            fatigue_model_instance=sigmoid_fatigue_model,
+            fatigue_model_instance=fatigue_model_instance,
             use_altitude_effects=(args.altitude_effects == "yes"),
         )
         logger.info(
@@ -912,8 +919,7 @@ def main():
             sys.exit(1)
         calc = PaceCalculator.from_athlete_config(
             athlete_config,
-            fatigue_total_decay_pct=fatigue_total_decay_pct,
-            fatigue_model_instance=sigmoid_fatigue_model,
+            fatigue_model_instance=fatigue_model_instance,
             use_altitude_effects=(args.altitude_effects == "yes"),
         )
         logger.info(
@@ -926,8 +932,7 @@ def main():
     elif args.mode == "grade_adjusted_pace":
         calc = PaceCalculator.from_athlete_config(
             athlete_config,
-            fatigue_total_decay_pct=fatigue_total_decay_pct,
-            fatigue_model_instance=sigmoid_fatigue_model,
+            fatigue_model_instance=fatigue_model_instance,
             use_altitude_effects=(args.altitude_effects == "yes"),
         )
         try:
@@ -1128,15 +1133,15 @@ def main():
         "  Avg grade-adjusted pace: "
         f"{pacing_df.attrs.get('overall_avg_grade_adjusted_pace_mmss', '-')}/km"
     )
-    if pacing_df.attrs.get("fatigue_total_decay_pct", 0) > 0:
+    if isinstance(fatigue_model_instance, LinearFatigueModel):
         logger.info(
-            f"  Fatigue model:  Linear decay {pacing_df.attrs['fatigue_total_decay_pct']:.1f}%"
+            f"  Fatigue model:  Linear decay {fatigue_model_instance.total_decay_pct:.1f}%"
         )
-    elif pacing_df.attrs.get("fatigue_model_type") == "sigmoid" and sigmoid_fatigue_model:
+    elif isinstance(fatigue_model_instance, MultiDaySigmoidalFatigueModel):
         logger.info(
-            f"  Fatigue model:  Sigmoid bi-phasic "
-            f"(start={sigmoid_fatigue_model.start_pct:.0%}, "
-            f"floor={sigmoid_fatigue_model.floor_speed_kmh:.1f} km/h)"
+            f"  Fatigue model:  Sigmoid "
+            f"(start={fatigue_model_instance.start_pct:.0%}, "
+            f"floor={fatigue_model_instance.floor_speed_kmh:.1f} km/h)"
         )
     logger.info(f"  Finish time:   {seconds_to_hms(total_time_s)}")
     if itra_score_result is not None:

@@ -33,7 +33,7 @@ athlete:
   # Optional physiology parameters for the sigmoidal fatigue model.
   fatigue_physiology:
     # Minimum sustainable speed for expedition-length races (biological floor).
-    floor_speed_kmh: 5.0
+    floor_speed_kmh: 7.0  # ~8:34 min/km
 
     # Sleep recovery half-life for Process S exponential model (hours).
     sleep_half_life_hours: 2.5

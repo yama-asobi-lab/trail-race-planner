@@ -51,6 +51,11 @@ from __future__ import annotations
 
 import math
 
+# Power-law exponent for inflection-time scaling: t₀ = t_0_hours · (S₀/S)^_T0_EXPONENT
+_T0_EXPONENT: float = 3.1
+# Power-law exponent for sigmoid-steepness scaling: k = k_0 · (S/S₀)^_K_EXPONENT
+_K_EXPONENT: float = 2.5
+
 
 class LinearFatigueModel:
     """Simple linear percentage-based pace decay over a race.
@@ -178,8 +183,8 @@ class MultiDaySigmoidalFatigueModel:
         self._v_delta = self._v_start - self.floor_speed_kmh
         # Derive time-domain sigmoid parameters from power laws
         S = self.start_pct
-        self._t_inflection = self.t_0_hours * (self.s_0 / S) ** 3.1
-        self._k_h = self.k_0 * (S / self.s_0) ** 2.5  # h⁻¹
+        self._t_inflection = self.t_0_hours * (self.s_0 / S) ** _T0_EXPONENT
+        self._k_h = self.k_0 * (S / self.s_0) ** _K_EXPONENT  # h⁻¹
         # Approximate average speed for distance ↔ time conversion
         self._avg_speed = (self._v_start + self.floor_speed_kmh) / 2.0
         # Sleep recovery rate constant (ln(2) / half-life)

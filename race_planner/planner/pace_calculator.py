@@ -94,17 +94,15 @@ References:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
 
 from race_planner.course.course import Course
+from race_planner.models.fatigue_model import LinearFatigueModel, MultiDaySigmoidalFatigueModel
 from race_planner.models.pacing_model import PacingModel
 from race_planner.models.tools import seconds_per_km_to_mmss, seconds_to_hms
-
-if TYPE_CHECKING:
-    from race_planner.models.fatigue_model import MultiDaySigmoidalFatigueModel
 
 
 class PaceCalculator:
@@ -131,17 +129,14 @@ class PaceCalculator:
 
     Two fatigue model modes are supported:
 
-    **Linear fatigue** (``fatigue_total_decay_pct > 0``, no ``fatigue_model_instance``):
+    **Linear fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.LinearFatigueModel`):
         Pace multiplier rises linearly from 1.0 at start to
         ``1.0 + decay_fraction`` at finish.  Suitable for shorter races
         and backward-compatible with existing configs.
 
-    **Sigmoidal fatigue** (``fatigue_model_instance`` provided):
-        Delegates to a :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`
-        instance.  Tracks cumulative distance and sleep duration per point
-        to return physiologically-grounded pace multipliers.  The linear
-        ``fatigue_total_decay_pct`` is ignored when a model instance is
-        provided.
+    **Sigmoidal fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`):
+        Tracks cumulative elapsed time and sleep duration per point
+        to return physiologically-grounded pace multipliers.
 
     Args:
         ref_dist_km: Reference flat race distance in km (e.g. 42.195).
@@ -151,12 +146,17 @@ class PaceCalculator:
                      sorted.  Defaults to the built-in table described in
                      the module docstring.
         fatigue_total_decay_pct:
-            Linear fatigue decay (0–100 %).  Ignored when
-            ``fatigue_model_instance`` is set.
+            Linear fatigue decay (0–100 %).  Used only when
+            ``fatigue_model_instance`` is ``None`` or not a
+            :class:`~race_planner.models.fatigue_model.LinearFatigueModel`.
+            Kept for backward compatibility.
         fatigue_model_instance:
-            Optional :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`
-            instance.  When provided, sigmoidal fatigue is used instead of
-            the linear decay.
+            Optional fatigue model instance — either a
+            :class:`~race_planner.models.fatigue_model.LinearFatigueModel`
+            or a
+            :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`.
+            When provided, all fatigue calculations are delegated to this
+            object and ``fatigue_total_decay_pct`` is ignored.
     """
 
     # Expose model constants from the pure-model layer.
@@ -176,7 +176,7 @@ class PaceCalculator:
         ref_time_s: float,
         gap_curve: Optional[np.ndarray] = None,
         fatigue_total_decay_pct: float = 0.0,
-        fatigue_model_instance: Optional["MultiDaySigmoidalFatigueModel"] = None,
+        fatigue_model_instance: Optional[Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]] = None,
         altitude_slowdown_per_vertical_km: float = ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM,
         use_altitude_effects: bool = True,
     ) -> None:
@@ -206,7 +206,7 @@ class PaceCalculator:
         cls,
         athlete_config: Dict,
         fatigue_total_decay_pct: float = 0.0,
-        fatigue_model_instance: Optional["MultiDaySigmoidalFatigueModel"] = None,
+        fatigue_model_instance: Optional[Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]] = None,
         use_altitude_effects: bool = True,
     ) -> "PaceCalculator":
         """
@@ -314,53 +314,63 @@ class PaceCalculator:
         point_mask = course.df["cum_dist_m"].values <= end_distance_m
         return float(weighted_distance_km_values[point_mask].sum())
 
-    def fatigue_multiplier(self, progress_fraction_values: np.ndarray) -> np.ndarray:
-        """Converts “how far through the race am I?” into a pace slowdown multiplier.
-        Return per-point pace multipliers for linear fatigue model.
-
-        Pace multiplier rises linearly from 1.0 (start) to 1.0 + decay_fraction (finish).
-
-        Note: When a ``fatigue_model_instance`` is set, use
-        :meth:`fatigue_multiplier_for_distance_array` instead, which also accounts for
-        cumulative distance and sleep duration.
-        """
-        if np.any(progress_fraction_values < 0.0) or np.any(progress_fraction_values > 1.0):
-            raise ValueError("progress_fraction_values must be between 0 and 1")
-
-        if self.fatigue_total_decay_pct == 0.0:
-            return np.ones_like(progress_fraction_values)
-
-        total_decay_fraction = self.fatigue_total_decay_pct / 100.0
-        return 1.0 + total_decay_fraction * progress_fraction_values
-
-    def fatigue_multiplier_for_distance_array(
+    def fatigue_multiplier(
         self,
-        cumulative_distance_km_values: np.ndarray,
-        cumulative_sleep_duration_s_values: np.ndarray,
+        progress_fraction_values: np.ndarray,
+        cumulative_distance_km_values: Optional[np.ndarray] = None,
+        cumulative_sleep_duration_s_values: Optional[np.ndarray] = None,
     ) -> np.ndarray:
-        """Return per-point pace multipliers using the sigmoidal fatigue model.
+        """Return per-point pace multipliers, delegating to the configured fatigue model.
 
-        Delegates to the injected
-        :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`
-        instance.  Each point gets its multiplier from distance progress and
-        cumulative sleep duration at that point.
+        Dispatches to the appropriate fatigue model class:
 
-        This method is only called when ``fatigue_model_instance`` is set.
+        - If ``fatigue_model_instance`` is a
+          :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`,
+          ``cumulative_distance_km_values`` and ``cumulative_sleep_duration_s_values``
+          must be provided.
+        - If ``fatigue_model_instance`` is a
+          :class:`~race_planner.models.fatigue_model.LinearFatigueModel`,
+          ``progress_fraction_values`` is used.
+        - If no ``fatigue_model_instance`` is set, falls back to the legacy
+          ``fatigue_total_decay_pct``-based linear computation.
 
         Args:
-            cumulative_distance_km_values: Cumulative race distance (km) per point.
-            cumulative_sleep_duration_s_values: Cumulative sleep duration (s) per point.
+            progress_fraction_values: Race completion fraction per point, in [0, 1].
+            cumulative_distance_km_values: Cumulative distance (km) per point;
+                required when a sigmoidal model is active.
+            cumulative_sleep_duration_s_values: Cumulative sleep (s) per point;
+                required when a sigmoidal model is active.
 
         Returns:
-            Array of pace multipliers (≥ 1.0 means slower than threshold).
+            Array of pace multipliers (≥ 1.0 means slower than starting pace).
         """
-        assert self.fatigue_model_instance is not None
-        return np.array(
-            [
-                self.fatigue_model_instance.fatigue_multiplier_for_distance(float(d), float(s))
-                for d, s in zip(cumulative_distance_km_values, cumulative_sleep_duration_s_values)
-            ]
-        )
+        if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            assert cumulative_distance_km_values is not None
+            assert cumulative_sleep_duration_s_values is not None
+            return np.array(
+                [
+                    self.fatigue_model_instance.fatigue_multiplier_for_distance(float(d), float(s))
+                    for d, s in zip(
+                        cumulative_distance_km_values, cumulative_sleep_duration_s_values
+                    )
+                ]
+            )
+
+        if isinstance(self.fatigue_model_instance, LinearFatigueModel):
+            return np.array(
+                [
+                    self.fatigue_model_instance.fatigue_multiplier(float(p))
+                    for p in progress_fraction_values
+                ]
+            )
+
+        # Legacy path: fatigue_total_decay_pct with no model instance.
+        if np.any(progress_fraction_values < 0.0) or np.any(progress_fraction_values > 1.0):
+            raise ValueError("progress_fraction_values must be between 0 and 1")
+        if self.fatigue_total_decay_pct == 0.0:
+            return np.ones_like(progress_fraction_values)
+        total_decay_fraction = self.fatigue_total_decay_pct / 100.0
+        return 1.0 + total_decay_fraction * progress_fraction_values
 
     def altitude_multiplier(self, elevation_m_values: np.ndarray) -> np.ndarray:
         """Return per-point pace multipliers for altitude-effects slowdown.
@@ -478,17 +488,35 @@ class PaceCalculator:
 
         # Compute fatigue multipliers based on progress through the course.
         # Sigmoidal model: use cumulative distance (km) and per-point sleep duration.
-        # Linear model: use progress fraction (0–1).
-        if self.fatigue_model_instance is not None:
+        # Linear and legacy models: use progress fraction (0–1).
+        cumulative_distance_km_values = cumulative_distance_m_values / 1000.0
+        progress_distance_m_values = np.minimum(
+            cumulative_distance_m_values,
+            planned_finish_distance_m,
+        )
+        progress_fraction_values = (
+            progress_distance_m_values / planned_finish_distance_m
+            if planned_finish_distance_m > 0
+            else np.zeros_like(cumulative_distance_m_values)
+        )
+
+        if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
             # Build per-point cumulative sleep duration array.
-            # Sleep accumulates at each aid station that is marked as a sleep
-            # opportunity (is_sleep_opportunity=True).
-            cumulative_distance_km_values = cumulative_distance_m_values / 1000.0
+            # Sleep duration is taken from the explicit sleep_duration_s field on each
+            # aid station.  stop_time_s must be >= sleep_duration_s (validated here).
             sleep_at_distance: dict[float, float] = {}
             for aid in aid_stations:
-                if aid.get("is_sleep_opportunity", False):
+                sleep_s = aid.get("sleep_duration_s")
+                if sleep_s is not None:
+                    sleep_s = float(sleep_s)
+                    stop_s = float(aid.get("stop_time_s", 0))
+                    if stop_s < sleep_s:
+                        raise ValueError(
+                            f"Aid station '{aid.get('name', '?')}': stop_time_s ({stop_s:.0f} s) "
+                            f"must be >= sleep_duration_s ({sleep_s:.0f} s)"
+                        )
                     d_km = float(aid.get("distance_km", 0.0))
-                    sleep_at_distance[d_km] = float(aid.get("stop_time_s", 0))
+                    sleep_at_distance[d_km] = sleep_s
             if sleep_at_distance:
                 sorted_sleep = sorted(sleep_at_distance.items())
                 cumulative_sleep_s = 0.0
@@ -507,20 +535,12 @@ class PaceCalculator:
             else:
                 per_point_sleep_s = np.zeros(len(cumulative_distance_m_values), dtype=float)
 
-            fatigue_multiplier_values = self.fatigue_multiplier_for_distance_array(
+            fatigue_multiplier_values = self.fatigue_multiplier(
+                progress_fraction_values,
                 cumulative_distance_km_values,
                 per_point_sleep_s,
             )
         else:
-            progress_distance_m_values = np.minimum(
-                cumulative_distance_m_values,
-                planned_finish_distance_m,
-            )
-            progress_fraction_values = (
-                progress_distance_m_values / planned_finish_distance_m
-                if planned_finish_distance_m > 0
-                else np.zeros_like(cumulative_distance_m_values)
-            )
             fatigue_multiplier_values = self.fatigue_multiplier(progress_fraction_values)
         altitude_multiplier_values = self.altitude_multiplier(elevation_m_values)
 
@@ -674,9 +694,18 @@ class PaceCalculator:
             else "-"
         )
         df.attrs["total_grade_weighted_distance_km"] = total_grade_weighted_distance_km
-        df.attrs["fatigue_total_decay_pct"] = self.fatigue_total_decay_pct
+        df.attrs["fatigue_total_decay_pct"] = (
+            self.fatigue_model_instance.total_decay_pct
+            if isinstance(self.fatigue_model_instance, LinearFatigueModel)
+            else self.fatigue_total_decay_pct
+        )
         df.attrs["fatigue_model_type"] = (
-            "sigmoid" if self.fatigue_model_instance is not None else "linear"
+            "sigmoid"
+            if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel)
+            else "linear"
+            if isinstance(self.fatigue_model_instance, LinearFatigueModel)
+            or self.fatigue_total_decay_pct > 0
+            else "none"
         )
         df.attrs["use_altitude_effects"] = self.use_altitude_effects
         df.attrs["altitude_slowdown_per_vertical_km"] = self.altitude_slowdown_per_vertical_km

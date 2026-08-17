@@ -181,7 +181,11 @@ def test_pace_calculator_fatigue_multiplier_array(tor_model):
     )
     distances = np.array([0.0, 50.0, 100.0, 200.0])
     sleeps = np.array([0.0, 0.0, 0.0, 3600.0])
-    multipliers = calc.fatigue_multiplier_for_distance_array(distances, sleeps)
+    multipliers = calc.fatigue_multiplier(
+        np.zeros(4),  # progress_fraction_values (unused for sigmoid)
+        distances,
+        sleeps,
+    )
     assert multipliers.shape == (4,)
     assert all(m > 0 for m in multipliers)
 
