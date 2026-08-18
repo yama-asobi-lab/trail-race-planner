@@ -9,12 +9,14 @@ Steps:
 
 Usage:
     python analysis/scrape_itra_performance_indexes.py
-    python analysis/scrape_itra_performance_indexes.py --delay 1.5   # seconds between requests
-    python analysis/scrape_itra_performance_indexes.py --resume       # skip already-fetched IDs
+    python analysis/scrape_itra_performance_indexes.py --delay 2 --cooldown 30 --max-retries 5
+    python analysis/scrape_itra_performance_indexes.py --resume --delay 2 --cooldown 60 --max-retries 3
+    python analysis/scrape_itra_performance_indexes.py --resume --limit 50
 """
 
 import argparse
 import json
+import random
 import re
 import time
 from pathlib import Path
@@ -31,12 +33,14 @@ OUTPUT_PATH = Path("analysis/data/tor330_2025_itra_indexes.json")
 
 ITRA_HOME = "https://itra.run"
 
+BROWSER_UAS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+]
+
 HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/125.0.0.0 Safari/537.36"
-    ),
     "Accept": (
         "text/html,application/xhtml+xml,application/xml;" "q=0.9,image/avif,image/webp,*/*;q=0.8"
     ),
@@ -51,12 +55,36 @@ HEADERS = {
     "Cache-Control": "max-age=0",
 }
 
+BLOCK_PAGE_MARKERS = (
+    "checking your browser before accessing",
+    "just a moment",
+    "verify you are human",
+    "too many requests",
+    "access denied",
+    "cf-challenge",
+    "captcha",
+    "rate limit",
+    "security check",
+    "please wait while",
+)
+
+
+def build_headers() -> dict[str, str]:
+    headers = dict(HEADERS)
+    headers["User-Agent"] = random.choice(BROWSER_UAS)
+    headers["Referer"] = ITRA_HOME + "/"
+    headers["Origin"] = ITRA_HOME
+    return headers
+
 
 def warm_up_session(session: requests.Session, delay: float = 3.0) -> None:
     """Visit the ITRA homepage to establish cookies before hitting profile pages."""
+    session.cookies.clear()
+    session.headers.clear()
+    session.headers.update(build_headers())
     print(f"Warming up session via {ITRA_HOME} …")
     try:
-        resp = session.get(ITRA_HOME, headers=HEADERS, timeout=30)
+        resp = session.get(ITRA_HOME, timeout=30)
         print(
             f"  Homepage: HTTP {resp.status_code}, {len(resp.text)} chars, "
             f"{len(session.cookies)} cookies set"
@@ -66,10 +94,32 @@ def warm_up_session(session: requests.Session, delay: float = 3.0) -> None:
     time.sleep(delay)
 
 
+def is_rate_limited_response(resp: requests.Response, context: str = "") -> bool:
+    """Detect anti-bot blocks, CAPTCHA pages, and throttling notices.
+
+    We intentionally avoid matching generic CDN references such as "cloudflare.com" because
+    those are common in normal HTML and would create false positives on healthy pages.
+    """
+    status = resp.status_code
+    if status in {429, 403, 503}:
+        return True
+
+    text = (resp.text or "").lower()
+    if len(text.strip()) < 100:
+        return True
+
+    if any(marker in text for marker in BLOCK_PAGE_MARKERS):
+        return True
+
+    return False
+
+
 def fetch_runner_links(session: requests.Session) -> list[dict]:
     """Parse the race results page and return a list of runner dicts with ITRA IDs."""
     print(f"Fetching race results: {RACE_RESULTS_URL}")
-    resp = session.get(RACE_RESULTS_URL, headers=HEADERS, timeout=30)
+    resp = session.get(RACE_RESULTS_URL, timeout=30)
+    if is_rate_limited_response(resp, RACE_RESULTS_URL):
+        raise RateLimitedError(f"Rate-limited/blocked response for {RACE_RESULTS_URL}")
     resp.raise_for_status()
 
     soup = BeautifulSoup(resp.text, "html.parser")
@@ -113,16 +163,17 @@ class RateLimitedError(Exception):
 def fetch_performance_index(session: requests.Session, profile_url: str) -> int | None:
     """Fetch a runner's profile page and return their ITRA Performance Index (int).
 
-    Raises RateLimitedError if the server responds with an empty body (rate limit).
+    Raises RateLimitedError if the server responds with an anti-bot block or other throttling page.
     Returns None if the page loads but no valid index is found (runner has no index).
     """
-    resp = session.get(profile_url, headers=HEADERS, timeout=30)
+    resp = session.get(profile_url, timeout=30)
     if resp.status_code == 404:
         return None
 
-    # Empty body = server is throttling us
-    if len(resp.text.strip()) < 100:
-        raise RateLimitedError(f"Empty/tiny response (status={resp.status_code}) for {profile_url}")
+    if is_rate_limited_response(resp, profile_url):
+        raise RateLimitedError(
+            f"Rate-limited/blocked response (status={resp.status_code}) for {profile_url}"
+        )
 
     soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -157,6 +208,18 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=1.0,
         help="Seconds to wait between profile requests (default: 1.0)",
+    )
+    parser.add_argument(
+        "--cooldown",
+        type=float,
+        default=120.0,
+        help="Base seconds to wait after a rate-limit or anti-bot block before retrying",
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=8,
+        help="Maximum number of retries after a rate-limit/blocked page",
     )
     parser.add_argument(
         "--resume",
@@ -196,9 +259,26 @@ def main() -> None:
         print(f"Resuming: {len(existing)} runners already fetched (skipping retry_needed entries).")
 
     session = requests.Session()
+    session.headers.update(build_headers())
     warm_up_session(session, delay=3.0)
 
-    runners = fetch_runner_links(session)
+    for attempt in range(args.max_retries):
+        try:
+            runners = fetch_runner_links(session)
+            break
+        except RateLimitedError:
+            wait = min(args.cooldown * (2**attempt) + random.uniform(0.0, 5.0), 600.0)
+            print(
+                f"Results page blocked — waiting {wait:.0f}s before retrying "
+                f"(attempt {attempt + 1}/{args.max_retries}) …"
+            )
+            time.sleep(wait)
+            session.close()
+            session = requests.Session()
+            session.headers.update(build_headers())
+            warm_up_session(session, delay=max(5.0, args.cooldown / 2))
+    else:
+        raise RuntimeError("Could not fetch race results after repeated anti-bot blocks.")
 
     if args.limit:
         runners = runners[: args.limit]
@@ -211,28 +291,53 @@ def main() -> None:
     print(f"Fetching performance indexes for {len(to_fetch)} runners …")
 
     for i, runner in enumerate(to_fetch, start=1):
-        max_retries = 5
-        backoff = 5.0
         idx: int | None = None
         retry_needed = False
 
-        for attempt in range(max_retries):
+        for attempt in range(args.max_retries):
             try:
                 idx = fetch_performance_index(session, runner["profile_url"])
-                retry_needed = False
+                if idx is not None:
+                    retry_needed = False
+                    break
+
+                if attempt < args.max_retries - 1:
+                    wait = min(args.cooldown * (2**attempt) + random.uniform(0.0, 5.0), 600.0)
+                    print(
+                        f"  [{i}/{len(to_fetch)}] No index found on this page — waiting {wait:.0f}s "
+                        f"before retrying (attempt {attempt + 1}/{args.max_retries}) …"
+                    )
+                    time.sleep(wait)
+                    retry_needed = True
+                    session.close()
+                    session = requests.Session()
+                    session.headers.update(build_headers())
+                    warm_up_session(session, delay=max(5.0, args.cooldown / 2))
+                    continue
+                retry_needed = True
                 break
             except RateLimitedError:
-                wait = backoff * (2**attempt)
-                print(f"  [{i}/{len(to_fetch)}] Rate limited — waiting {wait:.0f}s then retrying …")
+                wait = min(args.cooldown * (2**attempt) + random.uniform(0.0, 5.0), 600.0)
+                print(
+                    f"  [{i}/{len(to_fetch)}] Rate-limited/blocked — waiting {wait:.0f}s "
+                    f"before retrying (attempt {attempt + 1}/{args.max_retries}) …"
+                )
                 time.sleep(wait)
-                # Renew the session with a fresh warm-up
+                session.close()
                 session = requests.Session()
-                warm_up_session(session, delay=5.0)
+                session.headers.update(build_headers())
+                warm_up_session(session, delay=max(5.0, args.cooldown / 2))
                 retry_needed = True
             except Exception as exc:
                 print(f"  [{i}/{len(to_fetch)}] ERROR {runner['profile_url']}: {exc}")
                 retry_needed = False
                 break
+
+        if idx is None and retry_needed:
+            print(
+                f"  [{i}/{len(to_fetch)}] Still no index after {args.max_retries} attempts; "
+                "leaving this runner for a later retry."
+            )
 
         runner["itra_performance_index"] = idx
         runner["retry_needed"] = retry_needed
