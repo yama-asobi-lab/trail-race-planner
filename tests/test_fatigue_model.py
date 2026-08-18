@@ -162,7 +162,7 @@ def test_fatigue_multiplier_increases_with_distance():
         circadian_amplitude=0.0,  # isolate sigmoid decay
     )
     distances = [float(d) for d in range(0, 81, 10)]
-    multipliers = [model.fatigue_multiplier_for_distance(d) for d in distances]
+    multipliers = [model.pace_multiplier_for_distance(d) for d in distances]
     for i in range(len(multipliers) - 1):
         assert multipliers[i] <= multipliers[i + 1], (
             f"multiplier decreased from {multipliers[i]:.4f} to {multipliers[i+1]:.4f} "
@@ -171,8 +171,8 @@ def test_fatigue_multiplier_increases_with_distance():
 
 
 def test_fatigue_multiplier_sleep_reduces_value(tor_model):
-    m_no_sleep = tor_model.fatigue_multiplier_for_distance(200.0, 0)
-    m_with_sleep = tor_model.fatigue_multiplier_for_distance(200.0, 3600)
+    m_no_sleep = tor_model.pace_multiplier_for_distance(200.0, 0)
+    m_with_sleep = tor_model.pace_multiplier_for_distance(200.0, 3600)
     assert m_with_sleep < m_no_sleep
 
 

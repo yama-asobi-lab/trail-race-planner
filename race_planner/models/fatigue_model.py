@@ -56,8 +56,8 @@ class LinearFatigueModel:
     """Simple linear percentage-based pace decay over a race.
 
     The pace multiplier increases linearly from 1.0 at the start to
-    ``1 / (1 - total_decay_pct / 100)`` at the finish. This remains the default
-    backward-compatible fatigue model for existing configs.
+    ``1 / (1 - total_decay_pct / 100)`` at the finish, with the entire race
+    treated as a single percentage-based decay in pace.
     """
 
     def __init__(self, total_decay_pct: float) -> None:
@@ -312,22 +312,6 @@ class MultiDaySigmoidalFatigueModel:
         """
         elapsed_hours = self.elapsed_hours_for_distance(distance_km, cumulative_sleep_duration_s)
         return self.pace_multiplier_at_time(elapsed_hours * 3600.0, cumulative_sleep_duration_s)
-
-    def fatigue_multiplier_for_distance(
-        self,
-        distance_km: float,
-        cumulative_sleep_duration_s: float = 0.0,
-    ) -> float:
-        """Backward-compatible alias for the planner-facing pace penalty."""
-        return self.pace_multiplier_for_distance(distance_km, cumulative_sleep_duration_s)
-
-    def fatigue_multiplier_at_time(
-        self,
-        elapsed_time_s: float,
-        cumulative_sleep_duration_s: float = 0.0,
-    ) -> float:
-        """Backward-compatible alias for the time-domain pace penalty."""
-        return self.pace_multiplier_at_time(elapsed_time_s, cumulative_sleep_duration_s)
 
     def apply_nap_recovery(
         self,

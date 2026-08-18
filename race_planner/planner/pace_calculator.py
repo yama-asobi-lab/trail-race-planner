@@ -131,8 +131,8 @@ class PaceCalculator:
 
     **Linear fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.LinearFatigueModel`):
         Pace multiplier rises linearly from 1.0 at start to
-        ``1.0 + decay_fraction`` at finish.  Suitable for shorter races
-        and backward-compatible with existing configs.
+        ``1.0 + decay_fraction`` at finish.  Suitable for shorter races and
+        simple percentage-based decay planning.
 
     **Sigmoidal fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`):
         Tracks cumulative elapsed time and sleep duration per point
@@ -261,7 +261,7 @@ class PaceCalculator:
         )
 
     # ------------------------------------------------------------------
-    # Compatibility wrappers around the pure-model layer
+    # Pure-model delegation helpers
     # ------------------------------------------------------------------
 
     def flat_equivalent_distance_km(self, dist_km: float, gain_m: float) -> float:
@@ -490,7 +490,7 @@ class PaceCalculator:
 
         # Compute fatigue multipliers based on progress through the course.
         # Sigmoidal model: use cumulative distance (km) and per-point sleep duration.
-        # Linear and legacy models: use progress fraction (0–1).
+        # Linear model: use progress fraction (0–1).
         cumulative_distance_km_values = cumulative_distance_m_values / 1000.0
         progress_distance_m_values = np.minimum(
             cumulative_distance_m_values,
