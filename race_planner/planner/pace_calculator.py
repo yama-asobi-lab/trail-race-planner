@@ -355,14 +355,24 @@ class PaceCalculator:
         if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
             assert cumulative_distance_km_values is not None
             assert cumulative_sleep_duration_s_values is not None
-            return np.array(
+
+            dist_km = np.asarray(cumulative_distance_km_values, dtype=float)
+            sleep_s = np.asarray(cumulative_sleep_duration_s_values, dtype=float)
+            if dist_km.size == 0:
+                return np.array([], dtype=float)
+
+            max_dist_km = float(dist_km.max())
+            sample_count = min(256, max(8, dist_km.size))
+            sample_dist_km = np.linspace(0.0, max_dist_km, num=sample_count)
+            sample_sleep_s = np.interp(sample_dist_km, dist_km, sleep_s)
+            sample_multipliers = np.array(
                 [
                     self.fatigue_model_instance.pace_multiplier_for_distance(float(d), float(s))
-                    for d, s in zip(
-                        cumulative_distance_km_values, cumulative_sleep_duration_s_values
-                    )
-                ]
+                    for d, s in zip(sample_dist_km, sample_sleep_s)
+                ],
+                dtype=float,
             )
+            return np.interp(dist_km, sample_dist_km, sample_multipliers)
 
         if isinstance(self.fatigue_model_instance, LinearFatigueModel):
             return np.array(

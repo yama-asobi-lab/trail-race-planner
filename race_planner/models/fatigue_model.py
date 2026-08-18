@@ -45,6 +45,7 @@ integration boundary.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 
 # Power-law exponent for inflection-time scaling: t₀ = t_0_hours · (S₀/S)^_T0_EXPONENT
 _T0_EXPONENT: float = 3.1
@@ -176,6 +177,7 @@ class MultiDaySigmoidalFatigueModel:
         self._k_h = self.k_0 * (S / self.s_0) ** _K_EXPONENT  # h⁻¹
         # Distance-time conversion is solved numerically below.
         self._sleep_lambda = math.log(2.0) / self.sleep_half_life_hours
+        self._pace_multiplier_cache: dict[tuple[float, float], float] = {}
 
     # ------------------------------------------------------------------
     # Core velocity methods
@@ -196,7 +198,20 @@ class MultiDaySigmoidalFatigueModel:
         if elapsed_hours == 0.0:
             return 0.0
 
-        n_steps = max(200, min(20000, int(math.ceil(elapsed_hours * 240.0))))
+        rounded_elapsed_hours = round(elapsed_hours, 6)
+        rounded_sleep_s = round(cumulative_sleep_duration_s, 3)
+        return self._distance_travelled_in_time_cached(
+            rounded_elapsed_hours,
+            rounded_sleep_s,
+        )
+
+    @lru_cache(maxsize=2048)
+    def _distance_travelled_in_time_cached(
+        self,
+        elapsed_hours: float,
+        cumulative_sleep_duration_s: float,
+    ) -> float:
+        n_steps = max(60, min(4000, int(math.ceil(elapsed_hours * 60.0))))
         dt = elapsed_hours / float(n_steps)
         distance_km = 0.0
 
@@ -310,8 +325,15 @@ class MultiDaySigmoidalFatigueModel:
         The elapsed time is recovered from the modeled distance integral before
         converting the underlying speed back into a pace multiplier.
         """
-        elapsed_hours = self.elapsed_hours_for_distance(distance_km, cumulative_sleep_duration_s)
-        return self.pace_multiplier_at_time(elapsed_hours * 3600.0, cumulative_sleep_duration_s)
+        rounded_distance_km = round(float(distance_km), 6)
+        rounded_sleep_s = round(float(cumulative_sleep_duration_s), 3)
+        key = (rounded_distance_km, rounded_sleep_s)
+        if key in getattr(self, "_pace_multiplier_cache", {}):
+            return self._pace_multiplier_cache[key]
+        elapsed_hours = self.elapsed_hours_for_distance(rounded_distance_km, rounded_sleep_s)
+        value = self.pace_multiplier_at_time(elapsed_hours * 3600.0, rounded_sleep_s)
+        self._pace_multiplier_cache[key] = value
+        return value
 
     def apply_nap_recovery(
         self,
