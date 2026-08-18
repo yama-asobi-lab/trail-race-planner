@@ -300,11 +300,30 @@ def _compute_runner_table(
         donnas_h = elapsed_h_by_cp.get("Donnas IN", np.nan)
         gressoney_h = elapsed_h_by_cp.get("Gressoney IN", np.nan)
 
+        valg_h = elapsed_h_by_cp.get("Valgrisenche IN", np.nan)
+        cogne_h = elapsed_h_by_cp.get("Cogne IN", np.nan)
+        valtournenche_h = elapsed_h_by_cp.get("Valtournenche IN", np.nan)
+        ollomont_h = elapsed_h_by_cp.get("Ollomont IN", np.nan)
+
+        row["valgrisenche_time_ratio"] = (
+            float(valg_h / total_h) if pd.notna(valg_h) and total_h > 0 else np.nan
+        )
+        row["cogne_time_ratio"] = (
+            float(cogne_h / total_h) if pd.notna(cogne_h) and total_h > 0 else np.nan
+        )
         row["donnas_time_ratio"] = (
             float(donnas_h / total_h) if pd.notna(donnas_h) and total_h > 0 else np.nan
         )
         row["gressoney_time_ratio"] = (
             float(gressoney_h / total_h) if pd.notna(gressoney_h) and total_h > 0 else np.nan
+        )
+        row["valtournenche_time_ratio"] = (
+            float(valtournenche_h / total_h)
+            if pd.notna(valtournenche_h) and total_h > 0
+            else np.nan
+        )
+        row["ollomont_time_ratio"] = (
+            float(ollomont_h / total_h) if pd.notna(ollomont_h) and total_h > 0 else np.nan
         )
 
         avg_gap_speed_total = gap_distance_total / total_h if total_h > 0 else np.nan
@@ -356,14 +375,43 @@ def _compute_runner_table(
         rank_donnas = row.get("rank_donnas_in")
         rank_gressoney = row.get("rank_gressoney_in")
 
-        row["rank_drift_donnas"] = (
+        row["rank_gain_donnas"] = (
             float(rank_donnas - rank_finish)
             if rank_donnas is not None and rank_finish is not None
             else np.nan
         )
-        row["rank_drift_gressoney"] = (
+        row["rank_gain_gressoney"] = (
             float(rank_gressoney - rank_finish)
             if rank_gressoney is not None and rank_finish is not None
+            else np.nan
+        )
+
+        row["normalized_rank_gain_donnas"] = (
+            row["rank_gain_donnas"] / rank_donnas
+            if rank_donnas is not None and rank_donnas > 0 and pd.notna(row["rank_gain_donnas"])
+            else np.nan
+        )
+        row["normalized_rank_gain_gressoney"] = (
+            row["rank_gain_gressoney"] / rank_gressoney
+            if rank_gressoney is not None
+            and rank_gressoney > 0
+            and pd.notna(row["rank_gain_gressoney"])
+            else np.nan
+        )
+
+        decel_donnas = row.get("second_half_deceleration_ratio_donnas", np.nan)
+        decel_gressoney = row.get("second_half_deceleration_ratio_gressoney", np.nan)
+        nrg_donnas = row["normalized_rank_gain_donnas"]
+        nrg_gressoney = row["normalized_rank_gain_gressoney"]
+
+        row["execution_index_donnas"] = (
+            float(nrg_donnas * decel_donnas)
+            if pd.notna(nrg_donnas) and pd.notna(decel_donnas)
+            else np.nan
+        )
+        row["execution_index_gressoney"] = (
+            float(nrg_gressoney * decel_gressoney)
+            if pd.notna(nrg_gressoney) and pd.notna(decel_gressoney)
             else np.nan
         )
 
@@ -400,26 +448,18 @@ def _build_sections_export(sections: list[SectionModel]) -> pd.DataFrame:
 
 
 def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
-    idx_cols = [
-        "donnas_time_ratio",
-        "gressoney_time_ratio",
-        "rank_drift_donnas",
-        "pace_variation_coefficient",
-        "total_time_h",
-        "second_half_deceleration_ratio_donnas",
-    ]
-
-    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
-    ax = axes.ravel()
+    # --- 1. Scatter Plot Matrix ---
+    fig_scatter, axes_scatter = plt.subplots(2, 3, figsize=(18, 10))
+    ax_scatter = axes_scatter.ravel()
 
     scatter_specs = [
         (
             "donnas_time_ratio",
-            "gressoney_time_ratio",
-            "rank_drift_donnas",
+            "rank_gain_donnas",
+            "total_time_h",
             "Donnas Time Ratio",
-            "Gressoney Time Ratio",
-            "Donnas vs Gressoney ratio (color: Rank Drift @ Donnas)",
+            "Absolute Rank Gain",
+            "Donnas ratio vs Absolute Rank Gain (color: Finish Time)",
         ),
         (
             "donnas_time_ratio",
@@ -427,23 +467,23 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
             "total_time_h",
             "Donnas Time Ratio",
             "Pace Variation Coefficient",
-            "Donnas ratio vs Pace Variation Coefficient (color: Finish Time)",
+            "Donnas ratio vs Pace Variation (color: Finish Time)",
         ),
         (
             "donnas_time_ratio",
             "total_time_h",
-            "rank_drift_donnas",
+            "rank_gain_donnas",
             "Donnas Time Ratio",
             "Finish Time (h)",
-            "Donnas ratio vs Finish Time (color: Rank Drift)",
+            "Donnas ratio vs Finish Time (color: Absolute Rank Gain)",
         ),
         (
             "donnas_time_ratio",
-            "rank_drift_donnas",
+            "normalized_rank_gain_donnas",
             "total_time_h",
             "Donnas Time Ratio",
-            "Rank Drift (Donnas)",
-            "Donnas ratio vs Rank Drift (color: Finish Time)",
+            "Normalized Rank Gain (Donnas)",
+            "Donnas ratio vs Normalized Rank Gain (color: Finish Time)",
         ),
         (
             "donnas_time_ratio",
@@ -451,13 +491,22 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
             "total_time_h",
             "Donnas Time Ratio",
             "Deceleration from Donnas",
-            "Donnas ratio vs Decelration (color: Finish Time)",
+            "Donnas ratio vs Deceleration (color: Finish Time)",
+        ),
+        (
+            "donnas_time_ratio",
+            "execution_index_donnas",
+            "total_time_h",
+            "Donnas Time Ratio",
+            "Execution Index (Donnas)",
+            "Donnas ratio vs Execution Index (color: Finish Time)",
         ),
     ]
 
-    for axis, spec in zip(ax[:5], scatter_specs):
+    for axis, spec in zip(ax_scatter, scatter_specs):
         x_col, y_col, c_col, x_label, y_label, title = spec
         mask = df[[x_col, y_col]].notna().all(axis=1)
+
         if c_col is not None:
             mask = mask & df[[c_col]].notna().all(axis=1)
             sc = axis.scatter(
@@ -477,11 +526,33 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
         axis.set_title(title)
         axis.grid(True, alpha=0.3)
 
+    fig_scatter.suptitle(
+        "TOR330 2025 Donnas-Relative Pacing Strategy Scatters", fontsize=14, fontweight="bold"
+    )
+    fig_scatter.tight_layout()
+    fig_scatter.savefig(output_dir / "tor330_pacing_index_scatter_matrix.png", dpi=170)
+    plt.close(fig_scatter)
+
+    # --- 2. Histograms ---
+    fig_hist, axes_hist = plt.subplots(2, 2, figsize=(12, 10))
+    ax_hist = axes_hist.ravel()
+
     hist_specs = [
         ("donnas_time_ratio", "Donnas Time Ratio", "Histogram of Donnas Time Ratio"),
+        ("execution_index_donnas", "Execution Index (Donnas)", "Histogram of Execution Index"),
+        (
+            "second_half_deceleration_ratio_donnas",
+            "Deceleration from Donnas",
+            "Histogram of Deceleration from Donnas",
+        ),
+        (
+            "normalized_rank_gain_donnas",
+            "Normalized Rank Gain",
+            "Histogram of Normalized Rank Gain",
+        ),
     ]
 
-    for axis, (col, x_label, title) in zip(ax[5:], hist_specs):
+    for axis, (col, x_label, title) in zip(ax_hist, hist_specs):
         values = df[col].dropna()
         axis.hist(values, bins=20, color="steelblue", edgecolor="black", alpha=0.8)
         axis.set_xlabel(x_label)
@@ -489,33 +560,43 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
         axis.set_title(title)
         axis.grid(True, alpha=0.3)
 
-    fig.suptitle(
-        "TOR330 2025 Donnas-Relative Pacing Strategy Analysis", fontsize=14, fontweight="bold"
-    )
-    fig.tight_layout()
-    fig.savefig(output_dir / "tor330_pacing_index_scatter_matrix.png", dpi=170)
-    plt.close(fig)
+    fig_hist.suptitle("TOR330 2025 Pacing Distribution Analysis", fontsize=14, fontweight="bold")
+    fig_hist.tight_layout()
+    fig_hist.savefig(output_dir / "tor330_pacing_index_histograms.png", dpi=170)
+    plt.close(fig_hist)
+
+    # --- 3. Correlation Heatmap ---
+    idx_cols = [
+        "donnas_time_ratio",
+        "gressoney_time_ratio",
+        "rank_gain_donnas",
+        "normalized_rank_gain_donnas",
+        "execution_index_donnas",
+        "pace_variation_coefficient",
+        "total_time_h",
+        "second_half_deceleration_ratio_donnas",
+    ]
 
     corr_df = df[idx_cols].dropna(how="all")
     corr = corr_df.corr(numeric_only=True)
 
-    fig, axis = plt.subplots(figsize=(10, 8))
-    im = axis.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
-    axis.set_xticks(np.arange(len(corr.columns)))
-    axis.set_yticks(np.arange(len(corr.index)))
-    axis.set_xticklabels(corr.columns, rotation=45, ha="right")
-    axis.set_yticklabels(corr.index)
-    axis.set_title("Correlation Heatmap of Pacing Indexes")
+    fig_corr, axis_corr = plt.subplots(figsize=(10, 8))
+    im = axis_corr.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
+    axis_corr.set_xticks(np.arange(len(corr.columns)))
+    axis_corr.set_yticks(np.arange(len(corr.index)))
+    axis_corr.set_xticklabels(corr.columns, rotation=45, ha="right")
+    axis_corr.set_yticklabels(corr.index)
+    axis_corr.set_title("Correlation Heatmap of Pacing Indexes")
 
     for i in range(len(corr.index)):
         for j in range(len(corr.columns)):
             value = corr.iloc[i, j]
-            axis.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=8)
+            axis_corr.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=8)
 
-    plt.colorbar(im, ax=axis, fraction=0.046, pad=0.04)
-    fig.tight_layout()
-    fig.savefig(output_dir / "tor330_pacing_index_correlation_heatmap.png", dpi=170)
-    plt.close(fig)
+    plt.colorbar(im, ax=axis_corr, fraction=0.046, pad=0.04)
+    fig_corr.tight_layout()
+    fig_corr.savefig(output_dir / "tor330_pacing_index_correlation_heatmap.png", dpi=170)
+    plt.close(fig_corr)
 
 
 def _build_index_table(df: pd.DataFrame) -> pd.DataFrame:
@@ -526,12 +607,20 @@ def _build_index_table(df: pd.DataFrame) -> pd.DataFrame:
         "nation",
         "total_time_h",
         "rank_finish",
+        "valgrisenche_time_ratio",
+        "cogne_time_ratio",
         "donnas_time_ratio",
         "gressoney_time_ratio",
+        "valtournenche_time_ratio",
+        "ollomont_time_ratio",
         "second_half_deceleration_ratio_donnas",
         "second_half_deceleration_ratio_gressoney",
-        "rank_drift_donnas",
-        "rank_drift_gressoney",
+        "rank_gain_donnas",
+        "rank_gain_gressoney",
+        "normalized_rank_gain_donnas",
+        "normalized_rank_gain_gressoney",
+        "execution_index_donnas",
+        "execution_index_gressoney",
         "pace_variation_coefficient",
     ]
     return df[[c for c in keep_cols if c in df.columns]].copy()
@@ -631,6 +720,8 @@ def main() -> None:
         f"gressoney_ratio={index_df['gressoney_time_ratio'].median():.3f}, "
         f"decel_donnas={index_df['second_half_deceleration_ratio_donnas'].median():.3f}, "
         f"decel_gressoney={index_df['second_half_deceleration_ratio_gressoney'].median():.3f}, "
+        f"rank_gain_donnas={index_df['rank_gain_donnas'].median():.1f}, "
+        f"exec_index_donnas={index_df['execution_index_donnas'].median():.3f}, "
         f"pace_cv={index_df['pace_variation_coefficient'].median():.3f}"
     )
 

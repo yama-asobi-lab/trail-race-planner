@@ -1,0 +1,30 @@
+{
+  "race": "TOR330 2025",
+  "source": "https://itra.run/Races/RaceResults/TOR330...Tor.des.G%C3%A9ants%C2%AE/2025/98185",
+  "runners": [
+    {
+      "itra_id": "207848",
+      "slug": "RICHARD.Victor",
+      "name_from_link": "RICHARD Victor",
+      "profile_url": "https://itra.run/RunnerSpace/RICHARD.Victor/207848",
+      "itra_performance_index": 858,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4265382",
+      "slug": "CORSINI.Simone",
+      "name_from_link": "CORSINI Simone",
+      "profile_url": "https://itra.run/RunnerSpace/CORSINI.Simone/4265382",
+      "itra_performance_index": 866,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "478017",
+      "slug": "PERRIER.Martin",
+      "name_from_link": "PERRIER Martin",
+      "profile_url": "https://itra.run/RunnerSpace/PERRIER.Martin/478017",
+      "itra_performance_index": 812,
+      "retry_needed": false
+    }
+  ]
+}
