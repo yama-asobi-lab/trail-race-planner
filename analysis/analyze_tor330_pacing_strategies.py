@@ -32,6 +32,7 @@ import json
 import math
 import re
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -71,6 +72,19 @@ DISPLAY_CHECKPOINTS = [
     "FINISH",
 ]
 
+AID_STATION_CHECKPOINTS = [
+    "Valgrisenche IN",
+    "Cogne IN",
+    "Donnas IN",
+    "Gressoney IN",
+    "Valtournenche IN",
+    "Ollomont IN",
+]
+
+
+def _safe_checkpoint_slug(name: str) -> str:
+    return name.lower().replace(" ", "_").replace("-", "_")
+
 
 def _norm_station_name(name: str) -> str:
     text = re.sub(r"[*]+", "", str(name)).strip().lower()
@@ -96,6 +110,83 @@ def _parse_iso(ts: str | None) -> pd.Timestamp:
     if not ts:
         return pd.NaT
     return pd.to_datetime(ts, utc=True, errors="coerce")
+
+
+def _normalize_runner_name(name: str | None) -> str:
+    if not name:
+        return ""
+    ascii_name = unicodedata.normalize("NFKD", str(name))
+    ascii_name = "".join(ch for ch in ascii_name if not unicodedata.combining(ch))
+    ascii_name = ascii_name.upper().strip()
+    ascii_name = re.sub(r"[^A-Z0-9 ]+", " ", ascii_name)
+    return re.sub(r"\s+", " ", ascii_name).strip()
+
+
+def _load_race_scores(race_scores_csv: Path) -> pd.DataFrame:
+    race_df = pd.read_csv(race_scores_csv)
+    race_df["race_score"] = pd.to_numeric(race_df.get("Race Score"), errors="coerce")
+    race_df["runner_name_key"] = race_df.get("Runner", "").map(_normalize_runner_name)
+    race_df = race_df[["runner_name_key", "race_score"]].dropna(subset=["runner_name_key"])
+    race_df = race_df.drop_duplicates(subset=["runner_name_key"], keep="first")
+    return race_df
+
+
+def _load_itra_indexes(itra_indexes_json: Path) -> pd.DataFrame:
+    with itra_indexes_json.open("r", encoding="utf-8") as f:
+        payload = json.load(f)
+
+    runners = payload.get("runners", []) if isinstance(payload, dict) else []
+    itra_df = pd.DataFrame(runners)
+    if itra_df.empty:
+        return pd.DataFrame(columns=["runner_name_key", "itra_performance_index"])
+
+    itra_df["runner_name_key"] = itra_df.get("name_from_link", "").map(_normalize_runner_name)
+    itra_df["itra_performance_index"] = pd.to_numeric(
+        itra_df.get("itra_performance_index"), errors="coerce"
+    )
+    itra_df = itra_df[["runner_name_key", "itra_performance_index"]].dropna(
+        subset=["runner_name_key"]
+    )
+    itra_df = itra_df.drop_duplicates(subset=["runner_name_key"], keep="first")
+    return itra_df
+
+
+def _enrich_with_itra_execution_index(
+    runner_df: pd.DataFrame, race_scores_csv: Path, itra_indexes_json: Path
+) -> pd.DataFrame:
+    if not race_scores_csv.exists():
+        raise FileNotFoundError(f"Race score CSV not found: {race_scores_csv}")
+    if not itra_indexes_json.exists():
+        raise FileNotFoundError(f"ITRA indexes JSON not found: {itra_indexes_json}")
+
+    race_df = _load_race_scores(race_scores_csv)
+    itra_df = _load_itra_indexes(itra_indexes_json)
+
+    out = runner_df.copy()
+    out["runner_name"] = (
+        out.get("last_name", "").fillna("").astype(str).str.strip()
+        + " "
+        + out.get("first_name", "").fillna("").astype(str).str.strip()
+    ).str.strip()
+    out["runner_name_key"] = out["runner_name"].map(_normalize_runner_name)
+
+    out = out.merge(race_df, how="left", on="runner_name_key")
+    out = out.merge(itra_df, how="left", on="runner_name_key")
+
+    out["itra_race_execution_index"] = np.where(
+        out["race_score"].notna()
+        & out["itra_performance_index"].notna()
+        & (out["itra_performance_index"] > 0),
+        out["race_score"] / out["itra_performance_index"],
+        np.nan,
+    )
+
+    matched = int(out["itra_race_execution_index"].notna().sum())
+    logger.info(
+        f"ITRA race execution index coverage: {matched}/{len(out)} runners "
+        f"({(100.0 * matched / max(len(out), 1)):.1f}%)"
+    )
+    return out
 
 
 @dataclass
@@ -216,6 +307,12 @@ def _compute_runner_table(
     runners: list[dict[str, Any]] = snapshot.get("runners", [])
     rank_maps = _build_checkpoint_rank_maps(runners)
 
+    section_gap_distance_cumulative = {"START": 0.0}
+    cumulative_gap_km = 0.0
+    for section in sections:
+        cumulative_gap_km += section.gap_distance_km
+        section_gap_distance_cumulative[section.end_checkpoint] = cumulative_gap_km
+
     rows: list[dict[str, Any]] = []
     for runner in runners:
         checkpoint_times = runner.get("checkpoint_times", {})
@@ -254,7 +351,7 @@ def _compute_runner_table(
                     elapsed_h = np.nan
             elapsed_h_by_cp[cp] = elapsed_h
 
-            safe_cp = cp.lower().replace(" ", "_")
+            safe_cp = _safe_checkpoint_slug(cp)
             row[f"elapsed_h_{safe_cp}"] = elapsed_h
             row[f"rank_{safe_cp}"] = rank_maps.get(cp, {}).get(bib)
 
@@ -326,6 +423,28 @@ def _compute_runner_table(
             float(ollomont_h / total_h) if pd.notna(ollomont_h) and total_h > 0 else np.nan
         )
 
+        for cp in AID_STATION_CHECKPOINTS:
+            cp_elapsed_h = elapsed_h_by_cp.get(cp, np.nan)
+            cp_slug = _safe_checkpoint_slug(cp)
+
+            if pd.notna(cp_elapsed_h) and total_h > cp_elapsed_h and cp_elapsed_h > 0:
+                gap_before = section_gap_distance_cumulative.get(cp, np.nan)
+                gap_after = section_gap_distance_cumulative.get("FINISH", np.nan) - gap_before
+
+                if (
+                    pd.notna(gap_before)
+                    and gap_before > 0
+                    and pd.notna(gap_after)
+                    and gap_after > 0
+                ):
+                    speed_before = gap_before / cp_elapsed_h
+                    speed_after = gap_after / (total_h - cp_elapsed_h)
+                    row[f"deceleration_ratio_from_{cp_slug}"] = speed_after / speed_before
+                else:
+                    row[f"deceleration_ratio_from_{cp_slug}"] = np.nan
+            else:
+                row[f"deceleration_ratio_from_{cp_slug}"] = np.nan
+
         avg_gap_speed_total = gap_distance_total / total_h if total_h > 0 else np.nan
         row["avg_gap_speed_start_finish_kmh"] = avg_gap_speed_total
 
@@ -386,17 +505,23 @@ def _compute_runner_table(
             else np.nan
         )
 
-        row["normalized_rank_gain_donnas"] = (
-            row["rank_gain_donnas"] / rank_donnas
-            if rank_donnas is not None and rank_donnas > 0 and pd.notna(row["rank_gain_donnas"])
-            else np.nan
+        row["normalized_rank_gain_donnas"] = max(
+            -1.0,
+            (  # cap at -1.0 to avoid extreme outliers
+                row["rank_gain_donnas"] / rank_donnas
+                if rank_donnas is not None and rank_donnas > 0 and pd.notna(row["rank_gain_donnas"])
+                else np.nan
+            ),
         )
-        row["normalized_rank_gain_gressoney"] = (
-            row["rank_gain_gressoney"] / rank_gressoney
-            if rank_gressoney is not None
-            and rank_gressoney > 0
-            and pd.notna(row["rank_gain_gressoney"])
-            else np.nan
+        row["normalized_rank_gain_gressoney"] = max(
+            -1.0,
+            (  # cap at -1.0 to avoid extreme outliers
+                row["rank_gain_gressoney"] / rank_gressoney
+                if rank_gressoney is not None
+                and rank_gressoney > 0
+                and pd.notna(row["rank_gain_gressoney"])
+                else np.nan
+            ),
         )
 
         decel_donnas = row.get("second_half_deceleration_ratio_donnas", np.nan)
@@ -404,16 +529,19 @@ def _compute_runner_table(
         nrg_donnas = row["normalized_rank_gain_donnas"]
         nrg_gressoney = row["normalized_rank_gain_gressoney"]
 
-        row["execution_index_donnas"] = (
+        row["pacing_index_donnas"] = (
             float(nrg_donnas * decel_donnas)
             if pd.notna(nrg_donnas) and pd.notna(decel_donnas)
             else np.nan
         )
-        row["execution_index_gressoney"] = (
+        row["pacing_index_gressoney"] = (
             float(nrg_gressoney * decel_gressoney)
             if pd.notna(nrg_gressoney) and pd.notna(decel_gressoney)
             else np.nan
         )
+
+        # Keep a generic normalized rank gain for cross-plot coloring.
+        row["normalized_rank_gain"] = row["normalized_rank_gain_donnas"]
 
         if section_gap_speeds:
             section_gap_speeds_np = np.asarray(section_gap_speeds, dtype=float)
@@ -495,11 +623,11 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
         ),
         (
             "donnas_time_ratio",
-            "execution_index_donnas",
+            "pacing_index_donnas",
             "total_time_h",
             "Donnas Time Ratio",
-            "Execution Index (Donnas)",
-            "Donnas ratio vs Execution Index (color: Finish Time)",
+            "Pacing Index (Donnas)",
+            "Donnas ratio vs Pacing Index (color: Finish Time)",
         ),
     ]
 
@@ -539,7 +667,7 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
 
     hist_specs = [
         ("donnas_time_ratio", "Donnas Time Ratio", "Histogram of Donnas Time Ratio"),
-        ("execution_index_donnas", "Execution Index (Donnas)", "Histogram of Execution Index"),
+        ("pacing_index_donnas", "Pacing Index (Donnas)", "Histogram of Pacing Index"),
         (
             "second_half_deceleration_ratio_donnas",
             "Deceleration from Donnas",
@@ -571,7 +699,7 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
         "gressoney_time_ratio",
         "rank_gain_donnas",
         "normalized_rank_gain_donnas",
-        "execution_index_donnas",
+        "pacing_index_donnas",
         "pace_variation_coefficient",
         "total_time_h",
         "second_half_deceleration_ratio_donnas",
@@ -598,6 +726,175 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
     fig_corr.savefig(output_dir / "tor330_pacing_index_correlation_heatmap.png", dpi=170)
     plt.close(fig_corr)
 
+    # --- 4. ITRA race execution index vs aid-station time ratios (6 subplots) ---
+    fig_time_ratio, axes_time_ratio = plt.subplots(2, 3, figsize=(18, 10))
+    time_ratio_specs = [
+        ("valgrisenche_time_ratio", "Valgrisenche"),
+        ("cogne_time_ratio", "Cogne"),
+        ("donnas_time_ratio", "Donnas"),
+        ("gressoney_time_ratio", "Gressoney"),
+        ("valtournenche_time_ratio", "Valtournenche"),
+        ("ollomont_time_ratio", "Ollomont"),
+    ]
+
+    for axis, (x_col, station_label) in zip(axes_time_ratio.ravel(), time_ratio_specs):
+        mask = df[[x_col, "itra_race_execution_index", "normalized_rank_gain"]].notna().all(axis=1)
+        sc = axis.scatter(
+            df.loc[mask, x_col],
+            df.loc[mask, "itra_race_execution_index"],
+            c=df.loc[mask, "normalized_rank_gain"],
+            cmap="viridis",
+            alpha=0.78,
+            s=20,
+        )
+        plt.colorbar(sc, ax=axis, shrink=0.8, label="Normalized Rank Gain")
+        axis.set_xlabel(f"{station_label} Time Ratio")
+        axis.set_ylabel("ITRA Race Execution Index")
+        axis.set_title(f"ITRA Execution vs {station_label} Time Ratio")
+        axis.grid(True, alpha=0.3)
+
+    fig_time_ratio.suptitle(
+        "TOR330 2025 ITRA Race Execution vs Aid-Station Time Ratios",
+        fontsize=14,
+        fontweight="bold",
+    )
+    fig_time_ratio.tight_layout()
+    fig_time_ratio.savefig(output_dir / "tor330_itra_execution_vs_time_ratios.png", dpi=170)
+    plt.close(fig_time_ratio)
+
+    # --- 5. ITRA race execution index vs aid-station deceleration ratios (6 subplots) ---
+    fig_decel, axes_decel = plt.subplots(2, 3, figsize=(18, 10))
+    decel_specs = [
+        ("deceleration_ratio_from_valgrisenche_in", "Valgrisenche"),
+        ("deceleration_ratio_from_cogne_in", "Cogne"),
+        ("deceleration_ratio_from_donnas_in", "Donnas"),
+        ("deceleration_ratio_from_gressoney_in", "Gressoney"),
+        ("deceleration_ratio_from_valtournenche_in", "Valtournenche"),
+        ("deceleration_ratio_from_ollomont_in", "Ollomont"),
+    ]
+
+    for axis, (x_col, station_label) in zip(axes_decel.ravel(), decel_specs):
+        mask = df[[x_col, "itra_race_execution_index", "normalized_rank_gain"]].notna().all(axis=1)
+        sc = axis.scatter(
+            df.loc[mask, x_col],
+            df.loc[mask, "itra_race_execution_index"],
+            c=df.loc[mask, "normalized_rank_gain"],
+            cmap="viridis",
+            alpha=0.78,
+            s=20,
+        )
+        plt.colorbar(sc, ax=axis, shrink=0.8, label="Normalized Rank Gain")
+        axis.set_xlabel(f"{station_label} Deceleration Ratio")
+        axis.set_ylabel("ITRA Race Execution Index")
+        axis.set_title(f"ITRA Execution vs {station_label} Deceleration")
+        axis.grid(True, alpha=0.3)
+
+    fig_decel.suptitle(
+        "TOR330 2025 ITRA Race Execution vs Aid-Station Deceleration Ratios",
+        fontsize=14,
+        fontweight="bold",
+    )
+    fig_decel.tight_layout()
+    fig_decel.savefig(output_dir / "tor330_itra_execution_vs_deceleration_ratios.png", dpi=170)
+    plt.close(fig_decel)
+
+    # --- 6. ITRA race execution summary panel (requested 6 subplots) ---
+    fig_summary, axes_summary = plt.subplots(2, 3, figsize=(18, 10))
+    ax_summary = axes_summary.ravel()
+
+    hist_values = df["itra_race_execution_index"].dropna()
+    ax_summary[0].hist(hist_values, bins=20, color="steelblue", edgecolor="black", alpha=0.8)
+    ax_summary[0].set_xlabel("ITRA Race Execution Index")
+    ax_summary[0].set_ylabel("Count")
+    ax_summary[0].set_title("Histogram of ITRA Race Execution Index")
+    ax_summary[0].grid(True, alpha=0.3)
+
+    mask_1 = (
+        df[["total_time_h", "itra_race_execution_index", "normalized_rank_gain"]]
+        .notna()
+        .all(axis=1)
+    )
+    sc_1 = ax_summary[1].scatter(
+        df.loc[mask_1, "total_time_h"],
+        df.loc[mask_1, "itra_race_execution_index"],
+        c=df.loc[mask_1, "normalized_rank_gain"],
+        cmap="viridis",
+        alpha=0.78,
+        s=20,
+    )
+    plt.colorbar(sc_1, ax=ax_summary[1], shrink=0.8, label="Normalized Rank Gain")
+    ax_summary[1].set_xlabel("Total Time (h)")
+    ax_summary[1].set_ylabel("ITRA Race Execution Index")
+    ax_summary[1].set_title("Total Time vs ITRA Race Execution Index")
+    ax_summary[1].grid(True, alpha=0.3)
+
+    mask_2 = (
+        df[["normalized_rank_gain", "itra_race_execution_index", "total_time_h"]]
+        .notna()
+        .all(axis=1)
+    )
+    sc_2 = ax_summary[2].scatter(
+        df.loc[mask_2, "normalized_rank_gain"],
+        df.loc[mask_2, "itra_race_execution_index"],
+        c=df.loc[mask_2, "total_time_h"],
+        cmap="plasma",
+        alpha=0.78,
+        s=20,
+    )
+    plt.colorbar(sc_2, ax=ax_summary[2], shrink=0.8, label="Total Time (h)")
+    ax_summary[2].set_xlabel("Normalized Rank Gain")
+    ax_summary[2].set_ylabel("ITRA Race Execution Index")
+    ax_summary[2].set_title("Normalized Rank Gain vs ITRA Race Execution Index")
+    ax_summary[2].grid(True, alpha=0.3)
+
+    mask_3 = df[["pace_variation_coefficient", "itra_race_execution_index"]].notna().all(axis=1)
+    ax_summary[3].scatter(
+        df.loc[mask_3, "pace_variation_coefficient"],
+        df.loc[mask_3, "itra_race_execution_index"],
+        color="tab:green",
+        alpha=0.78,
+        s=20,
+    )
+    ax_summary[3].set_xlabel("Pace Variation Coefficient")
+    ax_summary[3].set_ylabel("ITRA Race Execution Index")
+    ax_summary[3].set_title("Pace Variation vs ITRA Race Execution Index")
+    ax_summary[3].grid(True, alpha=0.3)
+
+    mask_4 = df[["donnas_time_ratio", "itra_race_execution_index"]].notna().all(axis=1)
+    ax_summary[4].scatter(
+        df.loc[mask_4, "donnas_time_ratio"],
+        df.loc[mask_4, "itra_race_execution_index"],
+        color="tab:orange",
+        alpha=0.78,
+        s=20,
+    )
+    ax_summary[4].set_xlabel("Donnas Time Ratio")
+    ax_summary[4].set_ylabel("ITRA Race Execution Index")
+    ax_summary[4].set_title("Donnas Time Ratio vs ITRA Race Execution Index")
+    ax_summary[4].grid(True, alpha=0.3)
+
+    mask_5 = df[["pacing_index_donnas", "itra_race_execution_index"]].notna().all(axis=1)
+    ax_summary[5].scatter(
+        df.loc[mask_5, "pacing_index_donnas"],
+        df.loc[mask_5, "itra_race_execution_index"],
+        color="tab:red",
+        alpha=0.78,
+        s=20,
+    )
+    ax_summary[5].set_xlabel("Pacing Index")
+    ax_summary[5].set_ylabel("ITRA Race Execution Index")
+    ax_summary[5].set_title("Pacing Index vs ITRA Race Execution Index")
+    ax_summary[5].grid(True, alpha=0.3)
+
+    fig_summary.suptitle(
+        "TOR330 2025 ITRA Race Execution Index Summary",
+        fontsize=14,
+        fontweight="bold",
+    )
+    fig_summary.tight_layout()
+    fig_summary.savefig(output_dir / "tor330_itra_execution_summary.png", dpi=170)
+    plt.close(fig_summary)
+
 
 def _build_index_table(df: pd.DataFrame) -> pd.DataFrame:
     keep_cols = [
@@ -617,10 +914,20 @@ def _build_index_table(df: pd.DataFrame) -> pd.DataFrame:
         "second_half_deceleration_ratio_gressoney",
         "rank_gain_donnas",
         "rank_gain_gressoney",
+        "normalized_rank_gain",
         "normalized_rank_gain_donnas",
         "normalized_rank_gain_gressoney",
-        "execution_index_donnas",
-        "execution_index_gressoney",
+        "pacing_index_donnas",
+        "pacing_index_gressoney",
+        "race_score",
+        "itra_performance_index",
+        "itra_race_execution_index",
+        "deceleration_ratio_from_valgrisenche_in",
+        "deceleration_ratio_from_cogne_in",
+        "deceleration_ratio_from_donnas_in",
+        "deceleration_ratio_from_gressoney_in",
+        "deceleration_ratio_from_valtournenche_in",
+        "deceleration_ratio_from_ollomont_in",
         "pace_variation_coefficient",
     ]
     return df[[c for c in keep_cols if c in df.columns]].copy()
@@ -651,6 +958,18 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("analysis/results/analyze_tor330_pacing_strategies"),
         help="Directory where CSV/Excel and plots are written",
+    )
+    parser.add_argument(
+        "--race-scores-csv",
+        type=Path,
+        default=Path("analysis/data/tor330_race_scores.csv"),
+        help="Race score CSV used to compute ITRA race execution index",
+    )
+    parser.add_argument(
+        "--itra-indexes-json",
+        type=Path,
+        default=Path("analysis/data/tor330_2025_itra_indexes.json"),
+        help="ITRA performance index JSON used to compute ITRA race execution index",
     )
     return parser.parse_args()
 
@@ -687,6 +1006,11 @@ def main() -> None:
     sections = _build_section_models(course, checkpoint_distances_km)
 
     runner_df = _compute_runner_table(snapshot, sections, args.max_finish_hours)
+    runner_df = _enrich_with_itra_execution_index(
+        runner_df,
+        race_scores_csv=args.race_scores_csv,
+        itra_indexes_json=args.itra_indexes_json,
+    )
     if runner_df.empty:
         raise ValueError("No finishers left after filtering. Try a larger --max-finish-hours.")
 
@@ -721,7 +1045,8 @@ def main() -> None:
         f"decel_donnas={index_df['second_half_deceleration_ratio_donnas'].median():.3f}, "
         f"decel_gressoney={index_df['second_half_deceleration_ratio_gressoney'].median():.3f}, "
         f"rank_gain_donnas={index_df['rank_gain_donnas'].median():.1f}, "
-        f"exec_index_donnas={index_df['execution_index_donnas'].median():.3f}, "
+        f"pacing_index_donnas={index_df['pacing_index_donnas'].median():.3f}, "
+        f"itra_race_execution_index={index_df['itra_race_execution_index'].median():.3f}, "
         f"pace_cv={index_df['pace_variation_coefficient'].median():.3f}"
     )
 
