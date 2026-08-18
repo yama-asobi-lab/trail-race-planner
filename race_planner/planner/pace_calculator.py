@@ -388,6 +388,134 @@ class PaceCalculator:
         vertical_km_values = altitude_above_threshold_m / 1000.0
         return 1.0 + self.altitude_slowdown_per_vertical_km * vertical_km_values
 
+    def _build_cumulative_sleep_duration_s_values(
+        self,
+        cumulative_distance_m_values: np.ndarray,
+        aid_stations: List[Dict],
+    ) -> np.ndarray:
+        """Build cumulative sleep duration per course point for the sigmoidal model."""
+        sleep_at_distance: dict[float, float] = {}
+        for aid in aid_stations:
+            sleep_s = aid.get("sleep_duration_s")
+            if sleep_s is None:
+                continue
+
+            sleep_s = float(sleep_s)
+            stop_s = float(aid.get("stop_time_s", 0))
+            if stop_s < sleep_s:
+                raise ValueError(
+                    f"Aid station '{aid.get('name', '?')}': stop_time_s ({stop_s:.0f} s) "
+                    f"must be >= sleep_duration_s ({sleep_s:.0f} s)"
+                )
+
+            d_km = float(aid.get("distance_km", 0.0))
+            sleep_at_distance[d_km] = sleep_s
+
+        if not sleep_at_distance:
+            return np.zeros(len(cumulative_distance_m_values), dtype=float)
+
+        sorted_sleep = sorted(sleep_at_distance.items())
+        cumulative_sleep_s = 0.0
+        sleep_thresholds_m: list[float] = []
+        cumulative_sleep_vals: list[float] = []
+        for d_km, sleep_s in sorted_sleep:
+            sleep_thresholds_m.append(d_km * 1000.0)
+            cumulative_sleep_s += sleep_s
+            cumulative_sleep_vals.append(cumulative_sleep_s)
+
+        sleep_thresholds_arr = np.array(sleep_thresholds_m, dtype=float)
+        cumulative_sleep_vals_arr = np.array(cumulative_sleep_vals, dtype=float)
+        per_point_sleep_s = np.zeros(len(cumulative_distance_m_values), dtype=float)
+        for j in range(len(sleep_thresholds_arr)):
+            mask = cumulative_distance_m_values >= sleep_thresholds_arr[j]
+            per_point_sleep_s[mask] = cumulative_sleep_vals_arr[j]
+
+        return per_point_sleep_s
+
+    def _build_pace_profile_data(
+        self,
+        point_times_s: np.ndarray,
+        point_grade_weighted_distance_km_values: np.ndarray,
+        altitude_multiplier_values: np.ndarray,
+        cumulative_distance_km_values: np.ndarray,
+        cumulative_distance_m_values: np.ndarray,
+        elevation_m_values: np.ndarray,
+        planned_point_mask: np.ndarray,
+        aid_stations: List[Dict],
+        total_time_s: float,
+    ) -> dict:
+        """Create a plot-ready payload so visualization can stay pure rendering."""
+        if not np.any(planned_point_mask):
+            raise ValueError("No course points found up to planned finish distance")
+
+        point_times_s_planned = point_times_s[planned_point_mask]
+        point_gap_weighted_km_planned = point_grade_weighted_distance_km_values[planned_point_mask]
+        point_altitude_multiplier_planned = altitude_multiplier_values[planned_point_mask]
+        cumulative_distance_km_planned = cumulative_distance_km_values[planned_point_mask]
+        cumulative_distance_m_planned = cumulative_distance_m_values[planned_point_mask]
+        elevation_m_planned = elevation_m_values[planned_point_mask]
+
+        # Back-converted GAP pace should remove grade effects and stay relatively smooth.
+        point_gap_pace_s_per_km_planned = np.full_like(point_times_s_planned, np.nan, dtype=float)
+        valid_gap_distance_mask = point_gap_weighted_km_planned > 1e-6
+        valid_altitude_mask = point_altitude_multiplier_planned > 1e-12
+        valid_mask = valid_gap_distance_mask & valid_altitude_mask
+        point_gap_pace_s_per_km_planned[valid_mask] = (
+            point_times_s_planned[valid_mask]
+            / point_gap_weighted_km_planned[valid_mask]
+            / point_altitude_multiplier_planned[valid_mask]
+        )
+        pace_min_per_km_planned = point_gap_pace_s_per_km_planned / 60.0
+
+        cumulative_running_time_s_planned = np.cumsum(point_times_s_planned)
+        cumulative_stop_before_point_s_planned = np.zeros_like(cumulative_running_time_s_planned)
+
+        aid_plot_points: list[dict[str, float | int | str]] = []
+        break_indices: list[int] = []
+        for aid in aid_stations:
+            aid_name = str(aid.get("name", "Aid station"))
+            aid_distance_km = float(aid.get("distance_km", 0.0))
+            aid_distance_m = aid_distance_km * 1000.0
+            stop_time_s = float(aid.get("stop_time_s", 0.0))
+
+            aid_idx = int(np.abs(cumulative_distance_m_planned - aid_distance_m).argmin())
+            aid_elapsed_time_h = float(
+                (
+                    cumulative_running_time_s_planned[aid_idx]
+                    + cumulative_stop_before_point_s_planned[aid_idx]
+                )
+                / 3600.0
+            )
+            aid_plot_points.append(
+                {
+                    "name": aid_name,
+                    "index": aid_idx,
+                    "distance_km": float(cumulative_distance_km_planned[aid_idx]),
+                    "elapsed_time_h": aid_elapsed_time_h,
+                    "pace_min_per_km": float(pace_min_per_km_planned[aid_idx]),
+                    "stop_time_s": stop_time_s,
+                }
+            )
+
+            if stop_time_s > 0:
+                cumulative_stop_before_point_s_planned[aid_idx + 1 :] += stop_time_s
+                if 0 < aid_idx < len(cumulative_running_time_s_planned) - 1:
+                    break_indices.append(aid_idx)
+
+        elapsed_time_h_planned = (
+            cumulative_running_time_s_planned + cumulative_stop_before_point_s_planned
+        ) / 3600.0
+
+        return {
+            "elapsed_time_h": elapsed_time_h_planned.astype(float).tolist(),
+            "distance_km": cumulative_distance_km_planned.astype(float).tolist(),
+            "pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
+            "elevation_m": elevation_m_planned.astype(float).tolist(),
+            "aid_points": aid_plot_points,
+            "break_indices": break_indices,
+            "total_time_h": float(total_time_s / 3600.0),
+        }
+
     # ------------------------------------------------------------------
     # Pacing plan
     # ------------------------------------------------------------------
@@ -503,40 +631,10 @@ class PaceCalculator:
         )
 
         if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
-            # Build per-point cumulative sleep duration array.
-            # Sleep duration is taken from the explicit sleep_duration_s field on each
-            # aid station.  stop_time_s must be >= sleep_duration_s (validated here).
-            sleep_at_distance: dict[float, float] = {}
-            for aid in aid_stations:
-                sleep_s = aid.get("sleep_duration_s")
-                if sleep_s is not None:
-                    sleep_s = float(sleep_s)
-                    stop_s = float(aid.get("stop_time_s", 0))
-                    if stop_s < sleep_s:
-                        raise ValueError(
-                            f"Aid station '{aid.get('name', '?')}': stop_time_s ({stop_s:.0f} s) "
-                            f"must be >= sleep_duration_s ({sleep_s:.0f} s)"
-                        )
-                    d_km = float(aid.get("distance_km", 0.0))
-                    sleep_at_distance[d_km] = sleep_s
-            if sleep_at_distance:
-                sorted_sleep = sorted(sleep_at_distance.items())
-                cumulative_sleep_s = 0.0
-                sleep_thresholds = []
-                cumulative_sleep_vals = []
-                for d_km, sleep_s in sorted_sleep:
-                    sleep_thresholds.append(d_km * 1000.0)
-                    cumulative_sleep_s += sleep_s
-                    cumulative_sleep_vals.append(cumulative_sleep_s)
-                sleep_thresholds_arr = np.array(sleep_thresholds, dtype=float)
-                cumulative_sleep_vals_arr = np.array(cumulative_sleep_vals, dtype=float)
-                per_point_sleep_s = np.zeros(len(cumulative_distance_m_values), dtype=float)
-                for j in range(len(sleep_thresholds_arr)):
-                    mask = cumulative_distance_m_values >= sleep_thresholds_arr[j]
-                    per_point_sleep_s[mask] = cumulative_sleep_vals_arr[j]
-            else:
-                per_point_sleep_s = np.zeros(len(cumulative_distance_m_values), dtype=float)
-
+            per_point_sleep_s = self._build_cumulative_sleep_duration_s_values(
+                cumulative_distance_m_values=cumulative_distance_m_values,
+                aid_stations=aid_stations,
+            )
             fatigue_multiplier_values = self.fatigue_multiplier(
                 progress_fraction_values,
                 cumulative_distance_km_values,
@@ -708,5 +806,16 @@ class PaceCalculator:
         )
         df.attrs["use_altitude_effects"] = self.use_altitude_effects
         df.attrs["altitude_slowdown_per_vertical_km"] = self.altitude_slowdown_per_vertical_km
+        df.attrs["pace_profile_data"] = self._build_pace_profile_data(
+            point_times_s=point_times_s,
+            point_grade_weighted_distance_km_values=point_grade_weighted_distance_km_values,
+            altitude_multiplier_values=altitude_multiplier_values,
+            cumulative_distance_km_values=cumulative_distance_km_values,
+            cumulative_distance_m_values=cumulative_distance_m_values,
+            elevation_m_values=elevation_m_values,
+            planned_point_mask=planned_point_mask,
+            aid_stations=aid_stations,
+            total_time_s=cumulative_elapsed_time_s,
+        )
 
         return df
