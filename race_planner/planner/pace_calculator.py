@@ -465,17 +465,30 @@ class PaceCalculator:
         cumulative_distance_m_planned = cumulative_distance_m_values[planned_point_mask]
         elevation_m_planned = elevation_m_values[planned_point_mask]
 
-        # Back-converted GAP pace should remove grade effects and stay relatively smooth.
+        # Back-converted GAP pace removes grade effects and keeps the terrain
+        # signal from dominating the fatigue trend; actual course pace keeps the
+        # raw slope effect so the two views can be compared directly.
         point_gap_pace_s_per_km_planned = np.full_like(point_times_s_planned, np.nan, dtype=float)
+        point_actual_pace_s_per_km_planned = np.full_like(
+            point_times_s_planned, np.nan, dtype=float
+        )
         valid_gap_distance_mask = point_gap_weighted_km_planned > 1e-6
+        valid_actual_distance_mask = cumulative_distance_km_planned > 1e-6
         valid_altitude_mask = point_altitude_multiplier_planned > 1e-12
-        valid_mask = valid_gap_distance_mask & valid_altitude_mask
-        point_gap_pace_s_per_km_planned[valid_mask] = (
-            point_times_s_planned[valid_mask]
-            / point_gap_weighted_km_planned[valid_mask]
-            / point_altitude_multiplier_planned[valid_mask]
+        valid_gap_mask = valid_gap_distance_mask & valid_altitude_mask
+        valid_actual_mask = valid_actual_distance_mask & valid_altitude_mask
+        point_gap_pace_s_per_km_planned[valid_gap_mask] = (
+            point_times_s_planned[valid_gap_mask]
+            / point_gap_weighted_km_planned[valid_gap_mask]
+            / point_altitude_multiplier_planned[valid_gap_mask]
+        )
+        point_actual_pace_s_per_km_planned[valid_actual_mask] = (
+            point_times_s_planned[valid_actual_mask]
+            / cumulative_distance_km_planned[valid_actual_mask]
+            / point_altitude_multiplier_planned[valid_actual_mask]
         )
         pace_min_per_km_planned = point_gap_pace_s_per_km_planned / 60.0
+        actual_pace_min_per_km_planned = point_actual_pace_s_per_km_planned / 60.0
 
         cumulative_running_time_s_planned = np.cumsum(point_times_s_planned)
         cumulative_stop_before_point_s_planned = np.zeros_like(cumulative_running_time_s_planned)
@@ -520,6 +533,8 @@ class PaceCalculator:
             "elapsed_time_h": elapsed_time_h_planned.astype(float).tolist(),
             "distance_km": cumulative_distance_km_planned.astype(float).tolist(),
             "pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
+            "actual_pace_min_per_km": actual_pace_min_per_km_planned.astype(float).tolist(),
+            "grade_adjusted_pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
             "elevation_m": elevation_m_planned.astype(float).tolist(),
             "aid_points": aid_plot_points,
             "break_indices": break_indices,

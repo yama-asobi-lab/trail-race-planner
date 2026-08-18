@@ -131,12 +131,12 @@ aid_stations:
   - name: "**COGNE**"
     distance_km: 104
     elevation_m: 1536   # reference
-    stop_time_s: 60 * 90
+    stop_time_s: 6000
     notes: "Base Vita! Waypoint: Valnontey (1670 m). 3 km road down from here."
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
     cutoff_in_time: "D3 04:00"
     car_access: true
-    sleep_duration_s: 60 * 90
+    sleep_duration_s: 5400
 
   - name: "Goilles Dessous"
     distance_km: 109.8
@@ -241,12 +241,12 @@ aid_stations:
   - name: "**GRESSONEY**"
     distance_km: 203.8
     elevation_m: 1376   # reference
-    stop_time_s: 60 * 100
+    stop_time_s: 6000
     notes: "Base Vita!"
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
     cutoff_in_time: "D4 23:00"
     car_access: true
-    sleep_duration_s: 60 * 90
+    sleep_duration_s: 5400
 
   - name: "Rifugio Alpenzu"
     distance_km: 208.9
@@ -338,12 +338,12 @@ aid_stations:
   - name: "**OLLOMONT**"
     distance_km: 286.5
     elevation_m: 1384   # reference
-    stop_time_s: 60 * 100
+    stop_time_s: 6000
     notes: "Base Vita! Waypoint: Col Brison (2519 m, A) Berrio Damon (1936 m)"
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"
     cutoff_in_time: "D6 17:00"
     car_access: true
-    sleep_duration_s: 60 * 90
+    sleep_duration_s: 5400
 
   - name: "Rifugio Champillon"
     distance_km: 291.2

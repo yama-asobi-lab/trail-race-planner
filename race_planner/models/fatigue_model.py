@@ -19,6 +19,12 @@ The sigmoid is defined in elapsed-time space::
                + ΔV_circadian(t)
                + ΔV_sleep(t))
 
+For planner-facing pacing, the raw circadian rhythm is intentionally suppressed.
+The positive phase of the oscillation is not used in a single-event pacing
+model because it reverses the general fatigue trend and makes the athlete run
+faster again later in the race, which is not the intended race-planning
+behavior.
+
 The inflection time and steepness are derived from the athlete's relative
 starting intensity S = V_start / V_threshold via power laws::
 
@@ -295,7 +301,11 @@ class MultiDaySigmoidalFatigueModel:
         """
         elapsed_hours = elapsed_time_s / 3600.0
         sigmoid_velocity = self._sigmoid_velocity(elapsed_hours)
-        circadian_delta = self._circadian_delta(elapsed_hours)
+        # The planner-facing curve should remain monotone in fatigue. The raw
+        # circadian oscillation is retained as a model description, but it is not
+        # applied to pacing so that a race plan does not speed up again later in
+        # the event.
+        circadian_delta = 0.0
         sleep_recovery = self._sleep_recovery_delta(cumulative_sleep_duration_s)
 
         return max(self.floor_speed_kmh, sigmoid_velocity + circadian_delta + sleep_recovery)
@@ -376,11 +386,13 @@ class MultiDaySigmoidalFatigueModel:
         return self.floor_speed_kmh + self._v_delta / (1.0 + math.exp(exponent))
 
     def _circadian_delta(self, elapsed_hours: float) -> float:
-        """Circadian oscillation around the floor speed.
+        """Raw circadian oscillation around the floor speed.
 
         The term is ``A * V_floor * sin(2π(t - φ) / T)`` with phase offset
         ``φ`` and period ``T``. It captures the late-day performance rhythm that
-        emerges after the athlete has reached the fatigue floor.
+        emerges after the athlete has reached the fatigue floor. The planner
+        uses only the negative half-cycle, because the positive phase can
+        reverse the overall fatigue progression within a single race plan.
         """
         phase = 2.0 * math.pi * (elapsed_hours - self.circadian_phase_offset_hours)
         phase /= self.circadian_period_hours

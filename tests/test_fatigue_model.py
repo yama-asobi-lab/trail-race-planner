@@ -170,6 +170,28 @@ def test_fatigue_multiplier_increases_with_distance():
         )
 
 
+def test_fatigue_multiplier_stays_monotone_with_circadian_amplitude():
+    """Circadian modulation must not reverse the fatigue-driven worsening of pace."""
+    model = MultiDaySigmoidalFatigueModel(
+        threshold_speed_kmh=15.3,
+        floor_speed_kmh=5.0,
+        start_pct=0.55,
+        s_0=0.65,
+        t_0_hours=18.0,
+        k_0=0.45,
+        circadian_amplitude=0.15,
+        circadian_period_hours=24.0,
+        sleep_half_life_hours=2.5,
+    )
+    distances = [float(d) for d in range(0, 161, 10)]
+    multipliers = [model.pace_multiplier_for_distance(d) for d in distances]
+    for i in range(len(multipliers) - 1):
+        assert multipliers[i] <= multipliers[i + 1], (
+            f"multiplier decreased from {multipliers[i]:.4f} to {multipliers[i+1]:.4f} "
+            f"at d={distances[i+1]}"
+        )
+
+
 def test_fatigue_multiplier_sleep_reduces_value(tor_model):
     m_no_sleep = tor_model.pace_multiplier_for_distance(200.0, 0)
     m_with_sleep = tor_model.pace_multiplier_for_distance(200.0, 3600)

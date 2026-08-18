@@ -369,6 +369,18 @@ def test_calculate_pacing_total_time_attrs(carlos_calc, tgt_course, race_config)
     assert "overall_avg_grade_adjusted_pace_mmss" in df.attrs
 
 
+def test_pace_profile_data_exposes_grade_adjusted_pace(carlos_calc, tgt_course, race_config):
+    """The profile payload must distinguish raw race pace from GAP-normalized pace."""
+    aid_stations = race_config["aid_stations"]
+    df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
+    profile = df.attrs["pace_profile_data"]
+
+    assert "actual_pace_min_per_km" in profile
+    assert "grade_adjusted_pace_min_per_km" in profile
+    assert np.isfinite(profile["actual_pace_min_per_km"]).any()
+    assert np.isfinite(profile["grade_adjusted_pace_min_per_km"]).any()
+
+
 def test_calculate_pacing_flat_distance_mode(carlos_calc, tgt_course, race_config):
     aid_stations = race_config["aid_stations"]
     df = carlos_calc.calculate_pacing(tgt_course, aid_stations, use_fed=False)
