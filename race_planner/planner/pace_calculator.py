@@ -175,7 +175,9 @@ class PaceCalculator:
         ref_time_s: float,
         gap_curve: Optional[np.ndarray] = None,
         fatigue_total_decay_pct: float = 0.0,
-        fatigue_model_instance: Optional[Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]] = None,
+        fatigue_model_instance: Optional[
+            Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]
+        ] = None,
         altitude_slowdown_per_vertical_km: float = ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM,
         use_altitude_effects: bool = True,
     ) -> None:
@@ -193,7 +195,9 @@ class PaceCalculator:
         # Auto-wrap a bare fatigue_total_decay_pct into a LinearFatigueModel so
         # that all fatigue logic is centralised in the model layer.
         if fatigue_model_instance is None and self.fatigue_total_decay_pct > 0.0:
-            fatigue_model_instance = LinearFatigueModel(total_decay_pct=self.fatigue_total_decay_pct)
+            fatigue_model_instance = LinearFatigueModel(
+                total_decay_pct=self.fatigue_total_decay_pct
+            )
         self.fatigue_model_instance = fatigue_model_instance
         self.altitude_slowdown_per_vertical_km = float(altitude_slowdown_per_vertical_km)
         if self.altitude_slowdown_per_vertical_km < 0.0:
@@ -209,7 +213,9 @@ class PaceCalculator:
         cls,
         athlete_config: Dict,
         fatigue_total_decay_pct: float = 0.0,
-        fatigue_model_instance: Optional[Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]] = None,
+        fatigue_model_instance: Optional[
+            Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]
+        ] = None,
         use_altitude_effects: bool = True,
     ) -> "PaceCalculator":
         """
@@ -698,9 +704,7 @@ class PaceCalculator:
         df.attrs["fatigue_model_type"] = (
             "sigmoid"
             if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel)
-            else "linear"
-            if isinstance(self.fatigue_model_instance, LinearFatigueModel)
-            else "none"
+            else "linear" if isinstance(self.fatigue_model_instance, LinearFatigueModel) else "none"
         )
         df.attrs["use_altitude_effects"] = self.use_altitude_effects
         df.attrs["altitude_slowdown_per_vertical_km"] = self.altitude_slowdown_per_vertical_km

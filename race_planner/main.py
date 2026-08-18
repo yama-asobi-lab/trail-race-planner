@@ -1134,9 +1134,7 @@ def main():
         f"{pacing_df.attrs.get('overall_avg_grade_adjusted_pace_mmss', '-')}/km"
     )
     if isinstance(fatigue_model_instance, LinearFatigueModel):
-        logger.info(
-            f"  Fatigue model:  Linear decay {fatigue_model_instance.total_decay_pct:.1f}%"
-        )
+        logger.info(f"  Fatigue model:  Linear decay {fatigue_model_instance.total_decay_pct:.1f}%")
     elif isinstance(fatigue_model_instance, MultiDaySigmoidalFatigueModel):
         logger.info(
             f"  Fatigue model:  Sigmoid "
