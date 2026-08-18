@@ -28,7 +28,7 @@ race:
     fatigue_parameters:
       # Starting speed as a fraction of Lactate Threshold.
       # TOR athletes start close to the fatigue floor (~55% of LT).
-      start_threshold_fraction: 0.55
+      start_threshold_fraction: 0.7
 
       # Circadian rhythm amplitude (fraction of floor speed): ±15%.
       circadian_amplitude: 0.15
