@@ -71,6 +71,7 @@ from race_planner.models.tools import (
     seconds_to_hms,
 )
 from race_planner.planner import PaceCalculator
+from race_planner.visualization.pace_profile import plot_grade_adjusted_pace_profile
 from race_planner.visualization.race_plan_table import generate_race_plan_table_report
 
 
@@ -1012,7 +1013,25 @@ def main():
     logger.success(f"Pacing plan written to sheet '{sheet_name}' in {output_path}")
 
     # ------------------------------------------------------------------
-    # 7. Nutrition plan sheet (optional)
+    # 7. Grade-adjusted pace profile PNG
+    # ------------------------------------------------------------------
+    try:
+        race_name = race_info.get("name", "Race Plan")
+        report_stem = output_path.stem.removesuffix("_segment_analysis")
+        pace_profile_path = output_path.parent / f"{report_stem}_grade_adjusted_pace_profile.png"
+        pace_profile_data = pacing_df.attrs.get("pace_profile_data")
+        if pace_profile_data is None:
+            raise ValueError("Missing 'pace_profile_data' in pacing result")
+        plot_grade_adjusted_pace_profile(
+            output_path=pace_profile_path,
+            pace_profile_data=pace_profile_data,
+        )
+        logger.success(f"Grade-adjusted pace profile written to: {pace_profile_path}")
+    except Exception as exc:
+        logger.error(f"Grade-adjusted pace profile generation failed: {exc}")
+
+    # ------------------------------------------------------------------
+    # 8. Nutrition plan sheet (optional)
     # ------------------------------------------------------------------
     carb_plan: dict | None = None
     nutrition_cfg = race_config.get("nutrition")
@@ -1082,7 +1101,7 @@ def main():
             logger.error(f"Nutrition plan generation failed: {exc}")
 
     # ------------------------------------------------------------------
-    # 8. Generate smartphone-friendly race plan HTML report
+    # 9. Generate smartphone-friendly race plan HTML report
     # ------------------------------------------------------------------
     try:
         race_name = race_info.get("name", "Race Plan")
@@ -1134,9 +1153,7 @@ def main():
         f"{pacing_df.attrs.get('overall_avg_grade_adjusted_pace_mmss', '-')}/km"
     )
     if isinstance(fatigue_model_instance, LinearFatigueModel):
-        logger.info(
-            f"  Fatigue model:  Linear decay {fatigue_model_instance.total_decay_pct:.1f}%"
-        )
+        logger.info(f"  Fatigue model:  Linear decay {fatigue_model_instance.total_decay_pct:.1f}%")
     elif isinstance(fatigue_model_instance, MultiDaySigmoidalFatigueModel):
         logger.info(
             f"  Fatigue model:  Sigmoid "

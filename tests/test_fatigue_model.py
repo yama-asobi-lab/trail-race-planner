@@ -96,8 +96,14 @@ def test_inflection_at_t0_for_reference_intensity():
 
 def test_faster_start_inflects_earlier():
     """A higher starting intensity should produce an earlier inflection."""
-    common = dict(threshold_speed_kmh=15.3, floor_speed_kmh=5.0, s_0=0.65,
-                  t_0_hours=18.0, k_0=0.45, circadian_amplitude=0.0)
+    common = dict(
+        threshold_speed_kmh=15.3,
+        floor_speed_kmh=5.0,
+        s_0=0.65,
+        t_0_hours=18.0,
+        k_0=0.45,
+        circadian_amplitude=0.0,
+    )
     m_conservative = MultiDaySigmoidalFatigueModel(start_pct=0.55, **common)
     m_aggressive = MultiDaySigmoidalFatigueModel(start_pct=0.75, **common)
     assert m_aggressive._t_inflection < m_conservative._t_inflection
@@ -188,4 +194,3 @@ def test_pace_calculator_fatigue_multiplier_array(tor_model):
     )
     assert multipliers.shape == (4,)
     assert all(m > 0 for m in multipliers)
-
