@@ -357,7 +357,7 @@ class PaceCalculator:
             assert cumulative_sleep_duration_s_values is not None
             return np.array(
                 [
-                    self.fatigue_model_instance.fatigue_multiplier_for_distance(float(d), float(s))
+                    self.fatigue_model_instance.pace_multiplier_for_distance(float(d), float(s))
                     for d, s in zip(
                         cumulative_distance_km_values, cumulative_sleep_duration_s_values
                     )

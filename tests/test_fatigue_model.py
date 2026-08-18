@@ -77,6 +77,23 @@ def test_velocity_never_below_floor(tor_model):
         assert v >= tor_model.floor_speed_kmh, f"velocity below floor at {t_hours}h: {v}"
 
 
+def test_distance_time_inversion_matches_integrated_velocity(tor_model):
+    """Distance-time conversion must be consistent with the actual velocity curve."""
+    target_distance_km = 100.0
+    elapsed_hours = tor_model.elapsed_hours_for_distance(target_distance_km)
+    distance_from_time = tor_model.distance_travelled_in_time(elapsed_hours)
+    assert distance_from_time == pytest.approx(target_distance_km, rel=1e-3)
+    assert tor_model.velocity_at_distance(target_distance_km) == pytest.approx(
+        tor_model.velocity_at_time(elapsed_hours * 3600.0), rel=1e-6
+    )
+
+
+def test_elapsed_time_increases_monotonically_with_distance(tor_model):
+    distances = [0.0, 10.0, 50.0, 100.0, 200.0]
+    times = [tor_model.elapsed_hours_for_distance(d) for d in distances]
+    assert times == pytest.approx(sorted(times), rel=1e-12)
+
+
 def test_inflection_at_t0_for_reference_intensity():
     """At S == S_0, inflection should occur at t_0_hours."""
     model = MultiDaySigmoidalFatigueModel(
