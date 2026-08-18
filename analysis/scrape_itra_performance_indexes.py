@@ -24,6 +24,8 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
+from analyze_tor330_pacing_strategies import _normalize_runner_name, _load_snapshot
+
 RACE_RESULTS_URL = (
     "https://itra.run/Races/RaceResults/" "TOR330...Tor.des.G%C3%A9ants%C2%AE/2025/98185"
 )
@@ -67,6 +69,8 @@ BLOCK_PAGE_MARKERS = (
     "security check",
     "please wait while",
 )
+
+CHECKPOINTS_SNAPSHOT_PATH = Path("analysis/data/tor330_2025_checkpoints_snapshot.json")
 
 
 def build_headers() -> dict[str, str]:
@@ -112,6 +116,24 @@ def is_rate_limited_response(resp: requests.Response, context: str = "") -> bool
         return True
 
     return False
+
+
+def get_finisher_names(snapshot_path: Path) -> list[str]:
+    snapshot = _load_snapshot(snapshot_path)
+
+    finishers = []
+    for runner in snapshot.get("runners", []):
+        checkpoint_times = runner.get("checkpoint_times", {})
+
+        # A finisher will have a non-null string for the FINISH checkpoint
+        if checkpoint_times.get("FINISH"):
+            # Construct the name for the scraper
+            athlete = runner.get("athlete", {})
+            first = athlete.get("nome", "")
+            last = athlete.get("cognome", "")
+            finishers.append(f"{last} {first}".strip())
+
+    return finishers
 
 
 def fetch_runner_links(session: requests.Session) -> list[dict]:
@@ -246,6 +268,11 @@ def main() -> None:
     output_path: Path = args.output
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Get the raw finisher names and normalize them into a set for fast, order-agnostic matching
+    raw_finishers = get_finisher_names(CHECKPOINTS_SNAPSHOT_PATH)
+    valid_finisher_names = set(_normalize_runner_name(name) for name in raw_finishers)
+    print(f"Found {len(valid_finisher_names)} finishers in snapshot.")
+
     # Load existing data if resuming
     existing: dict[str, dict] = {}
     if args.resume and output_path.exists():
@@ -264,7 +291,7 @@ def main() -> None:
 
     for attempt in range(args.max_retries):
         try:
-            runners = fetch_runner_links(session)
+            all_runners = fetch_runner_links(session)
             break
         except RateLimitedError:
             wait = min(args.cooldown * (2**attempt) + random.uniform(0.0, 5.0), 600.0)
@@ -279,6 +306,32 @@ def main() -> None:
             warm_up_session(session, delay=max(5.0, args.cooldown / 2))
     else:
         raise RuntimeError("Could not fetch race results after repeated anti-bot blocks.")
+
+    # Filter the fetched ITRA runners to only include finishers
+    runners = []
+    matched_itra_names: set[str] = set()
+    for r in all_runners:
+        # Assuming the dictionary key is 'name_from_link', adjust if it is named differently
+        normalized_itra_name = _normalize_runner_name(r.get("name_from_link", ""))
+        # Keep a record of every normalized name we see on ITRA
+        matched_itra_names.add(normalized_itra_name)
+        if normalized_itra_name in valid_finisher_names:
+            runners.append(r)
+
+    print(f"Filtered down from {len(all_runners)} total ITRA entries to {len(runners)} finishers.")
+
+    # --- DEBUGGING BLOCK ---
+    missing_from_itra = valid_finisher_names - matched_itra_names
+    if missing_from_itra:
+        print(
+            f"\n[!] Could not match {len(missing_from_itra)} finishers from the snapshot to ITRA."
+        )
+        print("Here are some of the missing names to help diagnose the issue:")
+        # Print up to 15 missing names
+        for name in list(missing_from_itra)[:15]:
+            print(f"  - Snapshot Name: {name}")
+        print("\n")
+    # -----------------------
 
     if args.limit:
         runners = runners[: args.limit]

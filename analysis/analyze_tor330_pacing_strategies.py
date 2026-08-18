@@ -119,7 +119,10 @@ def _normalize_runner_name(name: str | None) -> str:
     ascii_name = "".join(ch for ch in ascii_name if not unicodedata.combining(ch))
     ascii_name = ascii_name.upper().strip()
     ascii_name = re.sub(r"[^A-Z0-9 ]+", " ", ascii_name)
-    return re.sub(r"\s+", " ", ascii_name).strip()
+    ascii_name = re.sub(r"\s+", " ", ascii_name).strip()
+
+    # Sort the name tokens alphabetically so that "FIRST LAST" == "LAST FIRST"
+    return " ".join(sorted(ascii_name.split()))
 
 
 def _load_race_scores(race_scores_csv: Path) -> pd.DataFrame:

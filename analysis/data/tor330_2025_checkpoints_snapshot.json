@@ -3490,7 +3490,7 @@
       "finish_timestamp": "2025-09-18T22:25:54+00:00",
       "athlete": {
         "nome": "Joni",
-        "cognome": "VÃ¤nttinen",
+        "cognome": "Vanttinen",
         "nazione": "fi",
         "sesso": true,
         "team": null
@@ -3765,7 +3765,7 @@
       "finish_timestamp": "2025-09-18T23:14:34.134+00:00",
       "athlete": {
         "nome": "Andi",
-        "cognome": "MamiÄ‡",
+        "cognome": "Mamic",
         "nazione": "si",
         "sesso": true,
         "team": "ENDorFIN"
@@ -5265,7 +5265,7 @@
       "finish_timestamp": "2025-09-19T05:45:08+00:00",
       "athlete": {
         "nome": "MEGAN",
-        "cognome": "ARAUZO KONO",
+        "cognome": "KONO",
         "nazione": "us",
         "sesso": false,
         "team": "NA"
@@ -6783,7 +6783,7 @@
       "finish_timestamp": "2025-09-19T11:31:18+00:00",
       "athlete": {
         "nome": "Adrian",
-        "cognome": "HÃ¼ttl",
+        "cognome": "Huttl",
         "nazione": "de",
         "sesso": true,
         "team": null
@@ -7233,7 +7233,7 @@
       "finish_timestamp": "2025-09-19T12:30:04+00:00",
       "athlete": {
         "nome": "HEIKKI",
-        "cognome": "KÃ„SNÃ„NEN",
+        "cognome": "KASNANEN",
         "nazione": "fi",
         "sesso": true,
         "team": "CrossFit Kirkkonummi"
@@ -7457,8 +7457,8 @@
       "total_time": "5 days 05:15:35.786",
       "finish_timestamp": "2025-09-19T12:46:28+00:00",
       "athlete": {
-        "nome": "LÃ¼der ",
-        "cognome": "Schulz-Nigmann",
+        "nome": "Luder ",
+        "cognome": "Schulz Nigmann",
         "nazione": "de",
         "sesso": true,
         "team": "Triathlon Equipe Elz"
@@ -8432,7 +8432,7 @@
       "total_time": "5 days 07:53:30.256",
       "finish_timestamp": "2025-09-19T15:17:14+00:00",
       "athlete": {
-        "nome": "JÃ©rÃ´me",
+        "nome": "Jeromme",
         "cognome": "CAVIGLIA",
         "nazione": "fr",
         "sesso": true,
@@ -10649,7 +10649,7 @@
       "total_time": "5 days 09:57:50.467",
       "finish_timestamp": "2025-09-19T21:29:17+00:00",
       "athlete": {
-        "nome": "PAOLO FRANCESCO",
+        "nome": "PAOLO",
         "cognome": "ZANI",
         "nazione": "it",
         "sesso": true,
@@ -15469,8 +15469,8 @@
       "total_time": "6 days 01:19:48.055",
       "finish_timestamp": "2025-09-20T09:09:00+00:00",
       "athlete": {
-        "nome": "SÃNDOR",
-        "cognome": "SZABÃ“",
+        "nome": "SANDOR",
+        "cognome": "SZABO",
         "nazione": "hu",
         "sesso": true,
         "team": "Gizion"
@@ -17893,7 +17893,7 @@
       "finish_timestamp": "2025-09-20T14:42:44+00:00",
       "athlete": {
         "nome": "Christophe",
-        "cognome": "FontaniÃ©",
+        "cognome": "Fontanie",
         "nazione": "fr",
         "sesso": true,
         "team": "Denledur"
@@ -18517,8 +18517,8 @@
       "total_time": "6 days 06:24:09.607",
       "finish_timestamp": "2025-09-20T17:54:32.571+00:00",
       "athlete": {
-        "nome": "Å½udana",
-        "cognome": "ÄokiÄ‡",
+        "nome": "Zudana",
+        "cognome": "Djokic",
         "nazione": "rs",
         "sesso": false,
         "team": "PenjaÄki klub AS / KTJ team"
