@@ -163,3 +163,20 @@ def parse_duration_to_seconds(value: object) -> float:
         return float(hms_to_seconds(text))
     except Exception:
         return 0.0
+
+
+def polynomial_fit(x: np.ndarray, y: np.ndarray, degree: int) -> np.poly1d:
+    """Fit a polynomial of the given degree to x and y data."""
+    coeffs = np.polyfit(x, y, degree)
+    return np.poly1d(coeffs)
+
+
+def r_squared(x_vals: np.ndarray, y_vals: np.ndarray, poly_func: np.poly1d) -> float:
+    """Calculate the coefficient of determination (R^2) for the polynomial fit."""
+
+    y_pred = poly_func(x_vals)
+    ss_res = np.sum((y_vals - y_pred) ** 2)
+    ss_tot = np.sum((y_vals - np.mean(y_vals)) ** 2)
+
+    # Avoid division by zero if variance is zero
+    return 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
