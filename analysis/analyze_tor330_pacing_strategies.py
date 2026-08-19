@@ -22,7 +22,7 @@ It also writes correlation-oriented plots to help identify robust pacing pattern
 
 Usage examples:
     python analysis/analyze_tor330_pacing_strategies.py
-    python analysis/analyze_tor330_pacing_strategies.py --max-finish-hours 120
+    python analysis/analyze_tor330_pacing_strategies.py --max-finish-hours 120 --filter-by execution_index --poly-fit
 """
 
 from __future__ import annotations
@@ -49,6 +49,7 @@ from loguru import logger
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from race_planner.course.course import Course
 from race_planner.models.pacing_model import PacingModel
+from race_planner.models.tools import polynomial_fit, r_squared
 
 
 CHECKPOINT_ORDER = [
@@ -80,6 +81,9 @@ AID_STATION_CHECKPOINTS = [
     "Valtournenche IN",
     "Ollomont IN",
 ]
+
+RACE_EXECUTION_INDEX_TOP_FILTER = 1.03
+RACE_EXECUTION_INDEX_BOTTOM_FILTER = 0.85
 
 
 def _safe_checkpoint_slug(name: str) -> str:
@@ -578,7 +582,16 @@ def _build_sections_export(sections: list[SectionModel]) -> pd.DataFrame:
     )
 
 
-def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
+def _plot_indexes(
+    df: pd.DataFrame, output_dir: Path, filter_by: str | None = None, poly_fit: bool = False
+) -> None:
+    # Apply plotting filters if specified
+    if filter_by == "execution_index":
+        df = df[
+            (df["itra_race_execution_index"] > RACE_EXECUTION_INDEX_BOTTOM_FILTER)
+            & (df["itra_race_execution_index"] < RACE_EXECUTION_INDEX_TOP_FILTER)
+        ].copy()
+
     # --- 1. Scatter Plot Matrix ---
     fig_scatter, axes_scatter = plt.subplots(2, 3, figsize=(18, 10))
     ax_scatter = axes_scatter.ravel()
@@ -742,15 +755,34 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
 
     for axis, (x_col, station_label) in zip(axes_time_ratio.ravel(), time_ratio_specs):
         mask = df[[x_col, "itra_race_execution_index", "normalized_rank_gain"]].notna().all(axis=1)
+        x_vals = df.loc[mask, x_col]
+        y_vals = df.loc[mask, "itra_race_execution_index"]
+
         sc = axis.scatter(
-            df.loc[mask, x_col],
-            df.loc[mask, "itra_race_execution_index"],
+            x_vals,
+            y_vals,
             c=df.loc[mask, "normalized_rank_gain"],
             cmap="viridis",
             alpha=0.78,
             s=20,
         )
         plt.colorbar(sc, ax=axis, shrink=0.8, label="Normalized Rank Gain")
+
+        # Fit and plot 2nd degree polynomial
+        if poly_fit and len(x_vals) > 2:
+            poly_func = polynomial_fit(x_vals, y_vals, 2)
+            r2 = r_squared(x_vals, y_vals, poly_func)
+            x_fit = np.linspace(x_vals.min(), x_vals.max(), 100)
+            axis.plot(
+                x_fit,
+                poly_func(x_fit),
+                color="crimson",
+                linewidth=2,
+                linestyle="--",
+                label=f"2nd Degree Poly Fit (R²={r2:.3f})",
+            )
+            axis.legend()
+
         axis.set_xlabel(f"{station_label} Time Ratio")
         axis.set_ylabel("ITRA Race Execution Index")
         axis.set_title(f"ITRA Execution vs {station_label} Time Ratio")
@@ -778,15 +810,33 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
 
     for axis, (x_col, station_label) in zip(axes_decel.ravel(), decel_specs):
         mask = df[[x_col, "itra_race_execution_index", "normalized_rank_gain"]].notna().all(axis=1)
+        x_vals = df.loc[mask, x_col]
+        y_vals = df.loc[mask, "itra_race_execution_index"]
         sc = axis.scatter(
-            df.loc[mask, x_col],
-            df.loc[mask, "itra_race_execution_index"],
+            x_vals,
+            y_vals,
             c=df.loc[mask, "normalized_rank_gain"],
             cmap="viridis",
             alpha=0.78,
             s=20,
         )
         plt.colorbar(sc, ax=axis, shrink=0.8, label="Normalized Rank Gain")
+
+        # Fit and plot 2nd degree polynomial
+        if poly_fit and len(x_vals) > 2:
+            poly_func = polynomial_fit(x_vals, y_vals, 2)
+            r2 = r_squared(x_vals, y_vals, poly_func)
+            x_fit = np.linspace(x_vals.min(), x_vals.max(), 100)
+            axis.plot(
+                x_fit,
+                poly_func(x_fit),
+                color="crimson",
+                linewidth=2,
+                linestyle="--",
+                label=f"2nd Degree Poly Fit (R²={r2:.3f})",
+            )
+            axis.legend()
+
         axis.set_xlabel(f"{station_label} Deceleration Ratio")
         axis.set_ylabel("ITRA Race Execution Index")
         axis.set_title(f"ITRA Execution vs {station_label} Deceleration")
@@ -805,88 +855,106 @@ def _plot_indexes(df: pd.DataFrame, output_dir: Path) -> None:
     fig_summary, axes_summary = plt.subplots(2, 3, figsize=(18, 10))
     ax_summary = axes_summary.ravel()
 
-    hist_values = df["itra_race_execution_index"].dropna()
-    ax_summary[0].hist(hist_values, bins=20, color="steelblue", edgecolor="black", alpha=0.8)
-    ax_summary[0].set_xlabel("ITRA Race Execution Index")
-    ax_summary[0].set_ylabel("Count")
-    ax_summary[0].set_title("Histogram of ITRA Race Execution Index")
+    mask_0 = (
+        df[["itra_performance_index", "race_score", "itra_race_execution_index"]]
+        .notna()
+        .all(axis=1)
+    )
+    sc_0 = ax_summary[0].scatter(
+        df.loc[mask_0, "itra_performance_index"],
+        df.loc[mask_0, "race_score"],
+        c=df.loc[mask_0, "itra_race_execution_index"],
+        cmap="plasma",
+        alpha=0.78,
+        s=20,
+    )
+    plt.colorbar(sc_0, ax=ax_summary[0], shrink=0.8, label="ITRA Race Execution Index")
+    ax_summary[0].set_xlabel("ITRA Performance Index")
+    ax_summary[0].set_ylabel("Race Score")
+    ax_summary[0].set_title("ITRA Performance Index vs Race Score")
     ax_summary[0].grid(True, alpha=0.3)
 
     mask_1 = (
-        df[["total_time_h", "itra_race_execution_index", "normalized_rank_gain"]]
+        df[["itra_race_execution_index", "total_time_h", "normalized_rank_gain"]]
         .notna()
         .all(axis=1)
     )
     sc_1 = ax_summary[1].scatter(
-        df.loc[mask_1, "total_time_h"],
         df.loc[mask_1, "itra_race_execution_index"],
+        df.loc[mask_1, "total_time_h"],
         c=df.loc[mask_1, "normalized_rank_gain"],
-        cmap="viridis",
+        cmap="plasma",
         alpha=0.78,
         s=20,
     )
     plt.colorbar(sc_1, ax=ax_summary[1], shrink=0.8, label="Normalized Rank Gain")
-    ax_summary[1].set_xlabel("Total Time (h)")
-    ax_summary[1].set_ylabel("ITRA Race Execution Index")
-    ax_summary[1].set_title("Total Time vs ITRA Race Execution Index")
+    ax_summary[1].set_xlabel("ITRA Race Execution Index")
+    ax_summary[1].set_ylabel("Total Time (h)")
+    ax_summary[1].set_title("ITRA Race Execution Index vs Total Time")
     ax_summary[1].grid(True, alpha=0.3)
 
     mask_2 = (
-        df[["normalized_rank_gain", "itra_race_execution_index", "total_time_h"]]
+        df[["itra_race_execution_index", "normalized_rank_gain", "total_time_h"]]
         .notna()
         .all(axis=1)
     )
     sc_2 = ax_summary[2].scatter(
-        df.loc[mask_2, "normalized_rank_gain"],
         df.loc[mask_2, "itra_race_execution_index"],
+        df.loc[mask_2, "normalized_rank_gain"],
         c=df.loc[mask_2, "total_time_h"],
         cmap="plasma",
         alpha=0.78,
         s=20,
     )
     plt.colorbar(sc_2, ax=ax_summary[2], shrink=0.8, label="Total Time (h)")
-    ax_summary[2].set_xlabel("Normalized Rank Gain")
-    ax_summary[2].set_ylabel("ITRA Race Execution Index")
-    ax_summary[2].set_title("Normalized Rank Gain vs ITRA Race Execution Index")
+    ax_summary[2].set_xlabel("ITRA Race Execution Index")
+    ax_summary[2].set_ylabel("Normalized Rank Gain")
+    ax_summary[2].set_title("ITRA Race Execution Index vs Normalized Rank Gain")
     ax_summary[2].grid(True, alpha=0.3)
 
-    mask_3 = df[["pace_variation_coefficient", "itra_race_execution_index"]].notna().all(axis=1)
-    ax_summary[3].scatter(
-        df.loc[mask_3, "pace_variation_coefficient"],
-        df.loc[mask_3, "itra_race_execution_index"],
-        color="tab:green",
-        alpha=0.78,
-        s=20,
-    )
-    ax_summary[3].set_xlabel("Pace Variation Coefficient")
-    ax_summary[3].set_ylabel("ITRA Race Execution Index")
-    ax_summary[3].set_title("Pace Variation vs ITRA Race Execution Index")
+    hist_values = df["itra_race_execution_index"].dropna()
+    ax_summary[3].hist(hist_values, bins=20, color="steelblue", edgecolor="black", alpha=0.8)
+    ax_summary[3].set_xlabel("ITRA Race Execution Index")
+    ax_summary[3].set_ylabel("Count")
+    ax_summary[3].set_title("Histogram of ITRA Race Execution Index")
     ax_summary[3].grid(True, alpha=0.3)
 
-    mask_4 = df[["donnas_time_ratio", "itra_race_execution_index"]].notna().all(axis=1)
-    ax_summary[4].scatter(
+    mask_4 = (
+        df[["donnas_time_ratio", "itra_race_execution_index", "pacing_index_donnas"]]
+        .notna()
+        .all(axis=1)
+    )
+    sc_4 = ax_summary[4].scatter(
         df.loc[mask_4, "donnas_time_ratio"],
         df.loc[mask_4, "itra_race_execution_index"],
-        color="tab:orange",
+        c=df.loc[mask_4, "pacing_index_donnas"],
+        cmap="viridis",
         alpha=0.78,
         s=20,
     )
+    plt.colorbar(sc_4, ax=ax_summary[4], shrink=0.8, label="Pacing Index (Donnas)")
     ax_summary[4].set_xlabel("Donnas Time Ratio")
     ax_summary[4].set_ylabel("ITRA Race Execution Index")
     ax_summary[4].set_title("Donnas Time Ratio vs ITRA Race Execution Index")
     ax_summary[4].grid(True, alpha=0.3)
 
-    mask_5 = df[["pacing_index_donnas", "itra_race_execution_index"]].notna().all(axis=1)
-    ax_summary[5].scatter(
+    mask_5 = (
+        df[["pacing_index_donnas", "itra_race_execution_index", "normalized_rank_gain_donnas"]]
+        .notna()
+        .all(axis=1)
+    )
+    sc_5 = ax_summary[5].scatter(
         df.loc[mask_5, "pacing_index_donnas"],
         df.loc[mask_5, "itra_race_execution_index"],
-        color="tab:red",
+        c=df.loc[mask_5, "normalized_rank_gain_donnas"],
+        cmap="viridis",
         alpha=0.78,
         s=20,
     )
-    ax_summary[5].set_xlabel("Pacing Index")
+    plt.colorbar(sc_5, ax=ax_summary[5], shrink=0.8, label="Normalized Rank Gain (Donnas)")
+    ax_summary[5].set_xlabel("Pacing Index (Donnas)")
     ax_summary[5].set_ylabel("ITRA Race Execution Index")
-    ax_summary[5].set_title("Pacing Index vs ITRA Race Execution Index")
+    ax_summary[5].set_title("Pacing Index (Donnas) vs ITRA Race Execution Index")
     ax_summary[5].grid(True, alpha=0.3)
 
     fig_summary.suptitle(
@@ -974,6 +1042,18 @@ def parse_args() -> argparse.Namespace:
         default=Path("analysis/data/tor330_2025_itra_indexes.json"),
         help="ITRA performance index JSON used to compute ITRA race execution index",
     )
+    parser.add_argument(
+        "--filter-by",
+        type=str,
+        choices=["execution_index"],
+        default=None,
+        help="Filter the plotted data by defined criteria",
+    )
+    parser.add_argument(
+        "--poly-fit",
+        action="store_true",
+        help="Do a polynomial fit on the scatter plots (2nd degree) to visualize trends",
+    )
     return parser.parse_args()
 
 
@@ -1034,7 +1114,7 @@ def main() -> None:
         index_df.to_excel(writer, sheet_name="indexes", index=False)
         section_df.to_excel(writer, sheet_name="section_model", index=False)
 
-    _plot_indexes(runner_df, output_dir)
+    _plot_indexes(runner_df, output_dir, filter_by=args.filter_by, poly_fit=args.poly_fit)
 
     logger.info(f"Saved runner table to: {runner_csv}")
     logger.info(f"Saved index table to: {index_csv}")
