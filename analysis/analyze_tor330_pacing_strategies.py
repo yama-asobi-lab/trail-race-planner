@@ -83,7 +83,9 @@ AID_STATION_CHECKPOINTS = [
 ]
 
 RACE_EXECUTION_INDEX_TOP_FILTER = 1.03
-RACE_EXECUTION_INDEX_BOTTOM_FILTER = 0.85
+RACE_EXECUTION_INDEX_BOTTOM_FILTER = (
+    0.6  # 0.6 to only filter for extreme outliers, 0.85 to filter for more typical pacing patterns
+)
 
 
 def _safe_checkpoint_slug(name: str) -> str:
