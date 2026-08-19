@@ -131,8 +131,8 @@ class PaceCalculator:
 
     **Linear fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.LinearFatigueModel`):
         Pace multiplier rises linearly from 1.0 at start to
-        ``1.0 + decay_fraction`` at finish.  Suitable for shorter races
-        and backward-compatible with existing configs.
+        ``1.0 + decay_fraction`` at finish.  Suitable for shorter races and
+        simple percentage-based decay planning.
 
     **Sigmoidal fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`):
         Tracks cumulative elapsed time and sleep duration per point
@@ -261,7 +261,7 @@ class PaceCalculator:
         )
 
     # ------------------------------------------------------------------
-    # Compatibility wrappers around the pure-model layer
+    # Pure-model delegation helpers
     # ------------------------------------------------------------------
 
     def flat_equivalent_distance_km(self, dist_km: float, gain_m: float) -> float:
@@ -355,14 +355,24 @@ class PaceCalculator:
         if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
             assert cumulative_distance_km_values is not None
             assert cumulative_sleep_duration_s_values is not None
-            return np.array(
+
+            dist_km = np.asarray(cumulative_distance_km_values, dtype=float)
+            sleep_s = np.asarray(cumulative_sleep_duration_s_values, dtype=float)
+            if dist_km.size == 0:
+                return np.array([], dtype=float)
+
+            max_dist_km = float(dist_km.max())
+            sample_count = min(256, max(8, dist_km.size))
+            sample_dist_km = np.linspace(0.0, max_dist_km, num=sample_count)
+            sample_sleep_s = np.interp(sample_dist_km, dist_km, sleep_s)
+            sample_multipliers = np.array(
                 [
-                    self.fatigue_model_instance.fatigue_multiplier_for_distance(float(d), float(s))
-                    for d, s in zip(
-                        cumulative_distance_km_values, cumulative_sleep_duration_s_values
-                    )
-                ]
+                    self.fatigue_model_instance.pace_multiplier_for_distance(float(d), float(s))
+                    for d, s in zip(sample_dist_km, sample_sleep_s)
+                ],
+                dtype=float,
             )
+            return np.interp(dist_km, sample_dist_km, sample_multipliers)
 
         if isinstance(self.fatigue_model_instance, LinearFatigueModel):
             return np.array(
@@ -455,17 +465,30 @@ class PaceCalculator:
         cumulative_distance_m_planned = cumulative_distance_m_values[planned_point_mask]
         elevation_m_planned = elevation_m_values[planned_point_mask]
 
-        # Back-converted GAP pace should remove grade effects and stay relatively smooth.
+        # Back-converted GAP pace removes grade effects and keeps the terrain
+        # signal from dominating the fatigue trend; actual course pace keeps the
+        # raw slope effect so the two views can be compared directly.
         point_gap_pace_s_per_km_planned = np.full_like(point_times_s_planned, np.nan, dtype=float)
+        point_actual_pace_s_per_km_planned = np.full_like(
+            point_times_s_planned, np.nan, dtype=float
+        )
         valid_gap_distance_mask = point_gap_weighted_km_planned > 1e-6
+        valid_actual_distance_mask = cumulative_distance_km_planned > 1e-6
         valid_altitude_mask = point_altitude_multiplier_planned > 1e-12
-        valid_mask = valid_gap_distance_mask & valid_altitude_mask
-        point_gap_pace_s_per_km_planned[valid_mask] = (
-            point_times_s_planned[valid_mask]
-            / point_gap_weighted_km_planned[valid_mask]
-            / point_altitude_multiplier_planned[valid_mask]
+        valid_gap_mask = valid_gap_distance_mask & valid_altitude_mask
+        valid_actual_mask = valid_actual_distance_mask & valid_altitude_mask
+        point_gap_pace_s_per_km_planned[valid_gap_mask] = (
+            point_times_s_planned[valid_gap_mask]
+            / point_gap_weighted_km_planned[valid_gap_mask]
+            / point_altitude_multiplier_planned[valid_gap_mask]
+        )
+        point_actual_pace_s_per_km_planned[valid_actual_mask] = (
+            point_times_s_planned[valid_actual_mask]
+            / cumulative_distance_km_planned[valid_actual_mask]
+            / point_altitude_multiplier_planned[valid_actual_mask]
         )
         pace_min_per_km_planned = point_gap_pace_s_per_km_planned / 60.0
+        actual_pace_min_per_km_planned = point_actual_pace_s_per_km_planned / 60.0
 
         cumulative_running_time_s_planned = np.cumsum(point_times_s_planned)
         cumulative_stop_before_point_s_planned = np.zeros_like(cumulative_running_time_s_planned)
@@ -510,6 +533,8 @@ class PaceCalculator:
             "elapsed_time_h": elapsed_time_h_planned.astype(float).tolist(),
             "distance_km": cumulative_distance_km_planned.astype(float).tolist(),
             "pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
+            "actual_pace_min_per_km": actual_pace_min_per_km_planned.astype(float).tolist(),
+            "grade_adjusted_pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
             "elevation_m": elevation_m_planned.astype(float).tolist(),
             "aid_points": aid_plot_points,
             "break_indices": break_indices,
@@ -618,7 +643,7 @@ class PaceCalculator:
 
         # Compute fatigue multipliers based on progress through the course.
         # Sigmoidal model: use cumulative distance (km) and per-point sleep duration.
-        # Linear and legacy models: use progress fraction (0–1).
+        # Linear model: use progress fraction (0–1).
         cumulative_distance_km_values = cumulative_distance_m_values / 1000.0
         progress_distance_m_values = np.minimum(
             cumulative_distance_m_values,

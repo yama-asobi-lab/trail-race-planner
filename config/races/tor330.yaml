@@ -28,7 +28,7 @@ race:
     fatigue_parameters:
       # Starting speed as a fraction of Lactate Threshold.
       # TOR athletes start close to the fatigue floor (~55% of LT).
-      start_threshold_fraction: 0.55
+      start_threshold_fraction: 0.7
 
       # Circadian rhythm amplitude (fraction of floor speed): ±15%.
       circadian_amplitude: 0.15
@@ -90,12 +90,11 @@ aid_stations:
   - name: "**VALGRISENCHE**"
     distance_km: 48.5
     elevation_m: 1693   # reference
-    stop_time_s: 3600
+    stop_time_s: 300
     notes: "Base Vita!"
     gmaps_link: "https://maps.app.goo.gl/kSAJQTMEeX4RmFfY8"
     cutoff_in_time: "D2 5:00"
     car_access: true
-    sleep_duration_s: 3600
 
   - name: "Rifugio Chalet de L'epée"
     distance_km: 54.9
@@ -132,12 +131,12 @@ aid_stations:
   - name: "**COGNE**"
     distance_km: 104
     elevation_m: 1536   # reference
-    stop_time_s: 3600
+    stop_time_s: 6000
     notes: "Base Vita! Waypoint: Valnontey (1670 m). 3 km road down from here."
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
     cutoff_in_time: "D3 04:00"
     car_access: true
-    sleep_duration_s: 3600
+    sleep_duration_s: 5400
 
   - name: "Goilles Dessous"
     distance_km: 109.8
@@ -173,12 +172,10 @@ aid_stations:
   - name: "**DONNAS**"
     distance_km: 149.8
     elevation_m: 323   # reference
-    stop_time_s: 3600
     notes: "Base Vita! Waypoint: Bard (377 m). Last 5 km are road."
     gmaps_link: "https://maps.app.goo.gl/weej3znGKYnM7h2o8"
     cutoff_in_time: "D4 00:00"
     car_access: true
-    sleep_duration_s: 3600
 
   - name: "Perloz"
     distance_km: 155.6
@@ -244,12 +241,12 @@ aid_stations:
   - name: "**GRESSONEY**"
     distance_km: 203.8
     elevation_m: 1376   # reference
-    stop_time_s: 3600
+    stop_time_s: 6000
     notes: "Base Vita!"
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
     cutoff_in_time: "D4 23:00"
     car_access: true
-    sleep_duration_s: 3600
+    sleep_duration_s: 5400
 
   - name: "Rifugio Alpenzu"
     distance_km: 208.9
@@ -279,12 +276,11 @@ aid_stations:
   - name: "**VALTOURNENCHE**"
     distance_km: 237.5
     elevation_m: 1504   # reference
-    stop_time_s: 3600
+    stop_time_s: 300
     notes: "Base Vita! Waypoints: Col Des Fontaines (2694 m, W), Chenal (2110 m, W)"
     gmaps_link: "https://maps.app.goo.gl/Dprw9RcpNrkbsedj7"
     cutoff_in_time: "D5 19:00"
     car_access: true
-    sleep_duration_s: 3600
 
   - name: "Rifugio Barmasse"
     distance_km: 242.3
@@ -342,12 +338,12 @@ aid_stations:
   - name: "**OLLOMONT**"
     distance_km: 286.5
     elevation_m: 1384   # reference
-    stop_time_s: 3600
+    stop_time_s: 6000
     notes: "Base Vita! Waypoint: Col Brison (2519 m, A) Berrio Damon (1936 m)"
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"
     cutoff_in_time: "D6 17:00"
     car_access: true
-    sleep_duration_s: 3600
+    sleep_duration_s: 5400
 
   - name: "Rifugio Champillon"
     distance_km: 291.2

@@ -1,34 +1,32 @@
-"""
-Fatigue models for long-distance running events.
+"""Fatigue models for long-distance running events.
 
 This module provides two fatigue models:
 
 - ``LinearFatigueModel``: a simple percentage-based pace decay applied linearly
-  over a race. Useful as a lightweight default for any distance.
+  over a race.
+- ``MultiDaySigmoidalFatigueModel``: a physiologically-grounded time-based
+  sigmoid model applicable to long-distance events. The model accounts for:
 
-- ``MultiDaySigmoidalFatigueModel``: a physiologically-grounded time-based sigmoid
-  model applicable to any long-distance event, from 100-mile ultras to multi-day
-  stage races. The model accounts for:
+  1. sigmoidal velocity decay governed by the athlete's relative starting
+     intensity and athlete-specific calibration parameters,
+  2. circadian rhythm oscillation after the fatigue floor is reached, and
+  3. sleep recovery modelled via Borbély's Process S exponential decay.
 
-  1. **Sigmoidal velocity decay** governed by the athlete's relative starting
-     intensity and athlete-specific calibration parameters.
-  2. **Circadian rhythm oscillation** in Phase 2 (after the fatigue floor is
-     reached).
-  3. **Sleep recovery** modelled via Borbély's Process S exponential decay;
-     this term is simply zero for single-day events where no sleep occurs.
-
-Mathematical foundation — sigmoid model
-----------------------------------------
-Velocity as a function of elapsed race time *t* (hours)::
+The sigmoid is defined in elapsed-time space::
 
     V(t) = max(V_floor,
-               V_floor + (V_start − V_floor) / (1 + exp(k · (t − t₀)))
+               V_floor + (V_start - V_floor) / (1 + exp(k * (t - t0)))
                + ΔV_circadian(t)
                + ΔV_sleep(t))
 
-Inflection time and steepness are derived from the athlete's relative starting
-intensity *S = V_start / V_threshold* via power laws calibrated to a reference
-intensity *S₀*:
+For planner-facing pacing, the raw circadian rhythm is intentionally suppressed.
+The positive phase of the oscillation is not used in a single-event pacing
+model because it reverses the general fatigue trend and makes the athlete run
+faster again later in the race, which is not the intended race-planning
+behavior.
+
+The inflection time and steepness are derived from the athlete's relative
+starting intensity S = V_start / V_threshold via power laws::
 
     t₀ = t_0_hours · (S₀ / S) ** 3.1
     k  = k_0       · (S  / S₀) ** 2.5   (h⁻¹)
@@ -45,11 +43,15 @@ Sleep recovery (Process S)::
 
     ΔV_sleep = (V_start − V_floor) · (1 − exp(−λ · sleep_hours))
     λ = ln(2) / sleep_half_life_hours
+
+The planner converts the time-domain model into pace multipliers at the
+integration boundary.
 """
 
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 
 # Power-law exponent for inflection-time scaling: t₀ = t_0_hours · (S₀/S)^_T0_EXPONENT
 _T0_EXPONENT: float = 3.1
@@ -61,12 +63,8 @@ class LinearFatigueModel:
     """Simple linear percentage-based pace decay over a race.
 
     The pace multiplier increases linearly from 1.0 at the start to
-    ``1 / (1 - total_decay_pct/100)`` at the finish.
-
-    Args:
-        total_decay_pct: Total speed reduction from start to finish, expressed
-            as a percentage (0–100).  A value of 14 means the athlete arrives at
-            the finish moving 14 % slower than at the start.
+    ``1 / (1 - total_decay_pct / 100)`` at the finish, with the entire race
+    treated as a single percentage-based decay in pace.
     """
 
     def __init__(self, total_decay_pct: float) -> None:
@@ -97,11 +95,9 @@ class MultiDaySigmoidalFatigueModel:
 
     The velocity decay is governed by a logistic sigmoid in the time domain,
     with inflection time and steepness derived from the athlete's relative
-    starting intensity via power laws.
-
-    Instantiate from a race/athlete configuration and inject into
-    :class:`~race_planner.planner.pace_calculator.PaceCalculator` via the
-    ``fatigue_model_instance`` parameter.
+    starting intensity via power laws. A circadian oscillation and Process S
+    sleep recovery are added in the same time domain before the planner converts
+    the result into a pace multiplier.
 
     Args:
         threshold_speed_kmh:
@@ -185,35 +181,112 @@ class MultiDaySigmoidalFatigueModel:
         S = self.start_pct
         self._t_inflection = self.t_0_hours * (self.s_0 / S) ** _T0_EXPONENT
         self._k_h = self.k_0 * (S / self.s_0) ** _K_EXPONENT  # h⁻¹
-        # Approximate average speed for distance ↔ time conversion
-        self._avg_speed = (self._v_start + self.floor_speed_kmh) / 2.0
-        # Sleep recovery rate constant (ln(2) / half-life)
+        # Distance-time conversion is solved numerically below.
         self._sleep_lambda = math.log(2.0) / self.sleep_half_life_hours
+        self._pace_multiplier_cache: dict[tuple[float, float], float] = {}
 
     # ------------------------------------------------------------------
     # Core velocity methods
     # ------------------------------------------------------------------
+
+    def distance_travelled_in_time(
+        self,
+        elapsed_hours: float,
+        cumulative_sleep_duration_s: float = 0.0,
+    ) -> float:
+        """Integrate modeled speed over elapsed time.
+
+        This is the physically consistent distance-time inverse of the fatigue
+        model and honors fatigue, circadian modulation, and sleep recovery.
+        """
+        if elapsed_hours < 0.0:
+            raise ValueError("elapsed_hours must be non-negative")
+        if elapsed_hours == 0.0:
+            return 0.0
+
+        rounded_elapsed_hours = round(elapsed_hours, 6)
+        rounded_sleep_s = round(cumulative_sleep_duration_s, 3)
+        return self._distance_travelled_in_time_cached(
+            rounded_elapsed_hours,
+            rounded_sleep_s,
+        )
+
+    @lru_cache(maxsize=2048)
+    def _distance_travelled_in_time_cached(
+        self,
+        elapsed_hours: float,
+        cumulative_sleep_duration_s: float,
+    ) -> float:
+        n_steps = max(60, min(4000, int(math.ceil(elapsed_hours * 60.0))))
+        dt = elapsed_hours / float(n_steps)
+        distance_km = 0.0
+
+        for i in range(n_steps):
+            t0 = i * dt
+            t1 = (i + 1) * dt
+            v0 = self.velocity_at_time(t0 * 3600.0, cumulative_sleep_duration_s)
+            v1 = self.velocity_at_time(t1 * 3600.0, cumulative_sleep_duration_s)
+            distance_km += 0.5 * (v0 + v1) * dt
+
+        return distance_km
+
+    def elapsed_hours_for_distance(
+        self,
+        distance_km: float,
+        cumulative_sleep_duration_s: float = 0.0,
+        tolerance_hours: float = 1e-6,
+        max_iter: int = 200,
+    ) -> float:
+        """Solve for elapsed time at a given cumulative distance.
+
+        The inversion is done by integrating the modeled speed curve and
+        bisectioning on the cumulative distance, rather than using a fixed
+        average-speed shortcut.
+        """
+        if distance_km < 0.0:
+            raise ValueError("distance_km must be non-negative")
+        if distance_km == 0.0:
+            return 0.0
+
+        # A lower bound of zero is valid, and the upper bound is chosen using the
+        # floor speed as the worst-case sustainable speed to ensure a bracket.
+        lower_hours = 0.0
+        upper_hours = max(1.0, distance_km / max(self.floor_speed_kmh, 1e-9))
+        while (
+            self.distance_travelled_in_time(upper_hours, cumulative_sleep_duration_s) < distance_km
+        ):
+            upper_hours *= 2.0
+            if upper_hours > 1e6:
+                raise RuntimeError("distance-to-time solver failed to bracket the target distance")
+
+        for _ in range(max_iter):
+            mid_hours = 0.5 * (lower_hours + upper_hours)
+            if (
+                self.distance_travelled_in_time(mid_hours, cumulative_sleep_duration_s)
+                < distance_km
+            ):
+                lower_hours = mid_hours
+            else:
+                upper_hours = mid_hours
+            if upper_hours - lower_hours <= tolerance_hours:
+                break
+
+        return 0.5 * (lower_hours + upper_hours)
 
     def velocity_at_distance(
         self,
         distance_km: float,
         cumulative_sleep_duration_s: float = 0.0,
     ) -> float:
-        """Return estimated velocity (km/h) at a given race distance.
+        """Estimated speed at a given cumulative distance.
 
-        Combines sigmoid velocity decay, circadian oscillation, and
-        exponential sleep-pressure recovery.  Distance is converted to
-        elapsed time using the average of start and floor speeds.
-
-        Args:
-            distance_km: Cumulative race distance in km.
-            cumulative_sleep_duration_s: Total sleep accumulated up to this
-                point in the race, in seconds.
-
-        Returns:
-            Estimated velocity in km/h.
+        The elapsed time is recovered from the distance integral of the
+        time-domain fatigue model, so the mapping remains consistent with the
+        underlying speed curve.
         """
-        elapsed_hours = distance_km / self._avg_speed if self._avg_speed > 0 else 0.0
+        if distance_km <= 0.0:
+            return self.velocity_at_time(0.0, cumulative_sleep_duration_s)
+        elapsed_hours = self.elapsed_hours_for_distance(distance_km, cumulative_sleep_duration_s)
         return self.velocity_at_time(elapsed_hours * 3600.0, cumulative_sleep_duration_s)
 
     def velocity_at_time(
@@ -221,47 +294,56 @@ class MultiDaySigmoidalFatigueModel:
         elapsed_time_s: float,
         cumulative_sleep_duration_s: float = 0.0,
     ) -> float:
-        """Return estimated velocity (km/h) at a given elapsed race time.
+        """Estimated speed at a given elapsed time.
 
-        The sigmoid decay, circadian oscillation, and sleep recovery are all
-        evaluated in the time domain.
-
-        Args:
-            elapsed_time_s: Elapsed race time in seconds.
-            cumulative_sleep_duration_s: Total sleep accumulated, in seconds.
-
-        Returns:
-            Estimated velocity in km/h.
+        This combines the logistic decay, circadian oscillation, and Process S
+        sleep recovery in the same time domain used to define the model.
         """
         elapsed_hours = elapsed_time_s / 3600.0
         sigmoid_velocity = self._sigmoid_velocity(elapsed_hours)
-        circadian_delta = self._circadian_delta(elapsed_hours)
+        # The planner-facing curve should remain monotone in fatigue. The raw
+        # circadian oscillation is retained as a model description, but it is not
+        # applied to pacing so that a race plan does not speed up again later in
+        # the event.
+        circadian_delta = 0.0
         sleep_recovery = self._sleep_recovery_delta(cumulative_sleep_duration_s)
 
         return max(self.floor_speed_kmh, sigmoid_velocity + circadian_delta + sleep_recovery)
 
-    def fatigue_multiplier_for_distance(
+    def pace_multiplier_at_time(
+        self,
+        elapsed_time_s: float,
+        cumulative_sleep_duration_s: float = 0.0,
+    ) -> float:
+        """Planner-facing pace penalty at a given elapsed time.
+
+        Values larger than 1.0 indicate slower-than-threshold running pace;
+        values below 1.0 would indicate faster-than-threshold pace.
+        """
+        speed = self.velocity_at_time(elapsed_time_s, cumulative_sleep_duration_s)
+        if speed <= 0:
+            return float("inf")
+        return self.threshold_speed_kmh / speed
+
+    def pace_multiplier_for_distance(
         self,
         distance_km: float,
         cumulative_sleep_duration_s: float = 0.0,
     ) -> float:
-        """Return pace multiplier (>1 means slower) relative to flat threshold.
+        """Planner-facing pace penalty at a given cumulative distance.
 
-        A multiplier > 1 indicates the athlete is moving slower than threshold.
-        This is the main interface for ``PaceCalculator``.
-
-        Args:
-            distance_km: Cumulative race distance in km.
-            cumulative_sleep_duration_s: Total sleep accumulated, in seconds.
-
-        Returns:
-            Pace multiplier ≥ 1.0.  Values approaching 1 mean near-threshold
-            pace; higher values mean slower pace.
+        The elapsed time is recovered from the modeled distance integral before
+        converting the underlying speed back into a pace multiplier.
         """
-        v = self.velocity_at_distance(distance_km, cumulative_sleep_duration_s)
-        if v <= 0:
-            return float("inf")
-        return self.threshold_speed_kmh / v
+        rounded_distance_km = round(float(distance_km), 6)
+        rounded_sleep_s = round(float(cumulative_sleep_duration_s), 3)
+        key = (rounded_distance_km, rounded_sleep_s)
+        if key in getattr(self, "_pace_multiplier_cache", {}):
+            return self._pace_multiplier_cache[key]
+        elapsed_hours = self.elapsed_hours_for_distance(rounded_distance_km, rounded_sleep_s)
+        value = self.pace_multiplier_at_time(elapsed_hours * 3600.0, rounded_sleep_s)
+        self._pace_multiplier_cache[key] = value
+        return value
 
     def apply_nap_recovery(
         self,
@@ -304,21 +386,24 @@ class MultiDaySigmoidalFatigueModel:
         return self.floor_speed_kmh + self._v_delta / (1.0 + math.exp(exponent))
 
     def _circadian_delta(self, elapsed_hours: float) -> float:
-        """Circadian oscillation around the floor speed.
+        """Raw circadian oscillation around the floor speed.
 
-        Returns the additive velocity delta due to circadian rhythm::
-
-            Δ = A · V_floor · sin(2π(t − φ) / T)
-
-        where ``φ`` is the phase offset (peak performance time), ``T`` is the
-        period (24 h), and ``A`` is the amplitude fraction.
+        The term is ``A * V_floor * sin(2π(t - φ) / T)`` with phase offset
+        ``φ`` and period ``T``. It captures the late-day performance rhythm that
+        emerges after the athlete has reached the fatigue floor. The planner
+        uses only the negative half-cycle, because the positive phase can
+        reverse the overall fatigue progression within a single race plan.
         """
         phase = 2.0 * math.pi * (elapsed_hours - self.circadian_phase_offset_hours)
         phase /= self.circadian_period_hours
         return self.circadian_amplitude * self.floor_speed_kmh * math.sin(phase)
 
     def _sleep_recovery_delta(self, cumulative_sleep_duration_s: float) -> float:
-        """Velocity boost from accumulated sleep (exponential Process S recovery).
+        """Velocity boost from cumulative sleep.
+
+        This is the Process S recovery term: sleep reduces the accumulated fatigue
+        debt and increases speed by a fraction of the gap between the starting
+        speed and the floor speed.
 
         Uses the exponential recovery model::
 
