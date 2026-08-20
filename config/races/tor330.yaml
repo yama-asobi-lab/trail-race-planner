@@ -30,8 +30,8 @@ race:
       # TOR athletes start close to the fatigue floor (~55% of LT).
       start_threshold_fraction: 0.7
 
-      # Circadian rhythm amplitude (fraction of floor speed): ±15%.
-      circadian_amplitude: 0.15
+      # Circadian rhythm amplitude (fraction of floor speed): ±4%.
+      circadian_amplitude: 0.04
 
       # Circadian period in hours (standard 24 h cycle).
       circadian_period_hours: 24

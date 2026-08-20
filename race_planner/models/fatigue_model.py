@@ -119,7 +119,7 @@ class MultiDaySigmoidalFatigueModel:
             different *S* it scales as ``k_0 · (S / s_0) ** 2.5``.
         circadian_amplitude:
             Amplitude of circadian rhythm oscillation as a fraction of
-            ``floor_speed_kmh``.  Default: 0.15 (±15 %).
+            ``floor_speed_kmh``.  Default: 0.04 (±4 %).
         circadian_period_hours:
             Period of the circadian cycle in hours.  Default: 24.0.
         circadian_phase_offset_hours:
@@ -134,14 +134,15 @@ class MultiDaySigmoidalFatigueModel:
         self,
         threshold_speed_kmh: float,
         floor_speed_kmh: float,
-        start_pct: float = 0.55,
+        start_pct: float,
         s_0: float = 0.65,
         t_0_hours: float = 18.0,
         k_0: float = 0.45,
-        circadian_amplitude: float = 0.15,
+        circadian_amplitude: float = 0.04,
         circadian_period_hours: float = 24.0,
         circadian_phase_offset_hours: float = 6.0,
         sleep_half_life_hours: float = 2.5,
+        fatigue_reaccumulation_half_life_hours: float = 8.0,
     ) -> None:
         if threshold_speed_kmh <= 0:
             raise ValueError("threshold_speed_kmh must be > 0")
@@ -163,6 +164,8 @@ class MultiDaySigmoidalFatigueModel:
             raise ValueError("circadian_period_hours must be > 0")
         if sleep_half_life_hours <= 0:
             raise ValueError("sleep_half_life_hours must be > 0")
+        if fatigue_reaccumulation_half_life_hours <= 0:
+            raise ValueError("fatigue_reaccumulation_half_life_hours must be > 0")
 
         self.threshold_speed_kmh = float(threshold_speed_kmh)
         self.floor_speed_kmh = float(floor_speed_kmh)
@@ -174,6 +177,7 @@ class MultiDaySigmoidalFatigueModel:
         self.circadian_period_hours = float(circadian_period_hours)
         self.circadian_phase_offset_hours = float(circadian_phase_offset_hours)
         self.sleep_half_life_hours = float(sleep_half_life_hours)
+        self.fatigue_reaccumulation_half_life_hours = float(fatigue_reaccumulation_half_life_hours)
 
         self._v_start = self.threshold_speed_kmh * self.start_pct
         self._v_delta = self._v_start - self.floor_speed_kmh
@@ -183,6 +187,7 @@ class MultiDaySigmoidalFatigueModel:
         self._k_h = self.k_0 * (S / self.s_0) ** _K_EXPONENT  # h⁻¹
         # Distance-time conversion is solved numerically below.
         self._sleep_lambda = math.log(2.0) / self.sleep_half_life_hours
+        self._reaccum_lambda = math.log(2.0) / self.fatigue_reaccumulation_half_life_hours
         self._pace_multiplier_cache: dict[tuple[float, float], float] = {}
 
     # ------------------------------------------------------------------
@@ -210,6 +215,11 @@ class MultiDaySigmoidalFatigueModel:
             rounded_elapsed_hours,
             rounded_sleep_s,
         )
+
+    def base_sigmoidal_velocity(self, elapsed_hours: float) -> float:
+        """Pure sigmoidal decay without circadian or sleep modifications."""
+        sigmoid_factor = 1.0 / (1.0 + math.exp(self._k_h * (elapsed_hours - self._t_inflection)))
+        return self.floor_speed_kmh + self._v_delta * sigmoid_factor
 
     @lru_cache(maxsize=2048)
     def _distance_travelled_in_time_cached(
@@ -292,23 +302,46 @@ class MultiDaySigmoidalFatigueModel:
     def velocity_at_time(
         self,
         elapsed_time_s: float,
-        cumulative_sleep_duration_s: float = 0.0,
+        sleep_events: list[tuple[float, float]] = None,
     ) -> float:
-        """Estimated speed at a given elapsed time.
+        """Calculate physiological running speed in km/h at elapsed_seconds.
 
-        This combines the logistic decay, circadian oscillation, and Process S
-        sleep recovery in the same time domain used to define the model.
+        Args:
+            elapsed_seconds: Total elapsed race time in seconds.
+            sleep_events: List of (nap_start_time_hours, nap_duration_hours) tuples.
         """
         elapsed_hours = elapsed_time_s / 3600.0
-        sigmoid_velocity = self._sigmoid_velocity(elapsed_hours)
-        # The planner-facing curve should remain monotone in fatigue. The raw
-        # circadian oscillation is retained as a model description, but it is not
-        # applied to pacing so that a race plan does not speed up again later in
-        # the event.
-        circadian_delta = 0.0
-        sleep_recovery = self._sleep_recovery_delta(cumulative_sleep_duration_s)
+        sigmoid_velocity = self.base_sigmoidal_velocity(elapsed_hours)
 
-        return max(self.floor_speed_kmh, sigmoid_velocity + circadian_delta + sleep_recovery)
+        # 1. Circadian oscillation
+        circadian_phase = (
+            2.0
+            * math.pi
+            * (elapsed_hours - self.circadian_phase_offset_hours)
+            / self.circadian_period_hours
+        )
+        v_circ = self.circadian_amplitude * self.floor_speed_kmh * math.sin(circadian_phase)
+
+        # 2. Stateful decaying sleep recovery
+        v_sleep_boost = 0.0
+        if sleep_events:
+            for nap_start_h, nap_duration_h in sleep_events:
+                nap_end_h = nap_start_h + nap_duration_h
+                if elapsed_hours >= nap_end_h:
+                    # Velocity lost at time of nap
+                    v_lost = self._v_start - self.base_sigmoidal_velocity(nap_start_h)
+                    # Recovery fraction from nap
+                    eta_sleep = 1.0 - math.exp(-self._sleep_lambda * nap_duration_h)
+                    initial_boost = eta_sleep * max(0.0, v_lost)
+                    # Exponential decay of boost as continuous running resumes
+                    time_since_nap = elapsed_hours - nap_end_h
+                    v_sleep_boost += initial_boost * math.exp(
+                        -self._reaccum_lambda * time_since_nap
+                    )
+
+        # 3. Combine and clamp strictly to [V_floor, V_start]
+        v_total = sigmoid_velocity + v_circ + v_sleep_boost
+        return max(self.floor_speed_kmh, min(self._v_start, v_total))
 
     def pace_multiplier_at_time(
         self,
@@ -328,22 +361,12 @@ class MultiDaySigmoidalFatigueModel:
     def pace_multiplier_for_distance(
         self,
         distance_km: float,
-        cumulative_sleep_duration_s: float = 0.0,
+        sleep_events: list[tuple[float, float]] = None,
     ) -> float:
-        """Planner-facing pace penalty at a given cumulative distance.
-
-        The elapsed time is recovered from the modeled distance integral before
-        converting the underlying speed back into a pace multiplier.
-        """
-        rounded_distance_km = round(float(distance_km), 6)
-        rounded_sleep_s = round(float(cumulative_sleep_duration_s), 3)
-        key = (rounded_distance_km, rounded_sleep_s)
-        if key in getattr(self, "_pace_multiplier_cache", {}):
-            return self._pace_multiplier_cache[key]
-        elapsed_hours = self.elapsed_hours_for_distance(rounded_distance_km, rounded_sleep_s)
-        value = self.pace_multiplier_at_time(elapsed_hours * 3600.0, rounded_sleep_s)
-        self._pace_multiplier_cache[key] = value
-        return value
+        """Return pace multiplier (>= 1.0) relative to starting speed."""
+        t_h = self.elapsed_hours_for_distance(distance_km, sleep_events)
+        v_t = self.velocity_at_time(t_h * 3600.0, sleep_events)
+        return self._v_start / max(v_t, 1e-6)
 
     def apply_nap_recovery(
         self,
@@ -370,20 +393,6 @@ class MultiDaySigmoidalFatigueModel:
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
-
-    def _sigmoid_velocity(self, elapsed_hours: float) -> float:
-        """Sigmoid velocity as a function of elapsed time.
-
-        Uses the time-domain logistic function::
-
-            V(t) = V_floor + (V_start − V_floor) / (1 + exp(k · (t − t₀)))
-
-        where ``t₀ = _t_inflection`` and ``k = _k_h`` (h⁻¹).
-        """
-        exponent = self._k_h * (elapsed_hours - self._t_inflection)
-        # Clamp exponent to avoid overflow in exp for very large values
-        exponent = max(-500.0, min(500.0, exponent))
-        return self.floor_speed_kmh + self._v_delta / (1.0 + math.exp(exponent))
 
     def _circadian_delta(self, elapsed_hours: float) -> float:
         """Raw circadian oscillation around the floor speed.

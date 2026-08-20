@@ -195,20 +195,16 @@ def _resolve_sigmoid_fatigue_model(
         threshold_speed_kmh=threshold_speed_kmh,
         floor_speed_kmh=float(floor_speed_kmh),
         start_pct=start_pct,
-        s_0=float(physiology.get("s_0", 0.65)),
-        t_0_hours=float(physiology.get("t_0_hours", 18.0)),
-        k_0=float(physiology.get("k_0", 0.45)),
-        circadian_amplitude=float(
-            physiology.get(
-                "circadian_amplitude_fraction",
-                fatigue_params.get("circadian_amplitude", 0.15),
-            )
+        s_0=physiology.get("s_0"),
+        t_0_hours=physiology.get("t_0_hours"),
+        k_0=physiology.get("k_0"),
+        circadian_amplitude=physiology.get(
+            "circadian_amplitude_fraction",
+            fatigue_params.get("circadian_amplitude"),
         ),
-        circadian_period_hours=float(fatigue_params.get("circadian_period_hours", 24.0)),
-        sleep_half_life_hours=float(
-            physiology.get(
-                "sleep_half_life_hours", fatigue_params.get("sleep_half_life_hours", 2.5)
-            )
+        circadian_period_hours=fatigue_params.get("circadian_period_hours"),
+        sleep_half_life_hours=physiology.get(
+            "sleep_half_life_hours", fatigue_params.get("sleep_half_life_hours")
         ),
     )
 
