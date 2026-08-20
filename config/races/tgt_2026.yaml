@@ -22,17 +22,9 @@ race:
     fatigue_total_decay_pct: 14     # 14% linear decay from start to finish
     
     # Sigmoidal fatigue model configuration (used when --fatigue-mode sigmoid).
-
     fatigue_parameters:
-      # Starting speed as a fraction of Lactate Threshold.
-      # TOR athletes start close to the fatigue floor (~55% of LT).
+      # Starting speed as a fraction of Lactate Threshold, for the sigmoidal fatigue model.
       start_threshold_fraction: 0.85
-
-      # Circadian rhythm amplitude (fraction of floor speed): ±15%.
-      circadian_amplitude: 0.15
-
-      # Circadian period in hours (standard 24 h cycle).
-      circadian_period_hours: 24
 
   # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
   start_time: "15:50:00"

@@ -30,11 +30,14 @@ race:
       # TOR athletes start close to the fatigue floor (~55% of LT).
       start_threshold_fraction: 0.7
 
-      # Circadian rhythm amplitude (fraction of floor speed): ±4%.
-      circadian_amplitude: 0.04
-
       # Circadian period in hours (standard 24 h cycle).
       circadian_period_hours: 24
+
+      # Sleep recovery half-life for Process S exponential model (hours).
+      sleep_half_life_hours: 2.5
+
+      # Fatigue reaccumulation half-life for Process S exponential model (hours).
+      fatigue_reaccumulation_half_life_hours: 6
 
   # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
   start_time: "10:00:00"

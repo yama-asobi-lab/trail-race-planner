@@ -59,6 +59,15 @@ from openpyxl.utils import get_column_letter
 
 from race_planner.course import analyze_course
 from race_planner.models.fatigue_model import LinearFatigueModel, MultiDaySigmoidalFatigueModel
+from race_planner.models.fatigue_model import (
+    DEFAULT_CIRCADIAN_AMPLITUDE,
+    DEFAULT_CIRCADIAN_PERIOD_HOURS,
+    DEFAULT_K0_SIGMOID_STEEPNESS,
+    DEFAULT_S0_START_THRESHOLD_FRACTION,
+    DEFAULT_T0_SIGMOID_INFLECTION_HOURS,
+    DEFAULT_SLEEP_HALF_LIFE_HOURS,
+    DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS,
+)
 from race_planner.models.itra_predictor import ItraScorePredictor
 from race_planner.models.nutrition import build_race_nutrition_plan, load_food_catalog
 from race_planner.models.tools import (
@@ -182,30 +191,45 @@ def _resolve_sigmoid_fatigue_model(
     planning = race_config.get("race", {}).get("planning", {}) or {}
     fatigue_params = planning.get("fatigue_parameters") or {}
 
-    # Resolve starting threshold fraction: CLI > race config > default.
-    # The race config key is start_threshold_fraction (dimensionless ratio, e.g. 0.55).
+    # Resolve starting threshold fraction: CLI > race config.
     if start_pct_cli is not None:
         start_pct = float(start_pct_cli)
     elif "start_threshold_fraction" in fatigue_params:
         start_pct = float(fatigue_params["start_threshold_fraction"])
     else:
-        start_pct = 0.55
+        raise ValueError(
+            "Sigmoid fatigue model requires a starting threshold fraction "
+            "(either via CLI --sigmoid-fatigue-start-thrsld-ratio or "
+            "race.planning.fatigue_parameters.start_threshold_fraction)."
+        )
+
+    s_0 = physiology.get("s_0", DEFAULT_S0_START_THRESHOLD_FRACTION)
+    t_0_hours = physiology.get("t_0_hours", DEFAULT_T0_SIGMOID_INFLECTION_HOURS)
+    k_0 = physiology.get("k_0", DEFAULT_K0_SIGMOID_STEEPNESS)
+
+    circ_amp = physiology.get("circadian_amplitude_fraction", DEFAULT_CIRCADIAN_AMPLITUDE)
+
+    circ_per = fatigue_params.get("circadian_period_hours", DEFAULT_CIRCADIAN_PERIOD_HOURS)
+    sleep_hl = physiology.get(
+        "sleep_half_life_hours",
+        fatigue_params.get("sleep_half_life_hours"),
+        DEFAULT_SLEEP_HALF_LIFE_HOURS,
+    )
+    fatigue_reaccumulation_half_life_hours = fatigue_params.get(
+        "fatigue_reaccumulation_half_life_hours", DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS
+    )
 
     return MultiDaySigmoidalFatigueModel(
         threshold_speed_kmh=threshold_speed_kmh,
         floor_speed_kmh=float(floor_speed_kmh),
         start_pct=start_pct,
-        s_0=physiology.get("s_0"),
-        t_0_hours=physiology.get("t_0_hours"),
-        k_0=physiology.get("k_0"),
-        circadian_amplitude=physiology.get(
-            "circadian_amplitude_fraction",
-            fatigue_params.get("circadian_amplitude"),
-        ),
-        circadian_period_hours=fatigue_params.get("circadian_period_hours"),
-        sleep_half_life_hours=physiology.get(
-            "sleep_half_life_hours", fatigue_params.get("sleep_half_life_hours")
-        ),
+        s_0=s_0,
+        t_0_hours=t_0_hours,
+        k_0=k_0,
+        circadian_amplitude=circ_amp,
+        circadian_period_hours=circ_per,
+        sleep_half_life_hours=sleep_hl,
+        fatigue_reaccumulation_half_life_hours=fatigue_reaccumulation_half_life_hours,
     )
 
 

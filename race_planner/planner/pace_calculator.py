@@ -323,11 +323,35 @@ class PaceCalculator:
         point_mask = course.df["cum_dist_m"].values <= end_distance_m
         return float(weighted_distance_km_values[point_mask].sum())
 
+    def _build_sleep_events(
+        self,
+        aid_stations: List[Dict],
+    ) -> List[tuple[float, float]]:
+        """Derive sleep events (nap_start_time_hours, nap_duration_hours) from aid stations."""
+        if not isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            return []
+
+        sleep_events: List[tuple[float, float]] = []
+        for aid in aid_stations:
+            sleep_s = float(aid.get("sleep_duration_s") or 0.0)
+            if sleep_s <= 0:
+                continue
+
+            d_km = float(aid.get("distance_km", 0.0))
+            # Solve arrival time in hours using sleep events logged up to this aid station
+            t_arrival_h = self.fatigue_model_instance.elapsed_hours_for_distance(
+                d_km, sleep_events=sleep_events
+            )
+            nap_duration_h = sleep_s / 3600.0
+            sleep_events.append((t_arrival_h, nap_duration_h))
+
+        return sleep_events
+
     def fatigue_multiplier(
         self,
         progress_fraction_values: np.ndarray,
         cumulative_distance_km_values: Optional[np.ndarray] = None,
-        cumulative_sleep_duration_s_values: Optional[np.ndarray] = None,
+        sleep_events: Optional[List[tuple[float, float]]] = None,
     ) -> np.ndarray:
         """Return per-point pace multipliers, delegating to the configured fatigue model.
 
@@ -346,29 +370,27 @@ class PaceCalculator:
             progress_fraction_values: Race completion fraction per point, in [0, 1].
             cumulative_distance_km_values: Cumulative distance (km) per point;
                 required when a sigmoidal model is active.
-            cumulative_sleep_duration_s_values: Cumulative sleep (s) per point;
-                required when a sigmoidal model is active.
+            sleep_events: List of (nap_start_time_hours, nap_duration_hours) tuples.
 
         Returns:
             Array of pace multipliers (≥ 1.0 means slower than starting pace).
         """
         if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
             assert cumulative_distance_km_values is not None
-            assert cumulative_sleep_duration_s_values is not None
 
             dist_km = np.asarray(cumulative_distance_km_values, dtype=float)
-            sleep_s = np.asarray(cumulative_sleep_duration_s_values, dtype=float)
             if dist_km.size == 0:
                 return np.array([], dtype=float)
 
             max_dist_km = float(dist_km.max())
             sample_count = min(256, max(8, dist_km.size))
             sample_dist_km = np.linspace(0.0, max_dist_km, num=sample_count)
-            sample_sleep_s = np.interp(sample_dist_km, dist_km, sleep_s)
             sample_multipliers = np.array(
                 [
-                    self.fatigue_model_instance.pace_multiplier_for_distance(float(d), float(s))
-                    for d, s in zip(sample_dist_km, sample_sleep_s)
+                    self.fatigue_model_instance.pace_multiplier_for_distance(
+                        float(d), sleep_events=sleep_events
+                    )
+                    for d in sample_dist_km
                 ],
                 dtype=float,
             )
@@ -656,17 +678,15 @@ class PaceCalculator:
         )
 
         if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
-            per_point_sleep_s = self._build_cumulative_sleep_duration_s_values(
-                cumulative_distance_m_values=cumulative_distance_m_values,
-                aid_stations=aid_stations,
-            )
+            sleep_events = self._build_sleep_events(aid_stations)
             fatigue_multiplier_values = self.fatigue_multiplier(
                 progress_fraction_values,
                 cumulative_distance_km_values,
-                per_point_sleep_s,
+                sleep_events=sleep_events,
             )
         else:
             fatigue_multiplier_values = self.fatigue_multiplier(progress_fraction_values)
+
         altitude_multiplier_values = self.altitude_multiplier(elevation_m_values)
 
         # Effective distance = grade-weighted distance * fatigue * altitude multipliers

@@ -16,5 +16,15 @@ race:
     - reference_time: "18:34:00"
       reference_score: 729
 
+  # Optional planning assumptions (can be overridden via CLI)
+  planning:
+    # Sigmoidal fatigue model configuration (used when --fatigue-mode sigmoid).
+    fatigue_parameters:
+      # Starting speed as a fraction of Lactate Threshold, for the sigmoidal fatigue model.
+      start_threshold_fraction: 0.92
+
+  # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
+  start_time: "08:00:00"
+
 # No aid station splits defined yet — the whole course is treated as one segment.
 aid_stations: []

@@ -38,14 +38,14 @@ athlete:
     # Sleep recovery half-life for Process S exponential model (hours).
     sleep_half_life_hours: 2.5
 
-    # Circadian rhythm amplitude as a fraction of floor speed (±15% default).
-    circadian_amplitude_fraction: 0.15
+    # Circadian rhythm amplitude as a fraction of floor speed (±4% default).
+    circadian_amplitude_fraction: 0.02
 
     # Power-law calibration parameters for the sigmoid model.
     # Reference relative intensity S_0 and inflection time t_0 (hours) at S_0.
     # For Carlos: at S_0=0.65 the velocity drop inflection occurs at ~18 h.
-    s_0: 0.65
-    t_0_hours: 18.0
+    s_0: 0.85
+    t_0_hours: 10.0
     # Sigmoid steepness (h⁻¹) at reference intensity S_0.
     k_0: 0.45
 

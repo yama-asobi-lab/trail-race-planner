@@ -58,6 +58,17 @@ _T0_EXPONENT: float = 3.1
 # Power-law exponent for sigmoid-steepness scaling: k = k_0 · (S/S₀)^_K_EXPONENT
 _K_EXPONENT: float = 2.5
 
+DEFAULT_S0_START_THRESHOLD_FRACTION: float = 0.85
+DEFAULT_T0_SIGMOID_INFLECTION_HOURS: float = 10.0  # hours
+DEFAULT_K0_SIGMOID_STEEPNESS: float = 0.45  # h⁻¹
+
+DEFAULT_CIRCADIAN_AMPLITUDE: float = 0.02  # ±2% of floor speed
+DEFAULT_CIRCADIAN_PERIOD_HOURS: float = 24.0
+DEFAULT_CIRCADIAN_PHASE_OFFSET_HOURS: float = 6.0
+
+DEFAULT_SLEEP_HALF_LIFE_HOURS: float = 2.5  # hours
+DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS: float = 8.0  # hours
+
 
 class LinearFatigueModel:
     """Simple linear percentage-based pace decay over a race.
@@ -117,9 +128,10 @@ class MultiDaySigmoidalFatigueModel:
         k_0:
             Sigmoid steepness (h⁻¹) at the reference intensity ``s_0``.  At a
             different *S* it scales as ``k_0 · (S / s_0) ** 2.5``.
+            The transition width (going from 10% to 90%) is approximately ``4.4 / k`` hours.
         circadian_amplitude:
             Amplitude of circadian rhythm oscillation as a fraction of
-            ``floor_speed_kmh``.  Default: 0.04 (±4 %).
+            ``floor_speed_kmh``.  Default: 0.02 (±2 %).
         circadian_period_hours:
             Period of the circadian cycle in hours.  Default: 24.0.
         circadian_phase_offset_hours:
@@ -135,14 +147,14 @@ class MultiDaySigmoidalFatigueModel:
         threshold_speed_kmh: float,
         floor_speed_kmh: float,
         start_pct: float,
-        s_0: float = 0.65,
-        t_0_hours: float = 18.0,
-        k_0: float = 0.45,
-        circadian_amplitude: float = 0.04,
-        circadian_period_hours: float = 24.0,
-        circadian_phase_offset_hours: float = 6.0,
-        sleep_half_life_hours: float = 2.5,
-        fatigue_reaccumulation_half_life_hours: float = 8.0,
+        s_0: float = DEFAULT_S0_START_THRESHOLD_FRACTION,
+        t_0_hours: float = DEFAULT_T0_SIGMOID_INFLECTION_HOURS,
+        k_0: float = DEFAULT_K0_SIGMOID_STEEPNESS,
+        circadian_amplitude: float = DEFAULT_CIRCADIAN_AMPLITUDE,
+        circadian_period_hours: float = DEFAULT_CIRCADIAN_PERIOD_HOURS,
+        circadian_phase_offset_hours: float = DEFAULT_CIRCADIAN_PHASE_OFFSET_HOURS,
+        sleep_half_life_hours: float = DEFAULT_SLEEP_HALF_LIFE_HOURS,
+        fatigue_reaccumulation_half_life_hours: float = DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS,
     ) -> None:
         if threshold_speed_kmh <= 0:
             raise ValueError("threshold_speed_kmh must be > 0")
@@ -197,12 +209,15 @@ class MultiDaySigmoidalFatigueModel:
     def distance_travelled_in_time(
         self,
         elapsed_hours: float,
-        cumulative_sleep_duration_s: float = 0.0,
+        sleep_events: list[tuple[float, float]] = None,
     ) -> float:
-        """Integrate modeled speed over elapsed time.
+        """Integrate modeled speed over elapsed time using sleep events.
 
         This is the physically consistent distance-time inverse of the fatigue
         model and honors fatigue, circadian modulation, and sleep recovery.
+        Args:
+            elapsed_hours: Total elapsed race time in hours.
+            sleep_events: List of (nap_start_time_hours, nap_duration_hours) tuples.
         """
         if elapsed_hours < 0.0:
             raise ValueError("elapsed_hours must be non-negative")
@@ -210,48 +225,56 @@ class MultiDaySigmoidalFatigueModel:
             return 0.0
 
         rounded_elapsed_hours = round(elapsed_hours, 6)
-        rounded_sleep_s = round(cumulative_sleep_duration_s, 3)
+        events_tuple = tuple(sleep_events) if sleep_events else ()
         return self._distance_travelled_in_time_cached(
             rounded_elapsed_hours,
-            rounded_sleep_s,
+            events_tuple,
         )
-
-    def base_sigmoidal_velocity(self, elapsed_hours: float) -> float:
-        """Pure sigmoidal decay without circadian or sleep modifications."""
-        sigmoid_factor = 1.0 / (1.0 + math.exp(self._k_h * (elapsed_hours - self._t_inflection)))
-        return self.floor_speed_kmh + self._v_delta * sigmoid_factor
 
     @lru_cache(maxsize=2048)
     def _distance_travelled_in_time_cached(
         self,
         elapsed_hours: float,
-        cumulative_sleep_duration_s: float,
+        sleep_events_tuple: tuple[tuple[float, float], ...],
     ) -> float:
         n_steps = max(60, min(4000, int(math.ceil(elapsed_hours * 60.0))))
         dt = elapsed_hours / float(n_steps)
         distance_km = 0.0
+        events_list = list(sleep_events_tuple) if sleep_events_tuple else None
 
         for i in range(n_steps):
             t0 = i * dt
             t1 = (i + 1) * dt
-            v0 = self.velocity_at_time(t0 * 3600.0, cumulative_sleep_duration_s)
-            v1 = self.velocity_at_time(t1 * 3600.0, cumulative_sleep_duration_s)
+            v0 = self.velocity_at_time(t0 * 3600.0, events_list)
+            v1 = self.velocity_at_time(t1 * 3600.0, events_list)
             distance_km += 0.5 * (v0 + v1) * dt
 
         return distance_km
 
+    def base_sigmoidal_velocity(self, elapsed_hours: float) -> float:
+        """Pure sigmoidal decay without circadian or sleep modifications."""
+        arg = self._k_h * (elapsed_hours - self._t_inflection)
+
+        # Clamp the argument to prevent OverflowError in math.exp
+        if arg > 700.0:
+            sigmoid_factor = 0.0
+        elif arg < -700.0:
+            sigmoid_factor = 1.0
+        else:
+            sigmoid_factor = 1.0 / (1.0 + math.exp(arg))
+        return self.floor_speed_kmh + self._v_delta * sigmoid_factor
+
     def elapsed_hours_for_distance(
         self,
         distance_km: float,
-        cumulative_sleep_duration_s: float = 0.0,
+        sleep_events: list[tuple[float, float]] = None,
         tolerance_hours: float = 1e-6,
         max_iter: int = 200,
     ) -> float:
         """Solve for elapsed time at a given cumulative distance.
 
         The inversion is done by integrating the modeled speed curve and
-        bisectioning on the cumulative distance, rather than using a fixed
-        average-speed shortcut.
+        bisectioning on the cumulative distance.
         """
         if distance_km < 0.0:
             raise ValueError("distance_km must be non-negative")
@@ -262,19 +285,14 @@ class MultiDaySigmoidalFatigueModel:
         # floor speed as the worst-case sustainable speed to ensure a bracket.
         lower_hours = 0.0
         upper_hours = max(1.0, distance_km / max(self.floor_speed_kmh, 1e-9))
-        while (
-            self.distance_travelled_in_time(upper_hours, cumulative_sleep_duration_s) < distance_km
-        ):
+        while self.distance_travelled_in_time(upper_hours, sleep_events) < distance_km:
             upper_hours *= 2.0
             if upper_hours > 1e6:
-                raise RuntimeError("distance-to-time solver failed to bracket the target distance")
+                raise RuntimeError("distance-to-time solver failed to bracket target distance")
 
         for _ in range(max_iter):
             mid_hours = 0.5 * (lower_hours + upper_hours)
-            if (
-                self.distance_travelled_in_time(mid_hours, cumulative_sleep_duration_s)
-                < distance_km
-            ):
+            if self.distance_travelled_in_time(mid_hours, sleep_events) < distance_km:
                 lower_hours = mid_hours
             else:
                 upper_hours = mid_hours
@@ -286,7 +304,7 @@ class MultiDaySigmoidalFatigueModel:
     def velocity_at_distance(
         self,
         distance_km: float,
-        cumulative_sleep_duration_s: float = 0.0,
+        sleep_events: list[tuple[float, float]] = None,
     ) -> float:
         """Estimated speed at a given cumulative distance.
 
@@ -295,9 +313,9 @@ class MultiDaySigmoidalFatigueModel:
         underlying speed curve.
         """
         if distance_km <= 0.0:
-            return self.velocity_at_time(0.0, cumulative_sleep_duration_s)
-        elapsed_hours = self.elapsed_hours_for_distance(distance_km, cumulative_sleep_duration_s)
-        return self.velocity_at_time(elapsed_hours * 3600.0, cumulative_sleep_duration_s)
+            return self.velocity_at_time(0.0, sleep_events)
+        elapsed_hours = self.elapsed_hours_for_distance(distance_km, sleep_events)
+        return self.velocity_at_time(elapsed_hours * 3600.0, sleep_events)
 
     def velocity_at_time(
         self,
@@ -346,17 +364,17 @@ class MultiDaySigmoidalFatigueModel:
     def pace_multiplier_at_time(
         self,
         elapsed_time_s: float,
-        cumulative_sleep_duration_s: float = 0.0,
+        sleep_events: list[tuple[float, float]] = None,
     ) -> float:
         """Planner-facing pace penalty at a given elapsed time.
 
-        Values larger than 1.0 indicate slower-than-threshold running pace;
-        values below 1.0 would indicate faster-than-threshold pace.
+        Values larger than 1.0 indicate slower-than-baseline running pace;
+        values below 1.0 would indicate faster-than-baseline pace.
         """
-        speed = self.velocity_at_time(elapsed_time_s, cumulative_sleep_duration_s)
+        speed = self.velocity_at_time(elapsed_time_s, sleep_events)
         if speed <= 0:
             return float("inf")
-        return self.threshold_speed_kmh / speed
+        return self._v_start / speed
 
     def pace_multiplier_for_distance(
         self,
