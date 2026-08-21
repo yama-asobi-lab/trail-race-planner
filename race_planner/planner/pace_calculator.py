@@ -104,6 +104,8 @@ from race_planner.models.fatigue_model import LinearFatigueModel, MultiDaySigmoi
 from race_planner.models.pacing_model import PacingModel
 from race_planner.models.tools import seconds_per_km_to_mmss, seconds_to_hms
 
+EPS: float = 1e-6  # small epsilon to avoid floating-point equality issues
+
 
 class PaceCalculator:
     """
@@ -384,7 +386,39 @@ class PaceCalculator:
 
             max_dist_km = float(dist_km.max())
             sample_count = min(256, max(8, dist_km.size))
-            sample_dist_km = np.linspace(0.0, max_dist_km, num=sample_count)
+            # Build a sampling grid that includes nap start/end distances so interpolation
+            # does not straddle nap boundaries (prevents pre-nap "anticipation").
+            base_samples = np.linspace(0.0, max_dist_km, num=sample_count)
+            nap_boundary_distances = []
+            if sleep_events:
+                for nap_start_h, nap_dur_h in sleep_events:
+                    # Convert nap start/end times to distances (km) using the fatigue model.
+                    try:
+                        d_start = self.fatigue_model_instance.distance_travelled_in_time(
+                            nap_start_h, sleep_events
+                        )
+                        d_end = self.fatigue_model_instance.distance_travelled_in_time(
+                            nap_start_h + nap_dur_h, sleep_events
+                        )
+                        # Only include boundaries that lie within the course range
+                        if 0.0 <= d_start <= max_dist_km:
+                            nap_boundary_distances.extend(
+                                [max(0.0, d_start - EPS), d_start, min(max_dist_km, d_start + EPS)]
+                            )
+                        if 0.0 <= d_end <= max_dist_km:
+                            nap_boundary_distances.extend(
+                                [max(0.0, d_end - EPS), d_end, min(max_dist_km, d_end + EPS)]
+                            )
+                    except Exception:
+                        # If conversion fails for any reason, skip adding boundaries.
+                        pass
+            if nap_boundary_distances:
+                sample_dist_km = np.unique(
+                    np.concatenate([base_samples, np.array(nap_boundary_distances, dtype=float)])
+                )
+            else:
+                sample_dist_km = base_samples
+
             sample_multipliers = np.array(
                 [
                     self.fatigue_model_instance.pace_multiplier_for_distance(
@@ -704,12 +738,66 @@ class PaceCalculator:
         if override_total_running_time_s is not None:
             total_running_time_s = float(override_total_running_time_s)
             riegel_method = "target-override"
-            seconds_per_weighted_km = (
-                total_running_time_s / total_effective_weighted_distance_km
-                if total_effective_weighted_distance_km > 0
-                else 0.0
-            )
-            point_times_s = point_effective_weighted_distance_km_values * seconds_per_weighted_km
+
+            if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+                # Bisection solver: Find the V_start that yields the target running time
+                v_low = self.fatigue_model_instance.floor_speed_kmh + 0.01
+                v_high = self.fatigue_model_instance.threshold_speed_kmh
+
+                for _ in range(25):
+                    v_mid = (v_low + v_high) / 2.0
+
+                    # Temporarily adjust the fatigue model bounds
+                    self.fatigue_model_instance.start_pct = (
+                        v_mid / self.fatigue_model_instance.threshold_speed_kmh
+                    )
+                    self.fatigue_model_instance._v_start = v_mid
+                    self.fatigue_model_instance._v_delta = (
+                        v_mid - self.fatigue_model_instance.floor_speed_kmh
+                    )
+
+                    # Recompute fatigue arrays with the new start parameter
+                    temp_fatigue = self.fatigue_multiplier(
+                        progress_fraction_values,
+                        cumulative_distance_km_values,
+                        sleep_events,
+                    )
+                    temp_effective_dist = (
+                        point_grade_weighted_distance_km_values
+                        * temp_fatigue
+                        * altitude_multiplier_values
+                    )
+
+                    # Calculate segment times using the candidate V_start
+                    fed_baseline_pace_s_per_km = 3600.0 / v_mid
+                    candidate_point_times_s = temp_effective_dist * fed_baseline_pace_s_per_km
+
+                    simulated_total = float(candidate_point_times_s[planned_point_mask].sum())
+
+                    # Check if total time is within a 30-second tolerance
+                    if abs(simulated_total - total_running_time_s) < 30.0:
+                        point_times_s = candidate_point_times_s
+                        fatigue_multiplier_values = temp_fatigue
+                        break
+                    elif simulated_total > total_running_time_s:
+                        v_low = v_mid  # Too slow, need higher V_start
+                    else:
+                        v_high = v_mid  # Too fast, need lower V_start
+                else:
+                    # Fallback to nearest estimate if tolerance not met within 25 iterations
+                    point_times_s = candidate_point_times_s
+                    fatigue_multiplier_values = temp_fatigue
+            else:
+                # Retain original linear scaling for LinearFatigueModel
+                seconds_per_weighted_km = (
+                    total_running_time_s / total_effective_weighted_distance_km
+                    if total_effective_weighted_distance_km > 0
+                    else 0.0
+                )
+                point_times_s = (
+                    point_effective_weighted_distance_km_values * seconds_per_weighted_km
+                )
+
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
             riegel_running_time_approx_s = self.predict_riegel_race_time_sec(

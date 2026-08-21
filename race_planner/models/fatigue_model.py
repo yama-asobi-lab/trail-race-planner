@@ -66,8 +66,10 @@ DEFAULT_CIRCADIAN_AMPLITUDE: float = 0.02  # ±2% of floor speed
 DEFAULT_CIRCADIAN_PERIOD_HOURS: float = 24.0
 DEFAULT_CIRCADIAN_PHASE_OFFSET_HOURS: float = 6.0
 
-DEFAULT_SLEEP_HALF_LIFE_HOURS: float = 2.5  # hours
-DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS: float = 8.0  # hours
+DEFAULT_SLEEP_HALF_LIFE_HOURS: float = 4  # hours
+DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS: float = 6.0  # hours
+
+EPS = 1e-4
 
 
 class LinearFatigueModel:
@@ -131,15 +133,14 @@ class MultiDaySigmoidalFatigueModel:
             The transition width (going from 10% to 90%) is approximately ``4.4 / k`` hours.
         circadian_amplitude:
             Amplitude of circadian rhythm oscillation as a fraction of
-            ``floor_speed_kmh``.  Default: 0.02 (±2 %).
+            ``floor_speed_kmh``.
         circadian_period_hours:
-            Period of the circadian cycle in hours.  Default: 24.0.
+            Period of the circadian cycle in hours.
         circadian_phase_offset_hours:
-            Phase shift of the circadian sine wave in hours.  Default: 6.0.
+            Phase shift of the circadian sine wave in hours.
         sleep_half_life_hours:
             Half-life for exponential sleep-pressure recovery (Process S).
             Set to a large value (or omit sleep inputs) for single-day events.
-            Default: 2.5 hours.
     """
 
     def __init__(
@@ -224,7 +225,10 @@ class MultiDaySigmoidalFatigueModel:
         if elapsed_hours == 0.0:
             return 0.0
 
-        rounded_elapsed_hours = round(elapsed_hours, 6)
+        rounded_elapsed_hours = round(
+            elapsed_hours, 3
+        )  # Round to avoid cache misses due to floating-point noise
+        # lru_cache requires hashable args. Passing lists/dicts will raise TypeError, pass to tuple.
         events_tuple = tuple(sleep_events) if sleep_events else ()
         return self._distance_travelled_in_time_cached(
             rounded_elapsed_hours,
@@ -237,17 +241,32 @@ class MultiDaySigmoidalFatigueModel:
         elapsed_hours: float,
         sleep_events_tuple: tuple[tuple[float, float], ...],
     ) -> float:
-        n_steps = max(60, min(4000, int(math.ceil(elapsed_hours * 60.0))))
+        # Adaptive integration: fewer steps for long durations, reuse velocity evaluations.
+        # Keep a reasonable minimum and cap to avoid excessive work.
+        n_steps = max(80, min(2000, int(math.ceil(elapsed_hours * 60.0))))
         dt = elapsed_hours / float(n_steps)
         distance_km = 0.0
         events_list = list(sleep_events_tuple) if sleep_events_tuple else None
 
+        # Precompute velocities, returning 0.0 during sleep to prevent distance accumulation
+        times_s = [i * dt * 3600.0 for i in range(n_steps + 1)]
+        v_vals = []
+        for t in times_s:
+            t_h = t / 3600.0
+            is_sleeping = False
+            if events_list:
+                for nap_start, nap_dur in events_list:
+                    if nap_start <= t_h < nap_start + nap_dur:
+                        is_sleeping = True
+                        break
+            if is_sleeping:
+                v_vals.append(0.0)
+            else:
+                v_vals.append(self.velocity_at_time(t, events_list))
+
+        # Trapezoidal integration using precomputed velocities
         for i in range(n_steps):
-            t0 = i * dt
-            t1 = (i + 1) * dt
-            v0 = self.velocity_at_time(t0 * 3600.0, events_list)
-            v1 = self.velocity_at_time(t1 * 3600.0, events_list)
-            distance_km += 0.5 * (v0 + v1) * dt
+            distance_km += 0.5 * (v_vals[i] + v_vals[i + 1]) * dt
 
         return distance_km
 
@@ -266,40 +285,28 @@ class MultiDaySigmoidalFatigueModel:
 
     def elapsed_hours_for_distance(
         self,
-        distance_km: float,
+        target_distance_km: float,
         sleep_events: list[tuple[float, float]] = None,
-        tolerance_hours: float = 1e-6,
-        max_iter: int = 200,
     ) -> float:
-        """Solve for elapsed time at a given cumulative distance.
+        """Solve for elapsed time at a given cumulative distance."""
+        from scipy.optimize import root_scalar
 
-        The inversion is done by integrating the modeled speed curve and
-        bisectioning on the cumulative distance.
-        """
-        if distance_km < 0.0:
-            raise ValueError("distance_km must be non-negative")
-        if distance_km == 0.0:
-            return 0.0
+        def distance_error(t_hours: float) -> float:
+            # We use the cached integration function here
+            return self.distance_travelled_in_time(t_hours, sleep_events) - target_distance_km
 
-        # A lower bound of zero is valid, and the upper bound is chosen using the
-        # floor speed as the worst-case sustainable speed to ensure a bracket.
-        lower_hours = 0.0
-        upper_hours = max(1.0, distance_km / max(self.floor_speed_kmh, 1e-9))
-        while self.distance_travelled_in_time(upper_hours, sleep_events) < distance_km:
-            upper_hours *= 2.0
-            if upper_hours > 1e6:
-                raise RuntimeError("distance-to-time solver failed to bracket target distance")
+        # Bracket up to 200 hours to safely cover the TOR330 time limit
+        res = root_scalar(
+            distance_error,
+            bracket=[0.0, 200.0],
+            method='brentq',
+            xtol=1e-4,  # Ensure high precision on the time boundary
+        )
 
-        for _ in range(max_iter):
-            mid_hours = 0.5 * (lower_hours + upper_hours)
-            if self.distance_travelled_in_time(mid_hours, sleep_events) < distance_km:
-                lower_hours = mid_hours
-            else:
-                upper_hours = mid_hours
-            if upper_hours - lower_hours <= tolerance_hours:
-                break
+        if not res.converged:
+            raise RuntimeError(f"Solver failed to find arrival time for {target_distance_km}km")
 
-        return 0.5 * (lower_hours + upper_hours)
+        return res.root
 
     def velocity_at_distance(
         self,
@@ -329,7 +336,9 @@ class MultiDaySigmoidalFatigueModel:
             sleep_events: List of (nap_start_time_hours, nap_duration_hours) tuples.
         """
         elapsed_hours = elapsed_time_s / 3600.0
-        sigmoid_velocity = self.base_sigmoidal_velocity(elapsed_hours)
+        # Base fatigue is driven strictly by time spent moving
+        moving_time = elapsed_hours - self._cumulative_sleep_at_time(elapsed_hours, sleep_events)
+        sigmoid_velocity = self.base_sigmoidal_velocity(moving_time)
 
         # 1. Circadian oscillation
         circadian_phase = (
@@ -342,19 +351,55 @@ class MultiDaySigmoidalFatigueModel:
 
         # 2. Stateful decaying sleep recovery
         v_sleep_boost = 0.0
-        if sleep_events:
-            for nap_start_h, nap_duration_h in sleep_events:
+        sorted_naps = sorted(sleep_events or [], key=lambda x: x[0])
+
+        if sorted_naps:
+            # Precompute each nap's initial_boost in chronological order, accounting for prior nap contributions.
+            nap_infos: list[dict] = []
+            for nap_start_h, nap_duration_h in sorted_naps:
                 nap_end_h = nap_start_h + nap_duration_h
-                if elapsed_hours >= nap_end_h:
-                    # Velocity lost at time of nap
-                    v_lost = self._v_start - self.base_sigmoidal_velocity(nap_start_h)
-                    # Recovery fraction from nap
-                    eta_sleep = 1.0 - math.exp(-self._sleep_lambda * nap_duration_h)
-                    initial_boost = eta_sleep * max(0.0, v_lost)
-                    # Exponential decay of boost as continuous running resumes
-                    time_since_nap = elapsed_hours - nap_end_h
-                    v_sleep_boost += initial_boost * math.exp(
-                        -self._reaccum_lambda * time_since_nap
+                # velocity just before nap: base sigmoid + circadian + decayed contributions from earlier naps
+                # Convert absolute nap_start_h to moving time so the base sigmoid doesn't decay during prior sleep
+                moving_time_at_nap = nap_start_h - self._cumulative_sleep_at_time(
+                    nap_start_h, sleep_events
+                )
+                v_before = self.base_sigmoidal_velocity(moving_time_at_nap) + self._circadian_delta(
+                    nap_start_h
+                )
+                # add decayed contributions from earlier naps that ended before this nap_start
+                for prev in nap_infos:
+                    prev_end = prev["nap_end_h"]
+                    if prev_end + EPS < nap_start_h:
+                        moving_time_at_prev_end = prev_end - self._cumulative_sleep_at_time(
+                            prev_end, sleep_events
+                        )
+                        time_since_prev_moving = max(
+                            0.0, moving_time_at_nap - moving_time_at_prev_end
+                        )
+                        v_before += prev["initial_boost"] * math.exp(
+                            -self._reaccum_lambda * time_since_prev_moving
+                        )
+
+                v_lost = max(0.0, self._v_start - v_before)
+                eta_sleep = 1.0 - math.exp(-self._sleep_lambda * nap_duration_h)
+                initial_boost = eta_sleep * v_lost
+                nap_infos.append(
+                    {
+                        "nap_start_h": nap_start_h,
+                        "nap_end_h": nap_end_h,
+                        "initial_boost": initial_boost,
+                    }
+                )
+
+            # Now sum contributions of naps that have finished before elapsed_hours
+            for info in nap_infos:
+                if elapsed_hours > info["nap_end_h"] - EPS:
+                    moving_time_at_end = info["nap_end_h"] - self._cumulative_sleep_at_time(
+                        info["nap_end_h"], sleep_events
+                    )
+                    time_since_nap_moving = max(0.0, moving_time - moving_time_at_end)
+                    v_sleep_boost += info["initial_boost"] * math.exp(
+                        -self._reaccum_lambda * time_since_nap_moving
                     )
 
         # 3. Combine and clamp strictly to [V_floor, V_start]
@@ -384,7 +429,7 @@ class MultiDaySigmoidalFatigueModel:
         """Return pace multiplier (>= 1.0) relative to starting speed."""
         t_h = self.elapsed_hours_for_distance(distance_km, sleep_events)
         v_t = self.velocity_at_time(t_h * 3600.0, sleep_events)
-        return self._v_start / max(v_t, 1e-6)
+        return self._v_start / max(v_t, EPS)
 
     def apply_nap_recovery(
         self,
@@ -425,27 +470,14 @@ class MultiDaySigmoidalFatigueModel:
         phase /= self.circadian_period_hours
         return self.circadian_amplitude * self.floor_speed_kmh * math.sin(phase)
 
-    def _sleep_recovery_delta(self, cumulative_sleep_duration_s: float) -> float:
-        """Velocity boost from cumulative sleep.
-
-        This is the Process S recovery term: sleep reduces the accumulated fatigue
-        debt and increases speed by a fraction of the gap between the starting
-        speed and the floor speed.
-
-        Uses the exponential recovery model::
-
-            ΔV = (V_start − V_floor) · (1 − exp(−λ · sleep_hours))
-
-        This ensures the first hour of sleep gives the largest recovery gain,
-        consistent with the steep initial drop of Process S.
-
-        Args:
-            cumulative_sleep_duration_s: Total sleep in seconds.
-
-        Returns:
-            Additive velocity boost in km/h.
-        """
-        if cumulative_sleep_duration_s <= 0.0:
-            return 0.0
-        sleep_hours = cumulative_sleep_duration_s / 3600.0
-        return self._v_delta * (1.0 - math.exp(-self._sleep_lambda * sleep_hours))
+    def _cumulative_sleep_at_time(
+        self, elapsed_hours, sleep_events: list[tuple[float, float]] = None
+    ):
+        sleep_hours = 0.0
+        if sleep_events is None:
+            sleep_events = []
+        sorted_naps = sorted(sleep_events)
+        for nap_start_h, nap_duration_h in sorted_naps:
+            if elapsed_hours > nap_start_h:
+                sleep_hours += min(elapsed_hours - nap_start_h, nap_duration_h)
+        return sleep_hours

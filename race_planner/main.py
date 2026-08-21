@@ -212,11 +212,13 @@ def _resolve_sigmoid_fatigue_model(
     circ_per = fatigue_params.get("circadian_period_hours", DEFAULT_CIRCADIAN_PERIOD_HOURS)
     sleep_hl = physiology.get(
         "sleep_half_life_hours",
-        fatigue_params.get("sleep_half_life_hours"),
-        DEFAULT_SLEEP_HALF_LIFE_HOURS,
+        fatigue_params.get("sleep_half_life_hours", DEFAULT_SLEEP_HALF_LIFE_HOURS),
     )
-    fatigue_reaccumulation_half_life_hours = fatigue_params.get(
-        "fatigue_reaccumulation_half_life_hours", DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS
+    fatigue_reaccumulation_half_life_hours = physiology.get(
+        "fatigue_reaccumulation_half_life_hours",
+        fatigue_params.get(
+            "fatigue_reaccumulation_half_life_hours", DEFAULT_FATIGUE_REACCUMULATION_HALF_LIFE_HOURS
+        ),
     )
 
     return MultiDaySigmoidalFatigueModel(

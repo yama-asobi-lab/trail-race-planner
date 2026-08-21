@@ -33,13 +33,16 @@ athlete:
   # Optional physiology parameters for the sigmoidal fatigue model.
   fatigue_physiology:
     # Minimum sustainable speed for expedition-length races (biological floor).
-    floor_speed_kmh: 7.0  # ~8:34 min/km
+    floor_speed_kmh: 6.0  # ~10:00 min/km
 
     # Sleep recovery half-life for Process S exponential model (hours).
-    sleep_half_life_hours: 2.5
+    sleep_half_life_hours: 3.5
+
+    # Fatigue reaccumulation half-life for Process S exponential model (hours).
+    fatigue_reaccumulation_half_life_hours: 3  # This value is normally between 6 and 8 hours, but in the deep fatigue state of late race, I assume fast fatigue reaccumulation.
 
     # Circadian rhythm amplitude as a fraction of floor speed (±4% default).
-    circadian_amplitude_fraction: 0.02
+    circadian_amplitude_fraction: 0.0001 # set as virtually zero to disable it (due to bugs).
 
     # Power-law calibration parameters for the sigmoid model.
     # Reference relative intensity S_0 and inflection time t_0 (hours) at S_0.

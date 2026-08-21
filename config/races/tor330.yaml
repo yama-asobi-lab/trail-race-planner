@@ -28,16 +28,10 @@ race:
     fatigue_parameters:
       # Starting speed as a fraction of Lactate Threshold.
       # TOR athletes start close to the fatigue floor (~55% of LT).
-      start_threshold_fraction: 0.7
+      start_threshold_fraction: 0.8  # TODO: update this. Temporary high value for easier debugging
 
       # Circadian period in hours (standard 24 h cycle).
       circadian_period_hours: 24
-
-      # Sleep recovery half-life for Process S exponential model (hours).
-      sleep_half_life_hours: 2.5
-
-      # Fatigue reaccumulation half-life for Process S exponential model (hours).
-      fatigue_reaccumulation_half_life_hours: 6
 
   # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
   start_time: "10:00:00"
@@ -134,12 +128,12 @@ aid_stations:
   - name: "**COGNE**"
     distance_km: 104
     elevation_m: 1536   # reference
-    stop_time_s: 6000
+    stop_time_s: 1800
     notes: "Base Vita! Waypoint: Valnontey (1670 m). 3 km road down from here."
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
     cutoff_in_time: "D3 04:00"
     car_access: true
-    sleep_duration_s: 5400
+    sleep_duration_s: 1200
 
   - name: "Goilles Dessous"
     distance_km: 109.8
@@ -244,12 +238,12 @@ aid_stations:
   - name: "**GRESSONEY**"
     distance_km: 203.8
     elevation_m: 1376   # reference
-    stop_time_s: 6000
+    stop_time_s: 4500
     notes: "Base Vita!"
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
     cutoff_in_time: "D4 23:00"
     car_access: true
-    sleep_duration_s: 5400
+    sleep_duration_s: 3600
 
   - name: "Rifugio Alpenzu"
     distance_km: 208.9
@@ -279,7 +273,7 @@ aid_stations:
   - name: "**VALTOURNENCHE**"
     distance_km: 237.5
     elevation_m: 1504   # reference
-    stop_time_s: 300
+    stop_time_s: 1000
     notes: "Base Vita! Waypoints: Col Des Fontaines (2694 m, W), Chenal (2110 m, W)"
     gmaps_link: "https://maps.app.goo.gl/Dprw9RcpNrkbsedj7"
     cutoff_in_time: "D5 19:00"
@@ -341,12 +335,12 @@ aid_stations:
   - name: "**OLLOMONT**"
     distance_km: 286.5
     elevation_m: 1384   # reference
-    stop_time_s: 6000
+    stop_time_s: 1000
     notes: "Base Vita! Waypoint: Col Brison (2519 m, A) Berrio Damon (1936 m)"
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"
     cutoff_in_time: "D6 17:00"
     car_access: true
-    sleep_duration_s: 5400
+    sleep_duration_s: 900
 
   - name: "Rifugio Champillon"
     distance_km: 291.2
