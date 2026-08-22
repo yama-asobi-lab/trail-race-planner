@@ -28,7 +28,7 @@ race:
     fatigue_parameters:
       # Starting speed as a fraction of Lactate Threshold.
       # TOR athletes start close to the fatigue floor (~55% of LT).
-      start_threshold_fraction: 0.8  # TODO: update this. Temporary high value for easier debugging
+      start_threshold_fraction: 0.7  # TODO: update this. Temporary high value for easier debugging
 
       # Circadian period in hours (standard 24 h cycle).
       circadian_period_hours: 24
@@ -128,12 +128,11 @@ aid_stations:
   - name: "**COGNE**"
     distance_km: 104
     elevation_m: 1536   # reference
-    stop_time_s: 1800
+    stop_time_s: 300
     notes: "Base Vita! Waypoint: Valnontey (1670 m). 3 km road down from here."
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
     cutoff_in_time: "D3 04:00"
     car_access: true
-    sleep_duration_s: 1200
 
   - name: "Goilles Dessous"
     distance_km: 109.8
@@ -145,10 +144,11 @@ aid_stations:
   - name: "Rifugio Dondena"
     distance_km: 126.0
     elevation_m: 2192   # reference
-    stop_time_s: 60
+    stop_time_s: 1800
     notes: "Ristoro. Waypoint: Finestra Di Champorcher (2827 m), Rifugio Del Misérin (2583 m). 4 km road from Miserin"
     gmaps_link: "https://maps.app.goo.gl/bDUUPrjPHkMbqXjj6"
     car_access: true
+    sleep_duration_s: 1200
 
   - name: "Chardonnay - Champorcher"
     distance_km: 131.6
@@ -222,11 +222,12 @@ aid_stations:
   - name: "Niel - Dortoir La Gruba"
     distance_km: 190.5
     elevation_m: 1557   # reference
-    stop_time_s: 60
+    stop_time_s: 6000
     notes: "Ristoro + Soccorso"
     gmaps_link: "https://maps.app.goo.gl/ughUSVbjEJFyusfR9"
     cutoff_in_time: "D4 19:30"
     car_access: true
+    sleep_duration_s: 5400
 
   - name: "Bleckene - Loo Superiore"
     distance_km: 196.7
@@ -238,12 +239,11 @@ aid_stations:
   - name: "**GRESSONEY**"
     distance_km: 203.8
     elevation_m: 1376   # reference
-    stop_time_s: 4500
+    stop_time_s: 300
     notes: "Base Vita!"
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
     cutoff_in_time: "D4 23:00"
     car_access: true
-    sleep_duration_s: 3600
 
   - name: "Rifugio Alpenzu"
     distance_km: 208.9
@@ -297,10 +297,11 @@ aid_stations:
   - name: "Rifugio Lo Magià"
     distance_km: 255.8
     elevation_m: 1996   # reference
-    stop_time_s: 60
+    stop_time_s: 6000
     notes: "Ristoro. Waypoint: Fenêtre Du Tsan (2739 m)"
     gmaps_link: "https://maps.app.goo.gl/12WNSxLdKf92VpTy7"
     car_access: true
+    sleep_duration_s: 5400
 
   - name: "Rifugio Cuney"
     distance_km: 259.3
@@ -335,12 +336,11 @@ aid_stations:
   - name: "**OLLOMONT**"
     distance_km: 286.5
     elevation_m: 1384   # reference
-    stop_time_s: 1000
+    stop_time_s: 300
     notes: "Base Vita! Waypoint: Col Brison (2519 m, A) Berrio Damon (1936 m)"
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"
     cutoff_in_time: "D6 17:00"
     car_access: true
-    sleep_duration_s: 900
 
   - name: "Rifugio Champillon"
     distance_km: 291.2

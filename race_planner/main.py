@@ -78,6 +78,7 @@ from race_planner.models.tools import (
     hours_to_hms,
     pace_to_seconds_per_km,
     seconds_to_hms,
+    pace_to_speed_kmh,
 )
 from race_planner.planner import PaceCalculator
 from race_planner.visualization.pace_profile import plot_grade_adjusted_pace_profile
@@ -830,6 +831,27 @@ def main():
     # Resolve sigmoid model if requested
     sigmoid_fatigue_model = None
     if effective_fatigue_mode == "sigmoid":
+        # If user wants a specific starting GAP, calculate the S factor dynamically
+        if args.mode == "grade_adjusted_pace" and args.target_grade_adjusted_pace:
+            pref = athlete_config.get("athlete", {}).get("preferences", {})
+            lt_str = pref.get("threshold_flat_pace_per_km")
+            if not lt_str:
+                logger.error("Athlete config missing 'threshold_flat_pace_per_km'")
+                sys.exit(1)
+
+            # Convert paces to km/h
+            threshold_speed_kmh = pace_to_speed_kmh(pace_to_seconds_per_km(lt_str))
+            target_speed_kmh = pace_to_speed_kmh(
+                pace_to_seconds_per_km(args.target_grade_adjusted_pace)
+            )
+
+            # Override the CLI ratio argument with the calculated biological ratio
+            args.sigmoid_fatigue_start_thrsld_ratio = target_speed_kmh / threshold_speed_kmh
+            logger.info(
+                f"Dynamic Sigmoid Anchor: Target GAP {args.target_grade_adjusted_pace} = {target_speed_kmh:.1f} km/h "
+                f"({args.sigmoid_fatigue_start_thrsld_ratio:.1%} of LT)"
+            )
+
         try:
             sigmoid_fatigue_model = _resolve_sigmoid_fatigue_model(
                 race_config=race_config,
@@ -970,23 +992,31 @@ def main():
             logger.error("--target-grade-adjusted-pace must be positive")
             sys.exit(1)
 
-        planned_finish_distance_km = (
-            float(aid_stations[-1].get("distance_km", course.total_distance_km))
-            if aid_stations
-            else None
-        )
-        total_grade_weighted_km = calc.grade_weighted_distance_km(
-            course,
-            end_distance_km=planned_finish_distance_km,
-        )
-        override_running_time_s = total_grade_weighted_km * target_grade_adjusted_pace_s_per_km
-        total_stop_s = _total_stop_time_s(aid_stations)
-        logger.info(
-            f"Target grade-adjusted pace: {args.target_grade_adjusted_pace}  "
-            f"(weighted distance: {total_grade_weighted_km:.2f} km, "
-            f"running: {seconds_to_hms(override_running_time_s)}, "
-            f"stops: {seconds_to_hms(total_stop_s)})"
-        )
+        # Bypass global time scaling for the sigmoid model
+        if effective_fatigue_mode == "sigmoid":
+            override_running_time_s = None
+            logger.info(
+                f"Target starting GAP: {args.target_grade_adjusted_pace}. "
+                "Global scaling bypassed (using absolute sigmoid fatigue)."
+            )
+        else:
+            planned_finish_distance_km = (
+                float(aid_stations[-1].get("distance_km", course.total_distance_km))
+                if aid_stations
+                else None
+            )
+            total_grade_weighted_km = calc.grade_weighted_distance_km(
+                course,
+                end_distance_km=planned_finish_distance_km,
+            )
+            override_running_time_s = total_grade_weighted_km * target_grade_adjusted_pace_s_per_km
+            total_stop_s = _total_stop_time_s(aid_stations)
+            logger.info(
+                f"Target grade-adjusted pace: {args.target_grade_adjusted_pace}  "
+                f"(weighted distance: {total_grade_weighted_km:.2f} km, "
+                f"running: {seconds_to_hms(override_running_time_s)}, "
+                f"stops: {seconds_to_hms(total_stop_s)})"
+            )
 
     # ------------------------------------------------------------------
     # 4. Pacing plan
