@@ -4,7 +4,7 @@
     <link href="http://www.garmin.com">
       <text>Garmin International</text>
     </link>
-    <time>2025-08-20T14:27:29Z</time>
+    <time>2026-08-14T15:40:20Z</time>
     <bounds maxlat="45.880257999524474" maxlon="7.92977225035429" minlat="45.547682689502835" minlon="6.920883804559708"/>
   </metadata>
   <wpt lat="45.743773458525538" lon="6.93939071148634">
@@ -164,30 +164,10 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
-  <wpt lat="45.863088676705956" lon="7.319320505484939">
-    <ele>1936.41796875</ele>
-    <time>2016-07-29T11:07:28Z</time>
-    <name>Berrio Damon</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Restaurant</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-29T11:07:28Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
   <wpt lat="45.826322799548507" lon="7.458017533645034">
     <ele>2683.48828125</ele>
     <time>2016-07-29T10:36:54Z</time>
-    <name>Bivacco Rosaire Clermont</name>
+    <name>Bivacco Clermont</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Restaurant</sym>
@@ -326,7 +306,7 @@
   <wpt lat="45.621164068579674" lon="7.607577508315444">
     <ele>1435.48828125</ele>
     <time>2016-07-28T15:52:56Z</time>
-    <name>Chardonney - Champorcher</name>
+    <name>Champorcher</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Restaurant</sym>
@@ -726,7 +706,7 @@
   <wpt lat="45.643570488318801" lon="7.903047138825059">
     <ele>1911</ele>
     <time>2025-08-13T14:20:03Z</time>
-    <name>Crest</name>
+    <name>Crest - waypoint</name>
     <cmt>It’s only a waypoint</cmt>
     <desc>It’s only a waypoint</desc>
     <sym>Navaid, Black</sym>
@@ -765,7 +745,7 @@
   </wpt>
   <wpt lat="45.567569006234407" lon="7.207719990983605">
     <time>2016-07-28T15:44:22Z</time>
-    <name>Eaux Rousses</name>
+    <name>Eau Rousse</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point Barriera oraria - Barriere horaire - Time deadline</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point Barriera oraria - Barriere horaire - Time deadline</desc>
     <sym>Restaurant</sym>
@@ -881,8 +861,8 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
-  <wpt lat="45.715356543660164" lon="6.950102280825377">
-    <ele>1460</ele>
+  <wpt lat="45.714052487164736" lon="6.950735617429018">
+    <ele>1462.4609375</ele>
     <time>2016-07-28T11:08:33Z</time>
     <name>La Thuile</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
@@ -981,10 +961,30 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
+  <wpt lat="45.81043666228652" lon="6.979572800919414">
+    <ele>2028.5625</ele>
+    <time>2016-07-28T10:46:38Z</time>
+    <name>Mont de la Saxe</name>
+    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Restaurant</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-28T10:46:38Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
   <wpt lat="45.718532614409924" lon="7.90335944853723">
     <ele>1557.375</ele>
     <time>2016-07-28T16:12:50Z</time>
-    <name>Niel - Dortoir La Gruba</name>
+    <name>Niel - La Gruba</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1080,6 +1080,26 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
+  <wpt lat="45.599387800320983" lon="7.799201309680939">
+    <ele>351.70703125</ele>
+    <time>2026-08-14T14:55:15Z</time>
+    <name>Pont-Saint-Martin</name>
+    <cmt>Crono Checkpoint</cmt>
+    <desc>Crono Checkpoint</desc>
+    <sym>Navaid, Red</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2026-08-14T14:55:15Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
   <wpt lat="45.845653396099806" lon="7.230930654332042">
     <ele>1875.6875</ele>
     <time>2016-07-29T11:14:15Z</time>
@@ -1122,7 +1142,7 @@
   </wpt>
   <wpt lat="45.799025539308786" lon="7.816464677453041">
     <time>2016-07-29T10:20:29Z</time>
-    <name>Rifugio Alpenzu</name>
+    <name>Rif. Alpenzu</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1139,67 +1159,9 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
-  <wpt lat="45.846861144527793" lon="7.033425942063332">
-    <ele>2025</ele>
-    <time>2022-05-11T14:41:35Z</time>
-    <name>Rifugio Bonatti</name>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2022-05-11T14:41:35Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
-  <wpt lat="45.588799025863409" lon="7.060343250632286">
-    <time>2016-07-28T15:41:07Z</time>
-    <name>Rifugio Chalet de L'epée</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-28T15:41:07Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
-  <wpt lat="45.675380229949951" lon="6.985909938812256">
-    <time>2016-07-28T11:09:31Z</time>
-    <name>Rifugio Deffeyes</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-        <gpxx:PhoneNumber>+39 0165 884239</gpxx:PhoneNumber>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-        <wptx1:PhoneNumber>+39 0165 884239</wptx1:PhoneNumber>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-28T11:09:31Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
   <wpt lat="45.644308431074023" lon="7.92977225035429">
     <time>2016-07-28T16:10:05Z</time>
-    <name>Rifugio Del Lago Della Barma</name>
+    <name>Rif. Barma</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1216,108 +1178,10 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
-  <wpt lat="45.602745842188597" lon="7.521496620029211">
-    <ele>2572.51171875</ele>
-    <time>2019-08-12T13:15:54Z</time>
-    <name>Rifugio Del Misérin</name>
-    <cmt>Rifugio Del Misérin</cmt>
-    <desc>Rifugio Del Misérin</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2019-08-12T13:15:54Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
-  <wpt lat="45.622425209730864" lon="7.906617745757103">
-    <ele>2254.9453125</ele>
-    <time>2016-07-28T16:09:33Z</time>
-    <name>Rifugio Delfo E Agostino Coda</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-28T16:09:33Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
-  <wpt lat="45.612080516293645" lon="7.55141967907548">
-    <time>2016-07-28T15:52:26Z</time>
-    <name>Rifugio Dondena</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-28T15:52:26Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
-  <wpt lat="45.809288173913956" lon="6.978731341660023">
-    <ele>1983.40234375</ele>
-    <time>2016-07-28T10:46:38Z</time>
-    <name>Rifugio Giorgio Bertone</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-28T10:46:38Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
-  <wpt lat="45.85849623195827" lon="7.693690247833729">
-    <time>2016-07-29T10:25:17Z</time>
-    <name>Rifugio Grand Tournalin</name>
-    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
-    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
-    <sym>Residence</sym>
-    <type>user</type>
-    <extensions>
-      <gpxx:WaypointExtension>
-        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
-      </gpxx:WaypointExtension>
-      <wptx1:WaypointExtension>
-        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
-      </wptx1:WaypointExtension>
-      <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-29T10:25:17Z</ctx:CreationTime>
-      </ctx:CreationTimeExtension>
-    </extensions>
-  </wpt>
   <wpt lat="45.87663609534502" lon="7.593525750562549">
     <ele>2169.15625</ele>
     <time>2016-07-29T10:28:00Z</time>
-    <name>Rifugio Jean Barmasse</name>
+    <name>Rif. Barmasse</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1334,10 +1198,67 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
+  <wpt lat="45.809288173913956" lon="6.978731341660023">
+    <ele>1983</ele>
+    <time>2016-07-28T10:46:38Z</time>
+    <name>Rif. Bertone - waypoint</name>
+    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Circle with X</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-28T10:46:38Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="45.846861144527793" lon="7.033425942063332">
+    <ele>2025</ele>
+    <time>2022-05-11T14:41:35Z</time>
+    <name>Rif. Bonatti</name>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2022-05-11T14:41:35Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="45.588799025863409" lon="7.060343250632286">
+    <time>2016-07-28T15:41:07Z</time>
+    <name>Rif. Chalet de L'epée</name>
+    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-28T15:41:07Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
   <wpt lat="45.84993889555335" lon="7.269183648750186">
     <ele>2416.06640625</ele>
     <time>2016-07-29T11:13:01Z</time>
-    <name>Rifugio Letey Champillon</name>
+    <name>Rif. Champillon</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1354,10 +1275,10 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
-  <wpt lat="45.840416047722101" lon="7.50788725912571">
-    <ele>1995.47265625</ele>
-    <time>2016-07-29T10:35:24Z</time>
-    <name>Rifugio Lo Magià</name>
+  <wpt lat="45.622425209730864" lon="7.906617745757103">
+    <ele>2254.9453125</ele>
+    <time>2016-07-28T16:09:33Z</time>
+    <name>Rif. Coda</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1370,13 +1291,13 @@
         <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
       </wptx1:WaypointExtension>
       <ctx:CreationTimeExtension>
-        <ctx:CreationTime>2016-07-29T10:35:24Z</ctx:CreationTime>
+        <ctx:CreationTime>2016-07-28T16:09:33Z</ctx:CreationTime>
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
   <wpt lat="45.841537630185485" lon="7.484218273311853">
     <time>2016-07-29T10:32:12Z</time>
-    <name>Rifugio Oratorio Di Cuney</name>
+    <name>Rif. Cuney</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1393,9 +1314,65 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
+  <wpt lat="45.67548081278801" lon="6.985997864976525">
+    <time>2017-05-31T15:37:35Z</time>
+    <name>Rif. Deffeyes</name>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2017-05-31T15:37:35Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="45.602745842188597" lon="7.521496620029211">
+    <ele>2572.51171875</ele>
+    <time>2019-08-12T13:15:54Z</time>
+    <name>Rif. Del Misérin</name>
+    <cmt>Rifugio Del Misérin</cmt>
+    <desc>Rifugio Del Misérin</desc>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2019-08-12T13:15:54Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="45.612080516293645" lon="7.55141967907548">
+    <time>2016-07-28T15:52:26Z</time>
+    <name>Rif. Dondena</name>
+    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-28T15:52:26Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
   <wpt lat="45.841147368773818" lon="7.096791034564376">
     <time>2016-07-29T11:18:59Z</time>
-    <name>Rifugio Pier Giorgio Frassati</name>
+    <name>Rif. Frassati</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1412,10 +1389,71 @@
       </ctx:CreationTimeExtension>
     </extensions>
   </wpt>
+  <wpt lat="45.85849623195827" lon="7.693690247833729">
+    <time>2016-07-29T10:25:17Z</time>
+    <name>Rif. Grand Tournalin</name>
+    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-29T10:25:17Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="45.840416047722101" lon="7.50788725912571">
+    <ele>1995.47265625</ele>
+    <time>2016-07-29T10:35:24Z</time>
+    <name>Rif. Lo Magià</name>
+    <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-29T10:35:24Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="45.596216758713126" lon="7.487899102270603">
+    <ele>2525.76171875</ele>
+    <time>2016-07-28T15:52:26Z</time>
+    <name>Rif. Sogno</name>
+    <cmt>Km 120
+Ristoro - Ravitaillement - Refreshment point</cmt>
+    <desc>Km 120
+Ristoro - Ravitaillement - Refreshment point</desc>
+    <sym>Residence</sym>
+    <type>user</type>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:DisplayMode>SymbolAndName</gpxx:DisplayMode>
+      </gpxx:WaypointExtension>
+      <wptx1:WaypointExtension>
+        <wptx1:DisplayMode>SymbolAndName</wptx1:DisplayMode>
+      </wptx1:WaypointExtension>
+      <ctx:CreationTimeExtension>
+        <ctx:CreationTime>2016-07-28T15:52:26Z</ctx:CreationTime>
+      </ctx:CreationTimeExtension>
+    </extensions>
+  </wpt>
   <wpt lat="45.580197097733617" lon="7.303266311064363">
     <ele>2580.5703125</ele>
     <time>2016-07-28T15:47:14Z</time>
-    <name>Rifugio Vittorio Sella</name>
+    <name>Rif. Vittorio Sella</name>
     <cmt>Ristoro - Ravitaillement - Refreshment point</cmt>
     <desc>Ristoro - Ravitaillement - Refreshment point</desc>
     <sym>Residence</sym>
@@ -1549,7 +1587,7 @@
     </extensions>
   </wpt>
   <trk>
-    <name>TOR330-FULL-DEM-2025</name>
+    <name>TOR330-FULL-DEM-2026</name>
     <extensions>
       <gpxx:TrackExtension>
         <gpxx:DisplayColor>Yellow</gpxx:DisplayColor>
@@ -91358,115 +91396,46 @@
       <trkpt lat="45.856503685936332" lon="7.572760507464409">
         <ele>2267.18359375</ele>
       </trkpt>
-      <trkpt lat="45.856591109186411" lon="7.572746509686112">
-        <ele>2267.4609375</ele>
+      <trkpt lat="45.857108691707253" lon="7.57305521517992">
+        <ele>2275.82421875</ele>
       </trkpt>
-      <trkpt lat="45.856679370626807" lon="7.572730667889118">
-        <ele>2267.74609375</ele>
+      <trkpt lat="45.857236515730619" lon="7.573188738897443">
+        <ele>2280.00390625</ele>
       </trkpt>
-      <trkpt lat="45.856769476085901" lon="7.572683142498136">
-        <ele>2267.73046875</ele>
+      <trkpt lat="45.857133753597736" lon="7.573484033346176">
+        <ele>2283.83984375</ele>
       </trkpt>
-      <trkpt lat="45.856870142742991" lon="7.572661936283112">
-        <ele>2268.21484375</ele>
+      <trkpt lat="45.856738463044167" lon="7.57372316904366">
+        <ele>2285.21875</ele>
       </trkpt>
-      <trkpt lat="45.856972988694906" lon="7.572708455845714">
-        <ele>2269.45703125</ele>
+      <trkpt lat="45.856564454734325" lon="7.574001029133797">
+        <ele>2289.05859375</ele>
       </trkpt>
-      <trkpt lat="45.857067452743649" lon="7.572716418653727">
-        <ele>2270.29296875</ele>
+      <trkpt lat="45.856635281816125" lon="7.574328761547804">
+        <ele>2293.640625</ele>
       </trkpt>
-      <trkpt lat="45.857162922620773" lon="7.572693200781941">
-        <ele>2271.51953125</ele>
+      <trkpt lat="45.857010958716273" lon="7.574304873123765">
+        <ele>2298.45703125</ele>
       </trkpt>
-      <trkpt lat="45.857270713895559" lon="7.572637796401978">
-        <ele>2272.44140625</ele>
+      <trkpt lat="45.857658460736275" lon="7.573953755199909">
+        <ele>2303.6015625</ele>
       </trkpt>
-      <trkpt lat="45.857365010306239" lon="7.572592031210661">
-        <ele>2273.51953125</ele>
+      <trkpt lat="45.858278218656778" lon="7.573425527662039">
+        <ele>2309.1015625</ele>
       </trkpt>
-      <trkpt lat="45.857462072744966" lon="7.572571663185954">
-        <ele>2275.69140625</ele>
+      <trkpt lat="45.858603939414024" lon="7.573320753872395">
+        <ele>2315.640625</ele>
       </trkpt>
-      <trkpt lat="45.857531642541289" lon="7.572480132803321">
-        <ele>2276.19140625</ele>
+      <trkpt lat="45.858789598569274" lon="7.572723459452391">
+        <ele>2313.42578125</ele>
       </trkpt>
-      <trkpt lat="45.857594925910234" lon="7.572368988767266">
-        <ele>2276.109375</ele>
+      <trkpt lat="45.859106183052063" lon="7.571767754852772">
+        <ele>2304.5625</ele>
       </trkpt>
-      <trkpt lat="45.857681008055806" lon="7.572323475033045">
-        <ele>2277.76171875</ele>
+      <trkpt lat="45.859419079497457" lon="7.571180015802383">
+        <ele>2301.171875</ele>
       </trkpt>
-      <trkpt lat="45.857770023867488" lon="7.572282152250409">
-        <ele>2279.40234375</ele>
-      </trkpt>
-      <trkpt lat="45.857866499572992" lon="7.572238314896822">
-        <ele>2280.984375</ele>
-      </trkpt>
-      <trkpt lat="45.857944535091519" lon="7.572188526391983">
-        <ele>2282.0078125</ele>
-      </trkpt>
-      <trkpt lat="45.858029695227742" lon="7.572135888040066">
-        <ele>2283.19140625</ele>
-      </trkpt>
-      <trkpt lat="45.858100773766637" lon="7.572062127292156">
-        <ele>2283.25390625</ele>
-      </trkpt>
-      <trkpt lat="45.858185766264796" lon="7.571998341009021">
-        <ele>2283.48046875</ele>
-      </trkpt>
-      <trkpt lat="45.858253994956613" lon="7.571909157559276">
-        <ele>2282.234375</ele>
-      </trkpt>
-      <trkpt lat="45.85831786505878" lon="7.571814861148596">
-        <ele>2280.67578125</ele>
-      </trkpt>
-      <trkpt lat="45.858392044901848" lon="7.571745291352272">
-        <ele>2280.5703125</ele>
-      </trkpt>
-      <trkpt lat="45.858473097905517" lon="7.571699107065797">
-        <ele>2281.58203125</ele>
-      </trkpt>
-      <trkpt lat="45.858559096232057" lon="7.571639847010374">
-        <ele>2282.6953125</ele>
-      </trkpt>
-      <trkpt lat="45.858638305217028" lon="7.571564996615052">
-        <ele>2283.46875</ele>
-      </trkpt>
-      <trkpt lat="45.858712736517191" lon="7.571513950824738">
-        <ele>2284.8984375</ele>
-      </trkpt>
-      <trkpt lat="45.858778702095151" lon="7.571439184248447">
-        <ele>2284.38671875</ele>
-      </trkpt>
-      <trkpt lat="45.858863778412342" lon="7.571375146508217">
-        <ele>2284.68359375</ele>
-      </trkpt>
-      <trkpt lat="45.858920942991972" lon="7.571270791813731">
-        <ele>2282.23046875</ele>
-      </trkpt>
-      <trkpt lat="45.859010210260749" lon="7.571201892569661">
-        <ele>2282.4296875</ele>
-      </trkpt>
-      <trkpt lat="45.859090844169259" lon="7.571155037730932">
-        <ele>2283.50390625</ele>
-      </trkpt>
-      <trkpt lat="45.859174327924848" lon="7.571079013869166">
-        <ele>2283.4921875</ele>
-      </trkpt>
-      <trkpt lat="45.859245741739869" lon="7.571001900359988">
-        <ele>2283.0859375</ele>
-      </trkpt>
-      <trkpt lat="45.859318999573588" lon="7.570939371362329">
-        <ele>2284.25</ele>
-      </trkpt>
-      <trkpt lat="45.859398292377591" lon="7.570840129628778">
-        <ele>2285.88671875</ele>
-      </trkpt>
-      <trkpt lat="45.859465850517154" lon="7.570763099938631">
-        <ele>2287.52734375</ele>
-      </trkpt>
-      <trkpt lat="45.859575401991606" lon="7.570745246484876">
+      <trkpt lat="45.859594848006964" lon="7.5708182528615">
         <ele>2294.06640625</ele>
       </trkpt>
       <trkpt lat="45.859657963737845" lon="7.570644831284881">
@@ -95966,10 +95935,28 @@
       <trkpt lat="45.827355952933431" lon="7.458569817245007">
         <ele>2697.7890625</ele>
       </trkpt>
-      <trkpt lat="45.827291160821915" lon="7.458457499742508">
+      <trkpt lat="45.826931577175856" lon="7.458313833922148">
+        <ele>2696.43359375</ele>
+      </trkpt>
+      <trkpt lat="45.826841639354825" lon="7.458367394283414">
+        <ele>2695.78515625</ele>
+      </trkpt>
+      <trkpt lat="45.826642066240311" lon="7.458387762308121">
+        <ele>2693.78125</ele>
+      </trkpt>
+      <trkpt lat="45.826326068490744" lon="7.458181316033006">
         <ele>2698.2578125</ele>
       </trkpt>
-      <trkpt lat="45.827307840809226" lon="7.45841852389276">
+      <trkpt lat="45.826639635488391" lon="7.458300339058042">
+        <ele>2693.8046875</ele>
+      </trkpt>
+      <trkpt lat="45.826824540272355" lon="7.458293968811631">
+        <ele>2695.44140625</ele>
+      </trkpt>
+      <trkpt lat="45.826947167515755" lon="7.458239486441016">
+        <ele>2696.5859375</ele>
+      </trkpt>
+      <trkpt lat="45.827292837202549" lon="7.458316264674067">
         <ele>2698.71484375</ele>
       </trkpt>
       <trkpt lat="45.827354779466987" lon="7.458310984075069">
