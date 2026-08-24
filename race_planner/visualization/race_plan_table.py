@@ -30,13 +30,12 @@ _KNOWN_AID_STATION_FIELDS = {
     "elevation_m",
     "stop_time_s",
     "notes",
+    "aid_type",  # added for categorization for TOR
     "car_access",
     "gmaps_link",
     "top_in_time",
     "cutoff_in_time",
     "cutoff_out_time",
-    "reference_last_time",
-    "cutoff_exempt",
     "cutoff_note",
 }
 
@@ -359,6 +358,7 @@ _REPORT_CSS = """
 
     .timing-cell {
       min-width: 112px;
+      max-width: 135px;
       font-variant-numeric: tabular-nums;
     }
 
@@ -545,6 +545,7 @@ class TableRowViewModel:
     station_japanese: str
     station_link: str
     distance_total: str
+    elevation: str
     distance_segment: str
     accum_gain: str
     accum_loss: str
@@ -653,11 +654,15 @@ def _build_comments_view_model(
         comments.append(CommentsLineViewModel(tag="Notes", value=str(notes)))
 
     if aid_station.get("car_access") is True:
-        comments.append(CommentsLineViewModel(tag="Access", value="🚗"))
+        comments.append(CommentsLineViewModel(tag="🚗 Access", value=""))
 
     stop_time_s = float(aid_station.get("stop_time_s", 0) or 0)
     if stop_time_s > 0:
         comments.append(CommentsLineViewModel(tag="Rest", value=seconds_to_hms(stop_time_s)))
+
+    aid_type = aid_station.get("aid_type")
+    if aid_type:
+        comments.append(CommentsLineViewModel(tag="🏠🍴", value=str(aid_type)))
 
     for key, value in aid_station.items():
         if key in _KNOWN_AID_STATION_FIELDS or value in (None, "", []):
@@ -760,6 +765,7 @@ def _build_table_row_view_models(
                 station_japanese=str(aid_station.get("jap_name", "") or ""),
                 station_link=str(aid_station.get("gmaps_link", "") or ""),
                 distance_total=f'{float(row["Total Distance (km)"]):.1f} km',
+                elevation=f'{float(row["Elevation (m)"]):.0f} m',
                 distance_segment=f'{float(row["Segment Distance (km)"]):.1f} km',
                 accum_gain=f'+{float(row["Accum. Elevation Gain (m)"]):.0f} m',
                 accum_loss=f'-{accum_loss_m:.0f} m',
@@ -1080,7 +1086,8 @@ def _render_table_rows(
             "<tr>"
             f'<th scope="row" class="sticky-col station-cell">{"".join(station_lines)}</th>'
             f'<td class="metric-cell metric-distance">{_render_labeled_cell_line("Σ", row.distance_total, emphasize=True)}'
-            f'{_render_labeled_cell_line("Δ", row.distance_segment)}</td>'
+            f'{_render_labeled_cell_line("Δ", row.distance_segment)}'
+            f'{_render_labeled_cell_line("⛰️", row.elevation)}</td>'
             f'<td class="metric-cell metric-gain">{_render_value_line(row.accum_gain, emphasize=True)}'
             f'{_render_value_line(row.split_gain)}</td>'
             f'<td class="metric-cell metric-loss">{_render_value_line(row.accum_loss, emphasize=True)}'
