@@ -4,7 +4,7 @@ race:
   elevation_gain_m: 24000  # placeholder
   
   # File paths (relative to project root)
-  gpx_file: "config/gpx_repo/TOR330 - 2025_strava.gpx"
+  gpx_file: "config/gpx_repo/TOR330 - 2026_strava.gpx"
   output_file: "results/tor330_segment_analysis.xlsx"
   
   # Analysis settings
@@ -63,14 +63,14 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Deffeyes"
-    distance_km: 27.9
+    distance_km: 27.5
     elevation_m: 2490   # reference
     stop_time_s: 180
     notes: "Ristoro"
     gmaps_link: "https://maps.app.goo.gl/Bunzew8sd1xYTPNX7"
 
   - name: "Bivacco Zappelli"
-    distance_km: 32.8
+    distance_km: 32.5
     elevation_m: 2274   # reference
     stop_time_s: 240
     notes: "Ristoro + Soccorso. Waypoint: Col Passo Alto (2856 m)"
@@ -142,7 +142,7 @@ aid_stations:
     gmaps_link: "https://maps.app.goo.gl/zfpmHzP1nbV4o5EA6"
 
   - name: "Rifugio Dondena"
-    distance_km: 126.0
+    distance_km: 125.8
     elevation_m: 2192   # reference
     stop_time_s: 1800
     notes: "Ristoro. Waypoint: Finestra Di Champorcher (2827 m), Rifugio Del Misérin (2583 m). 4 km road from Miserin"
@@ -175,7 +175,7 @@ aid_stations:
     car_access: true
 
   - name: "Perloz"
-    distance_km: 155.6
+    distance_km: 155.1
     elevation_m: 649   # reference
     stop_time_s: 60
     notes: "Ristoro"
@@ -183,7 +183,7 @@ aid_stations:
     car_access: true
 
   - name: "La Sassa"
-    distance_km: 162.9
+    distance_km: 162.4
     elevation_m: 1440   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Tour d'Hereraz (559 m)"
@@ -191,14 +191,14 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Coda"
-    distance_km: 167.3
+    distance_km: 166.9
     elevation_m: 2252   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso. Waypoint: Col Carissey (2125 m)"
     gmaps_link: "https://maps.app.goo.gl/tYkMefY51vGzBVmt5"
 
   - name: "Rifugio Della Barma"
-    distance_km: 175.6
+    distance_km: 175.0
     elevation_m: 2049   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Crest (1915 m), car access here."
@@ -206,21 +206,21 @@ aid_stations:
     cutoff_in_time: "D4 13:00"
 
   - name: "Lago Chiaro"
-    distance_km: 180.9
+    distance_km: 179.8
     elevation_m: 2091   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Col du Marmontana (2347 m)"
     gmaps_link: "https://maps.app.goo.gl/m4xze5vdhaasxyFz5"
 
   - name: "Col Della Vecchia"
-    distance_km: 184.9
+    distance_km: 183.4
     elevation_m: 2196   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso. Waypoint: Crenna di Ley (2312 m)"
     gmaps_link: "https://maps.app.goo.gl/U7mRD2B8NiF7gdEz7"
 
   - name: "Niel - Dortoir La Gruba"
-    distance_km: 190.5
+    distance_km: 188.5
     elevation_m: 1557   # reference
     stop_time_s: 6000
     notes: "Ristoro + Soccorso"
@@ -230,14 +230,14 @@ aid_stations:
     sleep_duration_s: 5400
 
   - name: "Bleckene - Loo Superiore"
-    distance_km: 196.7
+    distance_km: 194.6
     elevation_m: 2061   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Colle Lazoney (2395 m)"
     gmaps_link: "https://maps.app.goo.gl/TL1EQT7QLPapW5399"
 
   - name: "**GRESSONEY**"
-    distance_km: 203.8
+    distance_km: 201.1
     elevation_m: 1376   # reference
     stop_time_s: 300
     notes: "Base Vita!"
@@ -246,7 +246,7 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Alpenzu"
-    distance_km: 208.9
+    distance_km: 206.4
     elevation_m: 1776   # reference
     stop_time_s: 60
     notes: "Ristoro. All road from Gressoney."
@@ -254,7 +254,7 @@ aid_stations:
     car_access: true
 
   - name: "Champluc"
-    distance_km: 220.8
+    distance_km: 218.1
     elevation_m: 1576   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso. Waypoints: Col Pinter (2782 m), Cuneaz (2051 m, car access, restaurant)"
@@ -263,15 +263,15 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Grand Tournalin"
-    distance_km: 228.6
-    elevation_m: 2552   # reference
+    distance_km: 225.6
+    elevation_m: 2514   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Saint-Jaques (1693 m)"
     gmaps_link: "https://maps.app.goo.gl/pSrKMxxDF7iTYY6HA"
     car_access: true
     
   - name: "**VALTOURNENCHE**"
-    distance_km: 237.5
+    distance_km: 234.2
     elevation_m: 1504   # reference
     stop_time_s: 1000
     notes: "Base Vita! Waypoints: Col Des Fontaines (2694 m, W), Chenal (2110 m, W)"
@@ -280,7 +280,7 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Barmasse"
-    distance_km: 242.3
+    distance_km: 239.0
     elevation_m: 2173   # reference
     stop_time_s: 60
     notes: "Ristoro"
@@ -288,14 +288,14 @@ aid_stations:
     car_access: true
 
   - name: "Bivacco Vareton"
-    distance_km: 247.3
+    distance_km: 243.9
     elevation_m: 2272   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Fenêtre d'Ersaz (2290 m)"
     gmaps_link: "https://maps.app.goo.gl/uWd1JjA9Hhmch64F8"
 
   - name: "Rifugio Lo Magià"
-    distance_km: 255.8
+    distance_km: 252.8
     elevation_m: 1996   # reference
     stop_time_s: 6000
     notes: "Ristoro. Waypoint: Fenêtre Du Tsan (2739 m)"
@@ -304,21 +304,21 @@ aid_stations:
     sleep_duration_s: 5400
 
   - name: "Rifugio Cuney"
-    distance_km: 259.3
+    distance_km: 256.2
     elevation_m: 2655   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso"
     gmaps_link: "https://maps.app.goo.gl/fkZ8QozX13c3nb3V7"
 
   - name: "Bivacco R. Clermont"
-    distance_km: 263.8
+    distance_km: 260.8
     elevation_m: 2705   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Col de Chabey (2684 m)"
     gmaps_link: "https://maps.app.goo.gl/h3xstZmtHj21FyACA"
 
   - name: "Oyace"
-    distance_km: 274.7
+    distance_km: 271.6
     elevation_m: 1351   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso. Waypoint: Col de Vassonaz (2788 m)"
@@ -327,14 +327,14 @@ aid_stations:
     car_access: true
 
   - name: "Bruson Arp"
-    distance_km: 278.7
+    distance_km: 275.8
     elevation_m: 2188   # reference
     stop_time_s: 60
     notes: "Ristoro"
     gmaps_link: "https://maps.app.goo.gl/zey7shAN35evPfdVA"
 
   - name: "**OLLOMONT**"
-    distance_km: 286.5
+    distance_km: 283.5
     elevation_m: 1384   # reference
     stop_time_s: 300
     notes: "Base Vita! Waypoint: Col Brison (2519 m, A) Berrio Damon (1936 m)"
@@ -343,21 +343,21 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Champillon"
-    distance_km: 291.2
+    distance_km: 288.3
     elevation_m: 2422   # reference
     stop_time_s: 60
     notes: "Ristoro"
     gmaps_link: "https://maps.app.goo.gl/UD5VJQ4B7TGhCzb19"
 
   - name: "Ponteille"
-    distance_km: 297.7
+    distance_km: 294.7
     elevation_m: 1880   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Col de Champillon (2711 m)"
     gmaps_link: "https://maps.app.goo.gl/J4t8qDWuAbhfb7pH7"
 
   - name: "Bosses"
-    distance_km: 307.8
+    distance_km: 305.0
     elevation_m: 1525   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso. Waypoint: Saint Rhemy (1618 m)"
@@ -366,28 +366,28 @@ aid_stations:
     car_access: true
 
   - name: "Rifugio Frassati"
-    distance_km: 316.9
+    distance_km: 314.1
     elevation_m: 2548   # reference
     stop_time_s: 60
     notes: "Ristoro. Waypoint: Merdeux (2272 m, car access)"
     gmaps_link: "https://maps.app.goo.gl/nQQwNp3d5tgwMhES8"
 
   - name: "Rifugio Bonatti"
-    distance_km: 324.6
+    distance_km: 321.7
     elevation_m: 2025   # reference
     stop_time_s: 60
     notes: "Ristoro + Soccorso. Waypoint: Col Malatra (2921 m, A)"
     gmaps_link: "https://maps.app.goo.gl/ziKba3LPVgWeb2Si9"
 
   - name: "Mont de la Saxe (Rifugio Bertone?)"
-    distance_km: 330.2
+    distance_km: 328.7
     elevation_m: 2037   # reference
     stop_time_s: 60
     notes: "Ristoro"
     gmaps_link: "https://maps.app.goo.gl/omYENiJT29sB6Yg96"
 
   - name: "FINISH"
-    distance_km: 336.5
+    distance_km: 333.6
     elevation_m: 1224  # reference
     stop_time_s: 0
     notes: "Goal at Courmayeur!"

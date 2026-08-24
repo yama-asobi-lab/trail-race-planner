@@ -1,0 +1,5670 @@
+{
+  "race": "TOR330 2025",
+  "source": "https://itra.run/Races/RaceResults/TOR330...Tor.des.G%C3%A9ants%C2%AE/2025/98185",
+  "runners": [
+    {
+      "itra_id": "207848",
+      "slug": "RICHARD.Victor",
+      "name_from_link": "RICHARD Victor",
+      "profile_url": "https://itra.run/RunnerSpace/RICHARD.Victor/207848",
+      "itra_performance_index": 858,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4265382",
+      "slug": "CORSINI.Simone",
+      "name_from_link": "CORSINI Simone",
+      "profile_url": "https://itra.run/RunnerSpace/CORSINI.Simone/4265382",
+      "itra_performance_index": 866,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "478017",
+      "slug": "PERRIER.Martin",
+      "name_from_link": "PERRIER Martin",
+      "profile_url": "https://itra.run/RunnerSpace/PERRIER.Martin/478017",
+      "itra_performance_index": 812,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "60058",
+      "slug": "LANTERMINO.Danilo",
+      "name_from_link": "LANTERMINO Danilo",
+      "profile_url": "https://itra.run/RunnerSpace/LANTERMINO.Danilo/60058",
+      "itra_performance_index": 825,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "476108",
+      "slug": "DORRONSORO.Unai",
+      "name_from_link": "DORRONSORO Unai",
+      "profile_url": "https://itra.run/RunnerSpace/DORRONSORO.Unai/476108",
+      "itra_performance_index": 791,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2484445",
+      "slug": "Zhang.WEIQIANG",
+      "name_from_link": "Zhang WEIQIANG",
+      "profile_url": "https://itra.run/RunnerSpace/Zhang.WEIQIANG/2484445",
+      "itra_performance_index": 855,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "478905",
+      "slug": "MACCHI.Andrea",
+      "name_from_link": "MACCHI Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/MACCHI.Andrea/478905",
+      "itra_performance_index": 841,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1559747",
+      "slug": "NAVA.Daniele",
+      "name_from_link": "NAVA Daniele",
+      "profile_url": "https://itra.run/RunnerSpace/NAVA.Daniele/1559747",
+      "itra_performance_index": 849,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "57599",
+      "slug": "ORNATI.Giulio",
+      "name_from_link": "ORNATI Giulio",
+      "profile_url": "https://itra.run/RunnerSpace/ORNATI.Giulio/57599",
+      "itra_performance_index": 837,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "171539",
+      "slug": "GRASEL.Florian",
+      "name_from_link": "GRASEL Florian",
+      "profile_url": "https://itra.run/RunnerSpace/GRASEL.Florian/171539",
+      "itra_performance_index": 829,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "148818",
+      "slug": "ECCLES.Lawrence",
+      "name_from_link": "ECCLES Lawrence",
+      "profile_url": "https://itra.run/RunnerSpace/ECCLES.Lawrence/148818",
+      "itra_performance_index": 734,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6302",
+      "slug": "SHERPA.Sange",
+      "name_from_link": "SHERPA Sange",
+      "profile_url": "https://itra.run/RunnerSpace/SHERPA.Sange/6302",
+      "itra_performance_index": 849,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4256709",
+      "slug": "VAN DER VEEN.Noor",
+      "name_from_link": "VAN DER VEEN Noor",
+      "profile_url": "https://itra.run/RunnerSpace/VAN DER VEEN.Noor/4256709",
+      "itra_performance_index": 709,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "20967",
+      "slug": "GALEATI.Gianluca",
+      "name_from_link": "GALEATI Gianluca",
+      "profile_url": "https://itra.run/RunnerSpace/GALEATI.Gianluca/20967",
+      "itra_performance_index": 804,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3386263",
+      "slug": "ROSTAGNO.Alessandro",
+      "name_from_link": "ROSTAGNO Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/ROSTAGNO.Alessandro/3386263",
+      "itra_performance_index": 736,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3484797",
+      "slug": "AURE SANCHEZ.Aure",
+      "name_from_link": "AURELIEN SANCHEZ",
+      "profile_url": "https://itra.run/RunnerSpace/AURE SANCHEZ.Aure/3484797",
+      "itra_performance_index": 689,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1673561",
+      "slug": "PEREZ VELARDE.Juan Francisco",
+      "name_from_link": "PEREZ VELARDE Juan Francisco",
+      "profile_url": "https://itra.run/RunnerSpace/PEREZ VELARDE.Juan Francisco/1673561",
+      "itra_performance_index": 689,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "59425",
+      "slug": "BORZANI.Lisa",
+      "name_from_link": "BORZANI Lisa",
+      "profile_url": "https://itra.run/RunnerSpace/BORZANI.Lisa/59425",
+      "itra_performance_index": 721,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "210823",
+      "slug": "TAYLOR.Natalie ",
+      "name_from_link": "TAYLOR Natalie",
+      "profile_url": "https://itra.run/RunnerSpace/TAYLOR.Natalie /210823",
+      "itra_performance_index": 691,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "774451",
+      "slug": "BULIGA.Corneliu",
+      "name_from_link": "BULIGA Corneliu",
+      "profile_url": "https://itra.run/RunnerSpace/BULIGA.Corneliu/774451",
+      "itra_performance_index": 828,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1343923",
+      "slug": "PAGANELLI.Melissa",
+      "name_from_link": "PAGANELLI Melissa",
+      "profile_url": "https://itra.run/RunnerSpace/PAGANELLI.Melissa/1343923",
+      "itra_performance_index": 693,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "746900",
+      "slug": "NAKATANI.Ryota",
+      "name_from_link": "NAKATANI Ryota",
+      "profile_url": "https://itra.run/RunnerSpace/NAKATANI.Ryota/746900",
+      "itra_performance_index": 820,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4175238",
+      "slug": "BOSATELLI.Oliviero Ignazio",
+      "name_from_link": "BOSATELLI Oliviero Ignazio",
+      "profile_url": "https://itra.run/RunnerSpace/BOSATELLI.Oliviero Ignazio/4175238",
+      "itra_performance_index": 694,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "676095",
+      "slug": "SCHJOLBERG.Hallvard",
+      "name_from_link": "SCHJOLBERG Hallvard",
+      "profile_url": "https://itra.run/RunnerSpace/SCHJOLBERG.Hallvard/676095",
+      "itra_performance_index": 751,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "811334",
+      "slug": "KELLY.John",
+      "name_from_link": "KELLY John",
+      "profile_url": "https://itra.run/RunnerSpace/KELLY.John/811334",
+      "itra_performance_index": 802,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "448728",
+      "slug": "DEVAUX.Francois",
+      "name_from_link": "DEVAUX Francois",
+      "profile_url": "https://itra.run/RunnerSpace/DEVAUX.Francois/448728",
+      "itra_performance_index": 696,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "366168",
+      "slug": "LUDOVISI.Emanuele",
+      "name_from_link": "LUDOVISI Emanuele",
+      "profile_url": "https://itra.run/RunnerSpace/LUDOVISI.Emanuele/366168",
+      "itra_performance_index": 727,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "671568",
+      "slug": "GERBIN.Kaytlyn",
+      "name_from_link": "GERBIN Kaytlyn",
+      "profile_url": "https://itra.run/RunnerSpace/GERBIN.Kaytlyn/671568",
+      "itra_performance_index": 706,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "136582",
+      "slug": "TIERNEY.Paul",
+      "name_from_link": "TIERNEY Paul",
+      "profile_url": "https://itra.run/RunnerSpace/TIERNEY.Paul/136582",
+      "itra_performance_index": 707,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4363187",
+      "slug": "SOMMER.Corina",
+      "name_from_link": "SOMMER Corina",
+      "profile_url": "https://itra.run/RunnerSpace/SOMMER.Corina/4363187",
+      "itra_performance_index": 671,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "838848",
+      "slug": "MIRBACH.Lars",
+      "name_from_link": "MIRBACH Lars",
+      "profile_url": "https://itra.run/RunnerSpace/MIRBACH.Lars/838848",
+      "itra_performance_index": 700,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "561643",
+      "slug": "MAKSIMAINEN.Ville",
+      "name_from_link": "MAKSIMAINEN Ville",
+      "profile_url": "https://itra.run/RunnerSpace/MAKSIMAINEN.Ville/561643",
+      "itra_performance_index": 613,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3952555",
+      "slug": "STORC.Joseph",
+      "name_from_link": "STORC Joseph",
+      "profile_url": "https://itra.run/RunnerSpace/STORC.Joseph/3952555",
+      "itra_performance_index": 613,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "376377",
+      "slug": "FERNANDEZ VARELA.Fidel",
+      "name_from_link": "FERNANDEZ VARELA Fidel",
+      "profile_url": "https://itra.run/RunnerSpace/FERNANDEZ VARELA.Fidel/376377",
+      "itra_performance_index": 797,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2371707",
+      "slug": "MASRAMON BALLUS.Marc",
+      "name_from_link": "MASRAMON BALLUS Marc",
+      "profile_url": "https://itra.run/RunnerSpace/MASRAMON BALLUS.Marc/2371707",
+      "itra_performance_index": 715,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1225025",
+      "slug": "BAI.Xingzhi",
+      "name_from_link": "BAI Xingzhi",
+      "profile_url": "https://itra.run/RunnerSpace/BAI.Xingzhi/1225025",
+      "itra_performance_index": 855,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4233124",
+      "slug": "RIPERT.Sylvain",
+      "name_from_link": "RIPERT Sylvain",
+      "profile_url": "https://itra.run/RunnerSpace/RIPERT.Sylvain/4233124",
+      "itra_performance_index": 619,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2405705",
+      "slug": "CURRERI.Edoardo",
+      "name_from_link": "CURRERI Edoardo",
+      "profile_url": "https://itra.run/RunnerSpace/CURRERI.Edoardo/2405705",
+      "itra_performance_index": 737,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4368005",
+      "slug": "TOKUMOTO.Junko",
+      "name_from_link": "TOKUMOTO Junko",
+      "profile_url": "https://itra.run/RunnerSpace/TOKUMOTO.Junko/4368005",
+      "itra_performance_index": 697,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4142398",
+      "slug": "VALLARINO.Francesco",
+      "name_from_link": "VALLARINO Francesco",
+      "profile_url": "https://itra.run/RunnerSpace/VALLARINO.Francesco/4142398",
+      "itra_performance_index": 766,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "551519",
+      "slug": "RADICE.Angelo Gian Mattia",
+      "name_from_link": "RADICE Angelo Gian Mattia",
+      "profile_url": "https://itra.run/RunnerSpace/RADICE.Angelo Gian Mattia/551519",
+      "itra_performance_index": 710,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "311868",
+      "slug": "NICCO.Daniele",
+      "name_from_link": "NICCO Daniele",
+      "profile_url": "https://itra.run/RunnerSpace/NICCO.Daniele/311868",
+      "itra_performance_index": 648,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "12641",
+      "slug": "ZIMMERMANN.Denise",
+      "name_from_link": "ZIMMERMANN Denise",
+      "profile_url": "https://itra.run/RunnerSpace/ZIMMERMANN.Denise/12641",
+      "itra_performance_index": 666,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "41176",
+      "slug": "DAWIRS.Olivier",
+      "name_from_link": "DAWIRS Olivier",
+      "profile_url": "https://itra.run/RunnerSpace/DAWIRS.Olivier/41176",
+      "itra_performance_index": 635,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3132629",
+      "slug": "DOUCET.Samuel ",
+      "name_from_link": "DOUCET Samuel",
+      "profile_url": "https://itra.run/RunnerSpace/DOUCET.Samuel /3132629",
+      "itra_performance_index": 730,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1802465",
+      "slug": "MARCUCCILLI.Jeremie",
+      "name_from_link": "MARCUCCILLI Jeremie",
+      "profile_url": "https://itra.run/RunnerSpace/MARCUCCILLI.Jeremie/1802465",
+      "itra_performance_index": 739,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1559829",
+      "slug": "PEDRETTI.Sergio",
+      "name_from_link": "PEDRETTI Sergio",
+      "profile_url": "https://itra.run/RunnerSpace/PEDRETTI.Sergio/1559829",
+      "itra_performance_index": 733,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "234696",
+      "slug": "GRANT.Sophie",
+      "name_from_link": "GRANT Sophie",
+      "profile_url": "https://itra.run/RunnerSpace/GRANT.Sophie/234696",
+      "itra_performance_index": 640,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3582637",
+      "slug": "KARRER.Beat",
+      "name_from_link": "KARRER Beat",
+      "profile_url": "https://itra.run/RunnerSpace/KARRER.Beat/3582637",
+      "itra_performance_index": 644,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3636153",
+      "slug": "PEDERZOLI.Alessandro",
+      "name_from_link": "PEDERZOLI Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/PEDERZOLI.Alessandro/3636153",
+      "itra_performance_index": 719,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2532913",
+      "slug": "CANAL MONTE.Jorge",
+      "name_from_link": "CANAL MONTE Jorge",
+      "profile_url": "https://itra.run/RunnerSpace/CANAL MONTE.Jorge/2532913",
+      "itra_performance_index": 604,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2228969",
+      "slug": "POLLATZ.Charlotte",
+      "name_from_link": "POLLATZ Charlotte",
+      "profile_url": "https://itra.run/RunnerSpace/POLLATZ.Charlotte/2228969",
+      "itra_performance_index": 611,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4584847",
+      "slug": "CAGLIANI.Michele",
+      "name_from_link": "CAGLIANI Michele",
+      "profile_url": "https://itra.run/RunnerSpace/CAGLIANI.Michele/4584847",
+      "itra_performance_index": 580,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1411411",
+      "slug": "BOCLINVILLE.Gauthier",
+      "name_from_link": "BOCLINVILLE Gauthier",
+      "profile_url": "https://itra.run/RunnerSpace/BOCLINVILLE.Gauthier/1411411",
+      "itra_performance_index": 677,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3283753",
+      "slug": "COLLE.Stefano",
+      "name_from_link": "COLLE Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/COLLE.Stefano/3283753",
+      "itra_performance_index": 691,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1125899",
+      "slug": "SANTOS POSE.Jose Manuel",
+      "name_from_link": "SANTOS POSE Jose Manuel",
+      "profile_url": "https://itra.run/RunnerSpace/SANTOS POSE.Jose Manuel/1125899",
+      "itra_performance_index": 675,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1710257",
+      "slug": "O FARRELL.Lonan",
+      "name_from_link": "O FARRELL Lonan",
+      "profile_url": "https://itra.run/RunnerSpace/O FARRELL.Lonan/1710257",
+      "itra_performance_index": 704,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "162882",
+      "slug": "TIDD.Bill",
+      "name_from_link": "TIDD Bill",
+      "profile_url": "https://itra.run/RunnerSpace/TIDD.Bill/162882",
+      "itra_performance_index": 573,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "689442",
+      "slug": "REN.Dapeng",
+      "name_from_link": "REN Dapeng",
+      "profile_url": "https://itra.run/RunnerSpace/REN.Dapeng/689442",
+      "itra_performance_index": 702,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "849248",
+      "slug": "WANG.Yuxuan",
+      "name_from_link": "WANG Yuxuan",
+      "profile_url": "https://itra.run/RunnerSpace/WANG.Yuxuan/849248",
+      "itra_performance_index": 634,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2611027",
+      "slug": "HUGHES.Annie",
+      "name_from_link": "HUGHES Annie",
+      "profile_url": "https://itra.run/RunnerSpace/HUGHES.Annie/2611027",
+      "itra_performance_index": 667,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1718737",
+      "slug": "PLATAMONE.Patrick",
+      "name_from_link": "PLATAMONE Patrick",
+      "profile_url": "https://itra.run/RunnerSpace/PLATAMONE.Patrick/1718737",
+      "itra_performance_index": 775,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "469034",
+      "slug": "CHILOVI.Luca",
+      "name_from_link": "CHILOVI Luca",
+      "profile_url": "https://itra.run/RunnerSpace/CHILOVI.Luca/469034",
+      "itra_performance_index": 729,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1336027",
+      "slug": "CHEN.RONGRONG",
+      "name_from_link": "CHEN RONGRONG",
+      "profile_url": "https://itra.run/RunnerSpace/CHEN.RONGRONG/1336027",
+      "itra_performance_index": 706,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "45749",
+      "slug": "JUMISKO.Juha",
+      "name_from_link": "JUMISKO Juha",
+      "profile_url": "https://itra.run/RunnerSpace/JUMISKO.Juha/45749",
+      "itra_performance_index": 613,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "132568",
+      "slug": "BUONO.Ludovic",
+      "name_from_link": "BUONO Ludovic",
+      "profile_url": "https://itra.run/RunnerSpace/BUONO.Ludovic/132568",
+      "itra_performance_index": 584,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2321261",
+      "slug": "KUZMIAK.Stanislaw",
+      "name_from_link": "KUZMIAK Stanislaw",
+      "profile_url": "https://itra.run/RunnerSpace/KUZMIAK.Stanislaw/2321261",
+      "itra_performance_index": 639,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1214371",
+      "slug": "VOGEL.Mark",
+      "name_from_link": "VOGEL Mark",
+      "profile_url": "https://itra.run/RunnerSpace/VOGEL.Mark/1214371",
+      "itra_performance_index": 584,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4871508",
+      "slug": "TOLLET.Ghislain",
+      "name_from_link": "TOLLET Ghislain",
+      "profile_url": "https://itra.run/RunnerSpace/TOLLET.Ghislain/4871508",
+      "itra_performance_index": 606,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2017531",
+      "slug": "ZANOVELLO.Giulia",
+      "name_from_link": "ZANOVELLO Giulia",
+      "profile_url": "https://itra.run/RunnerSpace/ZANOVELLO.Giulia/2017531",
+      "itra_performance_index": 634,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "476698",
+      "slug": "VILARDELL.Albert",
+      "name_from_link": "VILARDELL Albert",
+      "profile_url": "https://itra.run/RunnerSpace/VILARDELL.Albert/476698",
+      "itra_performance_index": 676,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5039666",
+      "slug": "MORRISON.MARTIN",
+      "name_from_link": "MORRISON MARTIN",
+      "profile_url": "https://itra.run/RunnerSpace/MORRISON.MARTIN/5039666",
+      "itra_performance_index": 564,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4119146",
+      "slug": "RINCON CALVENTE.Cristian",
+      "name_from_link": "RINCON CALVENTE Cristian",
+      "profile_url": "https://itra.run/RunnerSpace/RINCON CALVENTE.Cristian/4119146",
+      "itra_performance_index": 567,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1889605",
+      "slug": "ROUALDES.Mathieu",
+      "name_from_link": "ROUALDES Mathieu",
+      "profile_url": "https://itra.run/RunnerSpace/ROUALDES.Mathieu/1889605",
+      "itra_performance_index": 619,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "7576",
+      "slug": "SCHWEYER.Remi",
+      "name_from_link": "SCHWEYER Remi",
+      "profile_url": "https://itra.run/RunnerSpace/SCHWEYER.Remi/7576",
+      "itra_performance_index": 580,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2390691",
+      "slug": "MICHIELLI.Valentina",
+      "name_from_link": "MICHIELLI Valentina",
+      "profile_url": "https://itra.run/RunnerSpace/MICHIELLI.Valentina/2390691",
+      "itra_performance_index": 689,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "856406",
+      "slug": "BOURIEL.Steve",
+      "name_from_link": "BOURIEL Steve",
+      "profile_url": "https://itra.run/RunnerSpace/BOURIEL.Steve/856406",
+      "itra_performance_index": 701,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "856411",
+      "slug": "BOURIEL.Yoann",
+      "name_from_link": "BOURIEL Yoann",
+      "profile_url": "https://itra.run/RunnerSpace/BOURIEL.Yoann/856411",
+      "itra_performance_index": 666,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2419831",
+      "slug": "LORIN.AURELIEN",
+      "name_from_link": "LORIN AURELIEN",
+      "profile_url": "https://itra.run/RunnerSpace/LORIN.AURELIEN/2419831",
+      "itra_performance_index": 582,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "43733",
+      "slug": "CAUSSARIEU.Valery",
+      "name_from_link": "CAUSSARIEU Valery",
+      "profile_url": "https://itra.run/RunnerSpace/CAUSSARIEU.Valery/43733",
+      "itra_performance_index": 545,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1776937",
+      "slug": "SANTOS.Nuno",
+      "name_from_link": "SANTOS Nuno",
+      "profile_url": "https://itra.run/RunnerSpace/SANTOS.Nuno/1776937",
+      "itra_performance_index": 671,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2109771",
+      "slug": "ZHANG.Huiping",
+      "name_from_link": "ZHANG Huiping",
+      "profile_url": "https://itra.run/RunnerSpace/ZHANG.Huiping/2109771",
+      "itra_performance_index": 692,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "60340",
+      "slug": "SOLIGO.Lorenzo",
+      "name_from_link": "SOLIGO Lorenzo",
+      "profile_url": "https://itra.run/RunnerSpace/SOLIGO.Lorenzo/60340",
+      "itra_performance_index": 696,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5067170",
+      "slug": "FOWLKES.Jonathan",
+      "name_from_link": "FOWLKES Jonathan",
+      "profile_url": "https://itra.run/RunnerSpace/FOWLKES.Jonathan/5067170",
+      "itra_performance_index": 593,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2661523",
+      "slug": "GOURBESVILLE.Emmanuel",
+      "name_from_link": "GOURBESVILLE Emmanuel",
+      "profile_url": "https://itra.run/RunnerSpace/GOURBESVILLE.Emmanuel/2661523",
+      "itra_performance_index": 697,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "310488",
+      "slug": "HUZIJ.Frank",
+      "name_from_link": "HUZIJ Frank",
+      "profile_url": "https://itra.run/RunnerSpace/HUZIJ.Frank/310488",
+      "itra_performance_index": 597,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6296",
+      "slug": "CHARRIER.Nicolas",
+      "name_from_link": "CHARRIER Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/CHARRIER.Nicolas/6296",
+      "itra_performance_index": 679,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4161926",
+      "slug": "CAROLI.Stefano",
+      "name_from_link": "CAROLI Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/CAROLI.Stefano/4161926",
+      "itra_performance_index": 613,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "110159",
+      "slug": "CATTANEO.Andrea",
+      "name_from_link": "CATTANEO Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/CATTANEO.Andrea/110159",
+      "itra_performance_index": 655,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "57534",
+      "slug": "GUERINI.Luca",
+      "name_from_link": "GUERINI Luca",
+      "profile_url": "https://itra.run/RunnerSpace/GUERINI.Luca/57534",
+      "itra_performance_index": 700,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "544615",
+      "slug": "MELANDA.Licinio",
+      "name_from_link": "MELANDA Licinio",
+      "profile_url": "https://itra.run/RunnerSpace/MELANDA.Licinio/544615",
+      "itra_performance_index": 622,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2345563",
+      "slug": "YAMASAKI.Kiichiro",
+      "name_from_link": "YAMASAKI Kiichiro",
+      "profile_url": "https://itra.run/RunnerSpace/YAMASAKI.Kiichiro/2345563",
+      "itra_performance_index": 718,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1042629",
+      "slug": "LOULA.Jan",
+      "name_from_link": "LOULA Jan",
+      "profile_url": "https://itra.run/RunnerSpace/LOULA.Jan/1042629",
+      "itra_performance_index": 628,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "55333",
+      "slug": "EVANGELOS.Bakas",
+      "name_from_link": "EVANGELOS Bakas",
+      "profile_url": "https://itra.run/RunnerSpace/EVANGELOS.Bakas/55333",
+      "itra_performance_index": 585,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4204923",
+      "slug": "FAIRMAN.Alex",
+      "name_from_link": "FAIRMAN Alex",
+      "profile_url": "https://itra.run/RunnerSpace/FAIRMAN.Alex/4204923",
+      "itra_performance_index": 546,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4216214",
+      "slug": "PETRIDIS DEROSSI.Gabriel",
+      "name_from_link": "PETRIDIS DEROSSI Gabriel",
+      "profile_url": "https://itra.run/RunnerSpace/PETRIDIS DEROSSI.Gabriel/4216214",
+      "itra_performance_index": 580,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "108864",
+      "slug": "PONCHON.Barthelemy",
+      "name_from_link": "PONCHON Barthelemy",
+      "profile_url": "https://itra.run/RunnerSpace/PONCHON.Barthelemy/108864",
+      "itra_performance_index": 696,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "666373",
+      "slug": "CARUSI.Fabio",
+      "name_from_link": "CARUSI Fabio",
+      "profile_url": "https://itra.run/RunnerSpace/CARUSI.Fabio/666373",
+      "itra_performance_index": 585,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "44872",
+      "slug": "BRUESCHWEILER.Roman",
+      "name_from_link": "BRUESCHWEILER Roman",
+      "profile_url": "https://itra.run/RunnerSpace/BRUESCHWEILER.Roman/44872",
+      "itra_performance_index": 612,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "671646",
+      "slug": "TRISTANTE.Alberto",
+      "name_from_link": "TRISTANTE Alberto",
+      "profile_url": "https://itra.run/RunnerSpace/TRISTANTE.Alberto/671646",
+      "itra_performance_index": 692,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4243408",
+      "slug": "CAPACCHIONE.Matteo",
+      "name_from_link": "CAPACCHIONE Matteo",
+      "profile_url": "https://itra.run/RunnerSpace/CAPACCHIONE.Matteo/4243408",
+      "itra_performance_index": 713,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "496267",
+      "slug": "BLANC.Steeven",
+      "name_from_link": "BLANC Steeven",
+      "profile_url": "https://itra.run/RunnerSpace/BLANC.Steeven/496267",
+      "itra_performance_index": 677,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6572770",
+      "slug": "CAVALLINI.Simonluca",
+      "name_from_link": "CAVALLINI Simonluca",
+      "profile_url": "https://itra.run/RunnerSpace/CAVALLINI.Simonluca/6572770",
+      "itra_performance_index": 634,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "351454",
+      "slug": "TAUTSCHER.Hannes",
+      "name_from_link": "TAUTSCHER Hannes",
+      "profile_url": "https://itra.run/RunnerSpace/TAUTSCHER.Hannes/351454",
+      "itra_performance_index": 614,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "109178",
+      "slug": "PEDROTTI.Dario",
+      "name_from_link": "PEDROTTI Dario",
+      "profile_url": "https://itra.run/RunnerSpace/PEDROTTI.Dario/109178",
+      "itra_performance_index": 609,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "499848",
+      "slug": "HERCEGFI.Timo",
+      "name_from_link": "HERCEGFI Timo",
+      "profile_url": "https://itra.run/RunnerSpace/HERCEGFI.Timo/499848",
+      "itra_performance_index": 607,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "205980",
+      "slug": "DE BERTI.Tommaso",
+      "name_from_link": "DE BERTI Tommaso",
+      "profile_url": "https://itra.run/RunnerSpace/DE BERTI.Tommaso/205980",
+      "itra_performance_index": 657,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5118593",
+      "slug": "LUNDQVIST.Maria",
+      "name_from_link": "LUNDQVIST Maria",
+      "profile_url": "https://itra.run/RunnerSpace/LUNDQVIST.Maria/5118593",
+      "itra_performance_index": 622,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2336943",
+      "slug": "DEKEYSER.Laurens",
+      "name_from_link": "DEKEYSER Laurens",
+      "profile_url": "https://itra.run/RunnerSpace/DEKEYSER.Laurens/2336943",
+      "itra_performance_index": 720,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3083433",
+      "slug": "Zabrodsky.Dusan",
+      "name_from_link": "Zabrodsky Dusan",
+      "profile_url": "https://itra.run/RunnerSpace/Zabrodsky.Dusan/3083433",
+      "itra_performance_index": 603,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4637927",
+      "slug": "RIGAL.Julien",
+      "name_from_link": "RIGAL Julien",
+      "profile_url": "https://itra.run/RunnerSpace/RIGAL.Julien/4637927",
+      "itra_performance_index": 573,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "155459",
+      "slug": "STEEN.Benjamin",
+      "name_from_link": "STEEN Benjamin",
+      "profile_url": "https://itra.run/RunnerSpace/STEEN.Benjamin/155459",
+      "itra_performance_index": 590,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "654698",
+      "slug": "FOURTANIER.Ludovic",
+      "name_from_link": "FOURTANIER Ludovic",
+      "profile_url": "https://itra.run/RunnerSpace/FOURTANIER.Ludovic/654698",
+      "itra_performance_index": 684,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1828279",
+      "slug": "WEI.shiyu",
+      "name_from_link": "WEI shiyu",
+      "profile_url": "https://itra.run/RunnerSpace/WEI.shiyu/1828279",
+      "itra_performance_index": 689,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "746280",
+      "slug": "YOKOTA.Takahiro",
+      "name_from_link": "YOKOTA Takahiro",
+      "profile_url": "https://itra.run/RunnerSpace/YOKOTA.Takahiro/746280",
+      "itra_performance_index": 590,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "487931",
+      "slug": "CARAFFA.MIRCO",
+      "name_from_link": "CARAFFA MIRCO",
+      "profile_url": "https://itra.run/RunnerSpace/CARAFFA.MIRCO/487931",
+      "itra_performance_index": 614,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "588261",
+      "slug": "MARAN.Stefano",
+      "name_from_link": "MARAN Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/MARAN.Stefano/588261",
+      "itra_performance_index": 767,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "921765",
+      "slug": "BOURGEOIS.Julien",
+      "name_from_link": "BOURGEOIS Julien",
+      "profile_url": "https://itra.run/RunnerSpace/BOURGEOIS.Julien/921765",
+      "itra_performance_index": 614,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "972367",
+      "slug": "PINTO.Guido",
+      "name_from_link": "PINTO Guido",
+      "profile_url": "https://itra.run/RunnerSpace/PINTO.Guido/972367",
+      "itra_performance_index": 602,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "44225",
+      "slug": "BOURGEOT.Stephane",
+      "name_from_link": "BOURGEOT Stephane",
+      "profile_url": "https://itra.run/RunnerSpace/BOURGEOT.Stephane/44225",
+      "itra_performance_index": 520,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4665624",
+      "slug": "BATES.Becky",
+      "name_from_link": "BATES Becky",
+      "profile_url": "https://itra.run/RunnerSpace/BATES.Becky/4665624",
+      "itra_performance_index": 554,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "772000",
+      "slug": "CRUZ BRAVO.Jorge",
+      "name_from_link": "CRUZ BRAVO Jorge",
+      "profile_url": "https://itra.run/RunnerSpace/CRUZ BRAVO.Jorge/772000",
+      "itra_performance_index": 563,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "409751",
+      "slug": "KONO.Daniel",
+      "name_from_link": "KONO Daniel",
+      "profile_url": "https://itra.run/RunnerSpace/KONO.Daniel/409751",
+      "itra_performance_index": 578,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2098841",
+      "slug": "BERGOUNIOUX.Sylvain",
+      "name_from_link": "BERGOUNIOUX Sylvain",
+      "profile_url": "https://itra.run/RunnerSpace/BERGOUNIOUX.Sylvain/2098841",
+      "itra_performance_index": 655,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "19740",
+      "slug": "IVANOVSKI.Zhikica",
+      "name_from_link": "IVANOVSKI Zhikica",
+      "profile_url": "https://itra.run/RunnerSpace/IVANOVSKI.Zhikica/19740",
+      "itra_performance_index": 605,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "881959",
+      "slug": "POZZOBON.Nicola",
+      "name_from_link": "POZZOBON Nicola",
+      "profile_url": "https://itra.run/RunnerSpace/POZZOBON.Nicola/881959",
+      "itra_performance_index": 654,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4157754",
+      "slug": "FANTIN.Gianluca",
+      "name_from_link": "FANTIN Gianluca",
+      "profile_url": "https://itra.run/RunnerSpace/FANTIN.Gianluca/4157754",
+      "itra_performance_index": 697,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1623589",
+      "slug": "BAXTER.THOMAS",
+      "name_from_link": "BAXTER THOMAS",
+      "profile_url": "https://itra.run/RunnerSpace/BAXTER.THOMAS/1623589",
+      "itra_performance_index": 593,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "639657",
+      "slug": "AUBERT.Florent",
+      "name_from_link": "AUBERT Florent",
+      "profile_url": "https://itra.run/RunnerSpace/AUBERT.Florent/639657",
+      "itra_performance_index": 653,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "384677",
+      "slug": "BUCKINGHAM.Anna",
+      "name_from_link": "BUCKINGHAM Anna",
+      "profile_url": "https://itra.run/RunnerSpace/BUCKINGHAM.Anna/384677",
+      "itra_performance_index": 602,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "508315",
+      "slug": "ENGLUND.Tom",
+      "name_from_link": "ENGLUND Tom",
+      "profile_url": "https://itra.run/RunnerSpace/ENGLUND.Tom/508315",
+      "itra_performance_index": 651,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "584832",
+      "slug": "CHARVET.Cedric",
+      "name_from_link": "CHARVET Cedric",
+      "profile_url": "https://itra.run/RunnerSpace/CHARVET.Cedric/584832",
+      "itra_performance_index": 657,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "707267",
+      "slug": "SOTILLO.Antoni",
+      "name_from_link": "SOTILLO Antoni",
+      "profile_url": "https://itra.run/RunnerSpace/SOTILLO.Antoni/707267",
+      "itra_performance_index": 640,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1024461",
+      "slug": "LIIMATAINEN.Osmo",
+      "name_from_link": "LIIMATAINEN Osmo",
+      "profile_url": "https://itra.run/RunnerSpace/LIIMATAINEN.Osmo/1024461",
+      "itra_performance_index": 545,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4002140",
+      "slug": "VÄNTTINEN.Joni",
+      "name_from_link": "VANTTINEN Joni",
+      "profile_url": "https://itra.run/RunnerSpace/VÄNTTINEN.Joni/4002140",
+      "itra_performance_index": 632,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4592206",
+      "slug": "CHANG.xu",
+      "name_from_link": "CHANG xu",
+      "profile_url": "https://itra.run/RunnerSpace/CHANG.xu/4592206",
+      "itra_performance_index": 607,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "725965",
+      "slug": "CORSET.Franck",
+      "name_from_link": "CORSET Franck",
+      "profile_url": "https://itra.run/RunnerSpace/CORSET.Franck/725965",
+      "itra_performance_index": 524,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "283661",
+      "slug": "CASELLI.Cristian",
+      "name_from_link": "CASELLI Cristian",
+      "profile_url": "https://itra.run/RunnerSpace/CASELLI.Cristian/283661",
+      "itra_performance_index": 732,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1146239",
+      "slug": "VANHULST.Nicolas",
+      "name_from_link": "VANHULST Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/VANHULST.Nicolas/1146239",
+      "itra_performance_index": 568,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "448622",
+      "slug": "TYS.Maxime",
+      "name_from_link": "TYS Maxime",
+      "profile_url": "https://itra.run/RunnerSpace/TYS.Maxime/448622",
+      "itra_performance_index": 652,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4610122",
+      "slug": "BORTOLI.luca",
+      "name_from_link": "BORTOLI luca",
+      "profile_url": "https://itra.run/RunnerSpace/BORTOLI.luca/4610122",
+      "itra_performance_index": 509,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "510253",
+      "slug": "DENBY.Mark",
+      "name_from_link": "DENBY Mark",
+      "profile_url": "https://itra.run/RunnerSpace/DENBY.Mark/510253",
+      "itra_performance_index": 612,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "72328",
+      "slug": "GREGORETTI.Stefano",
+      "name_from_link": "GREGORETTI Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/GREGORETTI.Stefano/72328",
+      "itra_performance_index": 567,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4331158",
+      "slug": "PILSKY.Tomas",
+      "name_from_link": "PILSKY Tomas",
+      "profile_url": "https://itra.run/RunnerSpace/PILSKY.Tomas/4331158",
+      "itra_performance_index": 587,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3478975",
+      "slug": "KUJAWA .Krzysztof ",
+      "name_from_link": "KUJAWA  Krzysztof",
+      "profile_url": "https://itra.run/RunnerSpace/KUJAWA .Krzysztof /3478975",
+      "itra_performance_index": 571,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "542596",
+      "slug": "MAMIC.Andi",
+      "name_from_link": "MAMIC Andi",
+      "profile_url": "https://itra.run/RunnerSpace/MAMIC.Andi/542596",
+      "itra_performance_index": 706,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1855201",
+      "slug": "CARDOSO.Antonio",
+      "name_from_link": "CARDOSO Antonio",
+      "profile_url": "https://itra.run/RunnerSpace/CARDOSO.Antonio/1855201",
+      "itra_performance_index": 601,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "759398",
+      "slug": "FERREIRA.Hugo",
+      "name_from_link": "FERREIRA Hugo",
+      "profile_url": "https://itra.run/RunnerSpace/FERREIRA.Hugo/759398",
+      "itra_performance_index": 570,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5167912",
+      "slug": "SILVA TERESO.Duarte",
+      "name_from_link": "SILVA TERESO Duarte",
+      "profile_url": "https://itra.run/RunnerSpace/SILVA TERESO.Duarte/5167912",
+      "itra_performance_index": 686,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "624540",
+      "slug": "GRAÇA.Nelson",
+      "name_from_link": "GRAÇA Nelson",
+      "profile_url": "https://itra.run/RunnerSpace/GRAÇA.Nelson/624540",
+      "itra_performance_index": 568,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "530329",
+      "slug": "GERBIN.Ely",
+      "name_from_link": "GERBIN Ely",
+      "profile_url": "https://itra.run/RunnerSpace/GERBIN.Ely/530329",
+      "itra_performance_index": 506,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "458322",
+      "slug": "REQUENA OSETE.Jordi",
+      "name_from_link": "REQUENA OSETE Jordi",
+      "profile_url": "https://itra.run/RunnerSpace/REQUENA OSETE.Jordi/458322",
+      "itra_performance_index": 567,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "127147",
+      "slug": "KJAER.Harriet",
+      "name_from_link": "KJAER Harriet",
+      "profile_url": "https://itra.run/RunnerSpace/KJAER.Harriet/127147",
+      "itra_performance_index": 552,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3248225",
+      "slug": "BIANCO .Simone ",
+      "name_from_link": "BIANCO  Simone",
+      "profile_url": "https://itra.run/RunnerSpace/BIANCO .Simone /3248225",
+      "itra_performance_index": 693,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "383883",
+      "slug": "VAN DEN BERGH.Colin",
+      "name_from_link": "VAN DEN BERGH Colin",
+      "profile_url": "https://itra.run/RunnerSpace/VAN DEN BERGH.Colin/383883",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4277188",
+      "slug": "BAGÃO.Margarida",
+      "name_from_link": "BAGÃO Margarida",
+      "profile_url": "https://itra.run/RunnerSpace/BAGÃO.Margarida/4277188",
+      "itra_performance_index": 585,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "145353",
+      "slug": "NEGANOV.Maxim",
+      "name_from_link": "NEGANOV Maxim",
+      "profile_url": "https://itra.run/RunnerSpace/NEGANOV.Maxim/145353",
+      "itra_performance_index": 647,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4222598",
+      "slug": "EVANGELISTI.Michele",
+      "name_from_link": "EVANGELISTI Michele",
+      "profile_url": "https://itra.run/RunnerSpace/EVANGELISTI.Michele/4222598",
+      "itra_performance_index": 629,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "107464",
+      "slug": "FLUMMERFELT.Tom",
+      "name_from_link": "FLUMMERFELT Tom",
+      "profile_url": "https://itra.run/RunnerSpace/FLUMMERFELT.Tom/107464",
+      "itra_performance_index": 500,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4531434",
+      "slug": "OSTUNI.Renato",
+      "name_from_link": "OSTUNI Renato",
+      "profile_url": "https://itra.run/RunnerSpace/OSTUNI.Renato/4531434",
+      "itra_performance_index": 602,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "657969",
+      "slug": "ASPERSKI.Michal",
+      "name_from_link": "ASPERSKI Michal",
+      "profile_url": "https://itra.run/RunnerSpace/ASPERSKI.Michal/657969",
+      "itra_performance_index": 611,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "43736",
+      "slug": "CADEAU BELLIARD.Sebastien",
+      "name_from_link": "CADEAU BELLIARD Sebastien",
+      "profile_url": "https://itra.run/RunnerSpace/CADEAU BELLIARD.Sebastien/43736",
+      "itra_performance_index": 498,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3475245",
+      "slug": "PIEROZZI.GABRIELE",
+      "name_from_link": "PIEROZZI GABRIELE",
+      "profile_url": "https://itra.run/RunnerSpace/PIEROZZI.GABRIELE/3475245",
+      "itra_performance_index": 679,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "747329",
+      "slug": "INNOCENTI.Chiara",
+      "name_from_link": "INNOCENTI Chiara",
+      "profile_url": "https://itra.run/RunnerSpace/INNOCENTI.Chiara/747329",
+      "itra_performance_index": 646,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4471631",
+      "slug": "CROSTA .Alan",
+      "name_from_link": "CROSTA  Alan",
+      "profile_url": "https://itra.run/RunnerSpace/CROSTA .Alan/4471631",
+      "itra_performance_index": 714,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "730355",
+      "slug": "IEMMA.Cristian",
+      "name_from_link": "IEMMA Cristian",
+      "profile_url": "https://itra.run/RunnerSpace/IEMMA.Cristian/730355",
+      "itra_performance_index": 618,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4259034",
+      "slug": "BERTOLLA.Riccardo",
+      "name_from_link": "BERTOLLA Riccardo",
+      "profile_url": "https://itra.run/RunnerSpace/BERTOLLA.Riccardo/4259034",
+      "itra_performance_index": 658,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3385095",
+      "slug": "PIGARELLI .Matteo",
+      "name_from_link": "PIGARELLI  Matteo",
+      "profile_url": "https://itra.run/RunnerSpace/PIGARELLI .Matteo/3385095",
+      "itra_performance_index": 647,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "429542",
+      "slug": "GRIFFON.Yann",
+      "name_from_link": "GRIFFON Yann",
+      "profile_url": "https://itra.run/RunnerSpace/GRIFFON.Yann/429542",
+      "itra_performance_index": 591,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2041655",
+      "slug": "PAALLYSAHO.Juha",
+      "name_from_link": "PAALLYSAHO Juha",
+      "profile_url": "https://itra.run/RunnerSpace/PAALLYSAHO.Juha/2041655",
+      "itra_performance_index": 566,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817918",
+      "slug": "LAURENT.Simone",
+      "name_from_link": "LAURENT Simone",
+      "profile_url": "https://itra.run/RunnerSpace/LAURENT.Simone/6817918",
+      "itra_performance_index": 492,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "34746",
+      "slug": "GEVAUX.Alexandre",
+      "name_from_link": "GEVAUX Alexandre",
+      "profile_url": "https://itra.run/RunnerSpace/GEVAUX.Alexandre/34746",
+      "itra_performance_index": 677,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4372795",
+      "slug": "PONZO.Jean-Michel",
+      "name_from_link": "PONZO Jean-Michel",
+      "profile_url": "https://itra.run/RunnerSpace/PONZO.Jean-Michel/4372795",
+      "itra_performance_index": 590,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4324684",
+      "slug": "SCHALKX.Tijmen",
+      "name_from_link": "SCHALKX Tijmen",
+      "profile_url": "https://itra.run/RunnerSpace/SCHALKX.Tijmen/4324684",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "60586",
+      "slug": "EULOGIO.Riccardo",
+      "name_from_link": "EULOGIO Riccardo",
+      "profile_url": "https://itra.run/RunnerSpace/EULOGIO.Riccardo/60586",
+      "itra_performance_index": 591,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "677273",
+      "slug": "MILE.Monika",
+      "name_from_link": "MILE Monika",
+      "profile_url": "https://itra.run/RunnerSpace/MILE.Monika/677273",
+      "itra_performance_index": 625,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2483775",
+      "slug": "CAVALLINI.Cristiano",
+      "name_from_link": "CAVALLINI Cristiano",
+      "profile_url": "https://itra.run/RunnerSpace/CAVALLINI.Cristiano/2483775",
+      "itra_performance_index": 617,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1583713",
+      "slug": "SAIEVA .Maximiliano ",
+      "name_from_link": "SAIEVA  Maximiliano",
+      "profile_url": "https://itra.run/RunnerSpace/SAIEVA .Maximiliano /1583713",
+      "itra_performance_index": 601,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1506843",
+      "slug": "KOTAI.Victor",
+      "name_from_link": "KOTAI Victor",
+      "profile_url": "https://itra.run/RunnerSpace/KOTAI.Victor/1506843",
+      "itra_performance_index": 651,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "334067",
+      "slug": "PERA MIRAS.Miquel",
+      "name_from_link": "PERA MIRAS Miquel",
+      "profile_url": "https://itra.run/RunnerSpace/PERA MIRAS.Miquel/334067",
+      "itra_performance_index": 575,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "27009",
+      "slug": "BODERE.Henri",
+      "name_from_link": "BODERE Henri",
+      "profile_url": "https://itra.run/RunnerSpace/BODERE.Henri/27009",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "642154",
+      "slug": "DELBARBA.Stefano",
+      "name_from_link": "DELBARBA Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/DELBARBA.Stefano/642154",
+      "itra_performance_index": 618,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4155599",
+      "slug": "KELLY.Sean",
+      "name_from_link": "KELLY Sean",
+      "profile_url": "https://itra.run/RunnerSpace/KELLY.Sean/4155599",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1947215",
+      "slug": "KINGO.Gunnar",
+      "name_from_link": "KINGO Gunnar",
+      "profile_url": "https://itra.run/RunnerSpace/KINGO.Gunnar/1947215",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "59475",
+      "slug": "MACCHIAVELLO.Giorgio",
+      "name_from_link": "MACCHIAVELLO Giorgio",
+      "profile_url": "https://itra.run/RunnerSpace/MACCHIAVELLO.Giorgio/59475",
+      "itra_performance_index": 536,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3772201",
+      "slug": "AITA.Kenta",
+      "name_from_link": "AITA Kenta",
+      "profile_url": "https://itra.run/RunnerSpace/AITA.Kenta/3772201",
+      "itra_performance_index": 580,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "323472",
+      "slug": "WALCZAK.Maciej",
+      "name_from_link": "WALCZAK Maciej",
+      "profile_url": "https://itra.run/RunnerSpace/WALCZAK.Maciej/323472",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "30724",
+      "slug": "TALLIA.Chiara",
+      "name_from_link": "TALLIA Chiara",
+      "profile_url": "https://itra.run/RunnerSpace/TALLIA.Chiara/30724",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1641735",
+      "slug": "MOMOSE.Masaru",
+      "name_from_link": "MOMOSE Masaru",
+      "profile_url": "https://itra.run/RunnerSpace/MOMOSE.Masaru/1641735",
+      "itra_performance_index": 665,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "806189",
+      "slug": "PORUBCAN.Pavol",
+      "name_from_link": "PORUBCAN Pavol",
+      "profile_url": "https://itra.run/RunnerSpace/PORUBCAN.Pavol/806189",
+      "itra_performance_index": 728,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4227884",
+      "slug": "KORENFELD.Alexandre",
+      "name_from_link": "KORENFELD Alexandre",
+      "profile_url": "https://itra.run/RunnerSpace/KORENFELD.Alexandre/4227884",
+      "itra_performance_index": 621,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "844956",
+      "slug": "BARDET.Emmanuel",
+      "name_from_link": "BARDET Emmanuel",
+      "profile_url": "https://itra.run/RunnerSpace/BARDET.Emmanuel/844956",
+      "itra_performance_index": 547,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4157324",
+      "slug": "LEPPÄLÄ.Mika",
+      "name_from_link": "LEPPÄLÄ Mika",
+      "profile_url": "https://itra.run/RunnerSpace/LEPPÄLÄ.Mika/4157324",
+      "itra_performance_index": 588,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "11125",
+      "slug": "LEBRAY.David",
+      "name_from_link": "LEBRAY David",
+      "profile_url": "https://itra.run/RunnerSpace/LEBRAY.David/11125",
+      "itra_performance_index": 662,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "385698",
+      "slug": "PARIS.Remi",
+      "name_from_link": "PARIS Remi",
+      "profile_url": "https://itra.run/RunnerSpace/PARIS.Remi/385698",
+      "itra_performance_index": 651,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "509143",
+      "slug": "PALMIER.Nicolas",
+      "name_from_link": "PALMIER Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/PALMIER.Nicolas/509143",
+      "itra_performance_index": 559,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2014673",
+      "slug": "GASTON CONDUTE.Guilhem",
+      "name_from_link": "GASTON CONDUTE Guilhem",
+      "profile_url": "https://itra.run/RunnerSpace/GASTON CONDUTE.Guilhem/2014673",
+      "itra_performance_index": 554,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4032853",
+      "slug": "QUINDE ARMIJOS.Gustavo Orlando",
+      "name_from_link": "QUINDE ARMIJOS Gustavo Orlando",
+      "profile_url": "https://itra.run/RunnerSpace/QUINDE ARMIJOS.Gustavo Orlando/4032853",
+      "itra_performance_index": 627,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3769013",
+      "slug": "FOX.Bradley",
+      "name_from_link": "FOX Bradley",
+      "profile_url": "https://itra.run/RunnerSpace/FOX.Bradley/3769013",
+      "itra_performance_index": 482,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4199117",
+      "slug": "VALENCONY.Alexandre",
+      "name_from_link": "VALENCONY Alexandre",
+      "profile_url": "https://itra.run/RunnerSpace/VALENCONY.Alexandre/4199117",
+      "itra_performance_index": 640,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "348384",
+      "slug": "HILMARSDOTTIR.Hafdis Gudrun",
+      "name_from_link": "HILMARSDOTTIR Hafdis Gudrun",
+      "profile_url": "https://itra.run/RunnerSpace/HILMARSDOTTIR.Hafdis Gudrun/348384",
+      "itra_performance_index": 615,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "9248",
+      "slug": "DE DONCKER.Gregory",
+      "name_from_link": "DE DONCKER Gregory",
+      "profile_url": "https://itra.run/RunnerSpace/DE DONCKER.Gregory/9248",
+      "itra_performance_index": 557,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4616636",
+      "slug": "TORDI.Luca",
+      "name_from_link": "TORDI Luca",
+      "profile_url": "https://itra.run/RunnerSpace/TORDI.Luca/4616636",
+      "itra_performance_index": 609,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3210285",
+      "slug": "RENAUD.AURELIEN",
+      "name_from_link": "RENAUD AURELIEN",
+      "profile_url": "https://itra.run/RunnerSpace/RENAUD.AURELIEN/3210285",
+      "itra_performance_index": 513,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1615697",
+      "slug": "SCIARRETTA.Christian",
+      "name_from_link": "SCIARRETTA Christian",
+      "profile_url": "https://itra.run/RunnerSpace/SCIARRETTA.Christian/1615697",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "583135",
+      "slug": "KONO.Megan",
+      "name_from_link": "KONO Megan",
+      "profile_url": "https://itra.run/RunnerSpace/KONO.Megan/583135",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817919",
+      "slug": "MOELLER.Thure",
+      "name_from_link": "MOELLER Thure",
+      "profile_url": "https://itra.run/RunnerSpace/MOELLER.Thure/6817919",
+      "itra_performance_index": 478,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2512015",
+      "slug": "GUILLE.Benjamin",
+      "name_from_link": "GUILLE Benjamin",
+      "profile_url": "https://itra.run/RunnerSpace/GUILLE.Benjamin/2512015",
+      "itra_performance_index": 539,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "526664",
+      "slug": "CASAROTTO.Riccardo",
+      "name_from_link": "CASAROTTO Riccardo",
+      "profile_url": "https://itra.run/RunnerSpace/CASAROTTO.Riccardo/526664",
+      "itra_performance_index": 804,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3207959",
+      "slug": "MEIER.Adrian",
+      "name_from_link": "MEIER Adrian",
+      "profile_url": "https://itra.run/RunnerSpace/MEIER.Adrian/3207959",
+      "itra_performance_index": 607,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2486417",
+      "slug": "ADRIAN.Scott",
+      "name_from_link": "ADRIAN Scott",
+      "profile_url": "https://itra.run/RunnerSpace/ADRIAN.Scott/2486417",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4169327",
+      "slug": "PLATINI.Martino",
+      "name_from_link": "PLATINI Martino",
+      "profile_url": "https://itra.run/RunnerSpace/PLATINI.Martino/4169327",
+      "itra_performance_index": 652,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "13373",
+      "slug": "GARMENDIA ELORZA.Aitor",
+      "name_from_link": "GARMENDIA ELORZA Aitor",
+      "profile_url": "https://itra.run/RunnerSpace/GARMENDIA ELORZA.Aitor/13373",
+      "itra_performance_index": 636,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1213941",
+      "slug": "LI.Mui Chun",
+      "name_from_link": "LI Mui Chun",
+      "profile_url": "https://itra.run/RunnerSpace/LI.Mui Chun/1213941",
+      "itra_performance_index": 548,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1244495",
+      "slug": "FENG.Wei",
+      "name_from_link": "FENG Wei",
+      "profile_url": "https://itra.run/RunnerSpace/FENG.Wei/1244495",
+      "itra_performance_index": 711,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817920",
+      "slug": "YE.Xiaoming",
+      "name_from_link": "YE Xiaoming",
+      "profile_url": "https://itra.run/RunnerSpace/YE.Xiaoming/6817920",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4429090",
+      "slug": "BUTTIGNOL.Marco",
+      "name_from_link": "BUTTIGNOL Marco",
+      "profile_url": "https://itra.run/RunnerSpace/BUTTIGNOL.Marco/4429090",
+      "itra_performance_index": 601,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "533776",
+      "slug": "HAYES.Jacob",
+      "name_from_link": "HAYES Jacob",
+      "profile_url": "https://itra.run/RunnerSpace/HAYES.Jacob/533776",
+      "itra_performance_index": 534,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "210811",
+      "slug": "BUNN.Spencer",
+      "name_from_link": "BUNN Spencer",
+      "profile_url": "https://itra.run/RunnerSpace/BUNN.Spencer/210811",
+      "itra_performance_index": 475,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4406082",
+      "slug": "BONICCO.Mauro",
+      "name_from_link": "BONICCO Mauro",
+      "profile_url": "https://itra.run/RunnerSpace/BONICCO.Mauro/4406082",
+      "itra_performance_index": 708,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "306738",
+      "slug": "BETOURET.Sebastien",
+      "name_from_link": "BETOURET Sebastien",
+      "profile_url": "https://itra.run/RunnerSpace/BETOURET.Sebastien/306738",
+      "itra_performance_index": 614,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1615259",
+      "slug": "KRAHENBUHL.Samuel",
+      "name_from_link": "KRAHENBUHL Samuel",
+      "profile_url": "https://itra.run/RunnerSpace/KRAHENBUHL.Samuel/1615259",
+      "itra_performance_index": 539,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4908801",
+      "slug": "CABONA.Diego",
+      "name_from_link": "CABONA Diego",
+      "profile_url": "https://itra.run/RunnerSpace/CABONA.Diego/4908801",
+      "itra_performance_index": 619,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4604327",
+      "slug": "PASTORINO.Adriano",
+      "name_from_link": "PASTORINO Adriano",
+      "profile_url": "https://itra.run/RunnerSpace/PASTORINO.Adriano/4604327",
+      "itra_performance_index": 578,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4604326",
+      "slug": "CHERICONI.Alessandro",
+      "name_from_link": "CHERICONI Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/CHERICONI.Alessandro/4604326",
+      "itra_performance_index": 659,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "141915",
+      "slug": "SHIGEO.Morisue",
+      "name_from_link": "SHIGEO Morisue",
+      "profile_url": "https://itra.run/RunnerSpace/SHIGEO.Morisue/141915",
+      "itra_performance_index": 568,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "354227",
+      "slug": "SIROT.Philippe ",
+      "name_from_link": "SIROT Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/SIROT.Philippe /354227",
+      "itra_performance_index": 582,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1311593",
+      "slug": "BRIOT.Anthony",
+      "name_from_link": "BRIOT Anthony",
+      "profile_url": "https://itra.run/RunnerSpace/BRIOT.Anthony/1311593",
+      "itra_performance_index": 581,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3372819",
+      "slug": "BARBER.Caleb",
+      "name_from_link": "BARBER Caleb",
+      "profile_url": "https://itra.run/RunnerSpace/BARBER.Caleb/3372819",
+      "itra_performance_index": 472,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1175267",
+      "slug": "MENEGHEL.Stephane",
+      "name_from_link": "MENEGHEL Stephane",
+      "profile_url": "https://itra.run/RunnerSpace/MENEGHEL.Stephane/1175267",
+      "itra_performance_index": 522,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4610179",
+      "slug": "GAROTA.Maurizio",
+      "name_from_link": "GAROTA Maurizio",
+      "profile_url": "https://itra.run/RunnerSpace/GAROTA.Maurizio/4610179",
+      "itra_performance_index": 607,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1530439",
+      "slug": "SEPTIYANTO.Rachmat",
+      "name_from_link": "SEPTIYANTO Rachmat",
+      "profile_url": "https://itra.run/RunnerSpace/SEPTIYANTO.Rachmat/1530439",
+      "itra_performance_index": 665,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "342946",
+      "slug": "CHEDEL.Yannick",
+      "name_from_link": "CHEDEL Yannick",
+      "profile_url": "https://itra.run/RunnerSpace/CHEDEL.Yannick/342946",
+      "itra_performance_index": 584,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "19294",
+      "slug": "GENERALI.Alessandro ",
+      "name_from_link": "GENERALI Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/GENERALI.Alessandro /19294",
+      "itra_performance_index": 522,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1503141",
+      "slug": "LACROUTS.Clement",
+      "name_from_link": "LACROUTS Clement",
+      "profile_url": "https://itra.run/RunnerSpace/LACROUTS.Clement/1503141",
+      "itra_performance_index": 594,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "238903",
+      "slug": "MARTINI.Roberto",
+      "name_from_link": "MARTINI Roberto",
+      "profile_url": "https://itra.run/RunnerSpace/MARTINI.Roberto/238903",
+      "itra_performance_index": 778,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1021811",
+      "slug": "GOUDIE.Amanda",
+      "name_from_link": "GOUDIE Amanda",
+      "profile_url": "https://itra.run/RunnerSpace/GOUDIE.Amanda/1021811",
+      "itra_performance_index": 570,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1244273",
+      "slug": "PENNISI.Alberto",
+      "name_from_link": "PENNISI Alberto",
+      "profile_url": "https://itra.run/RunnerSpace/PENNISI.Alberto/1244273",
+      "itra_performance_index": 615,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "468330",
+      "slug": "BALOSSI.Stefano",
+      "name_from_link": "BALOSSI Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/BALOSSI.Stefano/468330",
+      "itra_performance_index": 539,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "923395",
+      "slug": "CARUSI .Valeria",
+      "name_from_link": "CARUSI  Valeria",
+      "profile_url": "https://itra.run/RunnerSpace/CARUSI .Valeria/923395",
+      "itra_performance_index": 632,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3289369",
+      "slug": "MONTORSI.Davide",
+      "name_from_link": "MONTORSI Davide",
+      "profile_url": "https://itra.run/RunnerSpace/MONTORSI.Davide/3289369",
+      "itra_performance_index": 599,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "437522",
+      "slug": "VAN EYLEN.Peter",
+      "name_from_link": "VAN EYLEN Peter",
+      "profile_url": "https://itra.run/RunnerSpace/VAN EYLEN.Peter/437522",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1324637",
+      "slug": "GAUDILLIERE.Quentin",
+      "name_from_link": "GAUDILLIERE Quentin",
+      "profile_url": "https://itra.run/RunnerSpace/GAUDILLIERE.Quentin/1324637",
+      "itra_performance_index": 556,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3047343",
+      "slug": "CANDRA.Sianti",
+      "name_from_link": "CANDRA Sianti",
+      "profile_url": "https://itra.run/RunnerSpace/CANDRA.Sianti/3047343",
+      "itra_performance_index": 501,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5004592",
+      "slug": "CAMPANER .Simone",
+      "name_from_link": "CAMPANER  Simone",
+      "profile_url": "https://itra.run/RunnerSpace/CAMPANER .Simone/5004592",
+      "itra_performance_index": 681,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3360299",
+      "slug": "TRUCCONE.Giorgio",
+      "name_from_link": "TRUCCONE Giorgio",
+      "profile_url": "https://itra.run/RunnerSpace/TRUCCONE.Giorgio/3360299",
+      "itra_performance_index": 566,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4994451",
+      "slug": "BUTLER.Luke",
+      "name_from_link": "BUTLER Luke",
+      "profile_url": "https://itra.run/RunnerSpace/BUTLER.Luke/4994451",
+      "itra_performance_index": 579,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1705063",
+      "slug": "FEDELE.Domenico",
+      "name_from_link": "FEDELE Domenico",
+      "profile_url": "https://itra.run/RunnerSpace/FEDELE.Domenico/1705063",
+      "itra_performance_index": 577,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1017539",
+      "slug": "SIEGENTHALER.Patric",
+      "name_from_link": "SIEGENTHALER Patric",
+      "profile_url": "https://itra.run/RunnerSpace/SIEGENTHALER.Patric/1017539",
+      "itra_performance_index": 568,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4740725",
+      "slug": "TORRENTE.Samy",
+      "name_from_link": "TORRENTE Samy",
+      "profile_url": "https://itra.run/RunnerSpace/TORRENTE.Samy/4740725",
+      "itra_performance_index": 575,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "156393",
+      "slug": "BROWN.Jean",
+      "name_from_link": "BROWN Jean",
+      "profile_url": "https://itra.run/RunnerSpace/BROWN.Jean/156393",
+      "itra_performance_index": 466,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "194574",
+      "slug": "DOAT.Pierre",
+      "name_from_link": "DOAT Pierre",
+      "profile_url": "https://itra.run/RunnerSpace/DOAT.Pierre/194574",
+      "itra_performance_index": 593,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "576808",
+      "slug": "EURY.Mark",
+      "name_from_link": "EURY Mark",
+      "profile_url": "https://itra.run/RunnerSpace/EURY.Mark/576808",
+      "itra_performance_index": 460,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "480448",
+      "slug": "WINDAL.Pierre",
+      "name_from_link": "WINDAL Pierre",
+      "profile_url": "https://itra.run/RunnerSpace/WINDAL.Pierre/480448",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5877815",
+      "slug": "HANNES.Pesserer",
+      "name_from_link": "HANNES Pesserer",
+      "profile_url": "https://itra.run/RunnerSpace/HANNES.Pesserer/5877815",
+      "itra_performance_index": 459,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1424653",
+      "slug": "MICHETTI.Andrea",
+      "name_from_link": "MICHETTI Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/MICHETTI.Andrea/1424653",
+      "itra_performance_index": 676,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "498829",
+      "slug": "FIOLETTI.Angelo",
+      "name_from_link": "FIOLETTI Angelo",
+      "profile_url": "https://itra.run/RunnerSpace/FIOLETTI.Angelo/498829",
+      "itra_performance_index": 597,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2230307",
+      "slug": "FIORONI.Massimo",
+      "name_from_link": "FIORONI Massimo",
+      "profile_url": "https://itra.run/RunnerSpace/FIORONI.Massimo/2230307",
+      "itra_performance_index": 575,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1429459",
+      "slug": "RADIN.Tatiana",
+      "name_from_link": "RADIN Tatiana",
+      "profile_url": "https://itra.run/RunnerSpace/RADIN.Tatiana/1429459",
+      "itra_performance_index": 515,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817922",
+      "slug": "PROUST.Philippe",
+      "name_from_link": "PROUST Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/PROUST.Philippe/6817922",
+      "itra_performance_index": 456,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "103639",
+      "slug": "CHASLES.Olivier",
+      "name_from_link": "CHASLES Olivier",
+      "profile_url": "https://itra.run/RunnerSpace/CHASLES.Olivier/103639",
+      "itra_performance_index": 513,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "544475",
+      "slug": "MULDER.Rickert",
+      "name_from_link": "MULDER Rickert",
+      "profile_url": "https://itra.run/RunnerSpace/MULDER.Rickert/544475",
+      "itra_performance_index": 592,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "168507",
+      "slug": "STUHL.Matthias",
+      "name_from_link": "STUHL Matthias",
+      "profile_url": "https://itra.run/RunnerSpace/STUHL.Matthias/168507",
+      "itra_performance_index": 541,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1536737",
+      "slug": "LYU.Guangce",
+      "name_from_link": "LYU Guangce",
+      "profile_url": "https://itra.run/RunnerSpace/LYU.Guangce/1536737",
+      "itra_performance_index": 562,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5371175",
+      "slug": "COMINOLI.Andrea",
+      "name_from_link": "COMINOLI Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/COMINOLI.Andrea/5371175",
+      "itra_performance_index": 577,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "626585",
+      "slug": "SISWANTO.Hendra",
+      "name_from_link": "SISWANTO Hendra",
+      "profile_url": "https://itra.run/RunnerSpace/SISWANTO.Hendra/626585",
+      "itra_performance_index": 609,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2194677",
+      "slug": "CODECÀ.Stefano",
+      "name_from_link": "CODECÀ Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/CODECÀ.Stefano/2194677",
+      "itra_performance_index": 571,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4282025",
+      "slug": "ROBERTS.christopher",
+      "name_from_link": "ROBERTS christopher",
+      "profile_url": "https://itra.run/RunnerSpace/ROBERTS.christopher/4282025",
+      "itra_performance_index": 541,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4175240",
+      "slug": "SOLENNITA.Giulio",
+      "name_from_link": "SOLENNITA Giulio",
+      "profile_url": "https://itra.run/RunnerSpace/SOLENNITA.Giulio/4175240",
+      "itra_performance_index": 621,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4194834",
+      "slug": "LEVENTHAL.Shiri",
+      "name_from_link": "LEVENTHAL Shiri",
+      "profile_url": "https://itra.run/RunnerSpace/LEVENTHAL.Shiri/4194834",
+      "itra_performance_index": 537,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4616632",
+      "slug": "MEREU.Fabrice",
+      "name_from_link": "MEREU Fabrice",
+      "profile_url": "https://itra.run/RunnerSpace/MEREU.Fabrice/4616632",
+      "itra_performance_index": 459,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4585674",
+      "slug": "PERETTI.Davide",
+      "name_from_link": "PERETTI Davide",
+      "profile_url": "https://itra.run/RunnerSpace/PERETTI.Davide/4585674",
+      "itra_performance_index": 656,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4670299",
+      "slug": "PAROLA.Danilo Francesco",
+      "name_from_link": "PAROLA Danilo Francesco",
+      "profile_url": "https://itra.run/RunnerSpace/PAROLA.Danilo Francesco/4670299",
+      "itra_performance_index": 616,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1313377",
+      "slug": "DALLA MARIGA.Enrico",
+      "name_from_link": "DALLA MARIGA Enrico",
+      "profile_url": "https://itra.run/RunnerSpace/DALLA MARIGA.Enrico/1313377",
+      "itra_performance_index": 574,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "32161",
+      "slug": "MATSUI.Ryoji",
+      "name_from_link": "MATSUI Ryoji",
+      "profile_url": "https://itra.run/RunnerSpace/MATSUI.Ryoji/32161",
+      "itra_performance_index": 678,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4329001",
+      "slug": "MARGUERIE.Cedric",
+      "name_from_link": "MARGUERIE Cedric",
+      "profile_url": "https://itra.run/RunnerSpace/MARGUERIE.Cedric/4329001",
+      "itra_performance_index": 475,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1640339",
+      "slug": "HUGON.Thomas",
+      "name_from_link": "HUGON Thomas",
+      "profile_url": "https://itra.run/RunnerSpace/HUGON.Thomas/1640339",
+      "itra_performance_index": 454,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3458275",
+      "slug": "POZZI.DAVIDE",
+      "name_from_link": "POZZI DAVIDE",
+      "profile_url": "https://itra.run/RunnerSpace/POZZI.DAVIDE/3458275",
+      "itra_performance_index": 593,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "64774",
+      "slug": "MOSER.Christophe",
+      "name_from_link": "MOSER Christophe",
+      "profile_url": "https://itra.run/RunnerSpace/MOSER.Christophe/64774",
+      "itra_performance_index": 484,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "30505",
+      "slug": "FOSSATI.Maria Ilaria",
+      "name_from_link": "FOSSATI Maria Ilaria",
+      "profile_url": "https://itra.run/RunnerSpace/FOSSATI.Maria Ilaria/30505",
+      "itra_performance_index": 519,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2649371",
+      "slug": "VAN DER STEL.Barry",
+      "name_from_link": "VAN DER STEL Barry",
+      "profile_url": "https://itra.run/RunnerSpace/VAN DER STEL.Barry/2649371",
+      "itra_performance_index": 524,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "388453",
+      "slug": "MONTERO RIBERA.Abel",
+      "name_from_link": "MONTERO RIBERA Abel",
+      "profile_url": "https://itra.run/RunnerSpace/MONTERO RIBERA.Abel/388453",
+      "itra_performance_index": 578,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1067513",
+      "slug": "FIDELUS.Jacek",
+      "name_from_link": "FIDELUS Jacek",
+      "profile_url": "https://itra.run/RunnerSpace/FIDELUS.Jacek/1067513",
+      "itra_performance_index": 669,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1602619",
+      "slug": "KAMINSKI.Jacek",
+      "name_from_link": "KAMINSKI Jacek",
+      "profile_url": "https://itra.run/RunnerSpace/KAMINSKI.Jacek/1602619",
+      "itra_performance_index": 561,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1889061",
+      "slug": "DECAESTEKER.David",
+      "name_from_link": "DECAESTEKER David",
+      "profile_url": "https://itra.run/RunnerSpace/DECAESTEKER.David/1889061",
+      "itra_performance_index": 585,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4558585",
+      "slug": "HÜTTL.Adrian",
+      "name_from_link": "HÜTTL Adrian",
+      "profile_url": "https://itra.run/RunnerSpace/HÜTTL.Adrian/4558585",
+      "itra_performance_index": 690,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "661014",
+      "slug": "KASNANEN.Heikki",
+      "name_from_link": "KASNANEN Heikki",
+      "profile_url": "https://itra.run/RunnerSpace/KASNANEN.Heikki/661014",
+      "itra_performance_index": 556,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "150929",
+      "slug": "WILLIAMS.Jonathan",
+      "name_from_link": "WILLIAMS Jonathan",
+      "profile_url": "https://itra.run/RunnerSpace/WILLIAMS.Jonathan/150929",
+      "itra_performance_index": 452,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3191517",
+      "slug": "READER.Jordan",
+      "name_from_link": "READER Jordan",
+      "profile_url": "https://itra.run/RunnerSpace/READER.Jordan/3191517",
+      "itra_performance_index": 614,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3695411",
+      "slug": "PIN.Gregory",
+      "name_from_link": "PIN Gregory",
+      "profile_url": "https://itra.run/RunnerSpace/PIN.Gregory/3695411",
+      "itra_performance_index": 612,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1645",
+      "slug": "BAPTISTE.Fabrice",
+      "name_from_link": "BAPTISTE Fabrice",
+      "profile_url": "https://itra.run/RunnerSpace/BAPTISTE.Fabrice/1645",
+      "itra_performance_index": 457,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "731721",
+      "slug": "SCHULZ NIGMANN.Luder",
+      "name_from_link": "SCHULZ NIGMANN Luder",
+      "profile_url": "https://itra.run/RunnerSpace/SCHULZ NIGMANN.Luder/731721",
+      "itra_performance_index": 565,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1640053",
+      "slug": "PASQUIER.Laurent",
+      "name_from_link": "PASQUIER Laurent",
+      "profile_url": "https://itra.run/RunnerSpace/PASQUIER.Laurent/1640053",
+      "itra_performance_index": 533,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2108025",
+      "slug": "BIELLER.Didier",
+      "name_from_link": "BIELLER Didier",
+      "profile_url": "https://itra.run/RunnerSpace/BIELLER.Didier/2108025",
+      "itra_performance_index": 653,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "795771",
+      "slug": "TANG.Yu Hin Ice",
+      "name_from_link": "TANG Yu Hin Ice",
+      "profile_url": "https://itra.run/RunnerSpace/TANG.Yu Hin Ice/795771",
+      "itra_performance_index": 623,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "479924",
+      "slug": "MOSKALIK.Tomasz",
+      "name_from_link": "MOSKALIK Tomasz",
+      "profile_url": "https://itra.run/RunnerSpace/MOSKALIK.Tomasz/479924",
+      "itra_performance_index": 634,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "653349",
+      "slug": "TISCHER.Jason",
+      "name_from_link": "TISCHER Jason",
+      "profile_url": "https://itra.run/RunnerSpace/TISCHER.Jason/653349",
+      "itra_performance_index": 464,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2050769",
+      "slug": "COKAN.Rok",
+      "name_from_link": "COKAN Rok",
+      "profile_url": "https://itra.run/RunnerSpace/COKAN.Rok/2050769",
+      "itra_performance_index": 696,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4199439",
+      "slug": "MIRON.Iulian",
+      "name_from_link": "MIRON Iulian",
+      "profile_url": "https://itra.run/RunnerSpace/MIRON.Iulian/4199439",
+      "itra_performance_index": 569,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5738274",
+      "slug": "MORRIS.Benjamin",
+      "name_from_link": "MORRIS Benjamin",
+      "profile_url": "https://itra.run/RunnerSpace/MORRIS.Benjamin/5738274",
+      "itra_performance_index": 450,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1651581",
+      "slug": "BYIERS.Bruce",
+      "name_from_link": "BYIERS Bruce",
+      "profile_url": "https://itra.run/RunnerSpace/BYIERS.Bruce/1651581",
+      "itra_performance_index": 529,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "917441",
+      "slug": "MUNTEANU.Vlad",
+      "name_from_link": "MUNTEANU Vlad",
+      "profile_url": "https://itra.run/RunnerSpace/MUNTEANU.Vlad/917441",
+      "itra_performance_index": 468,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "227393",
+      "slug": "PARMENTIER.nicolas",
+      "name_from_link": "PARMENTIER nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/PARMENTIER.nicolas/227393",
+      "itra_performance_index": 549,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "402170",
+      "slug": "TANADA.Takayuki",
+      "name_from_link": "TANADA Takayuki",
+      "profile_url": "https://itra.run/RunnerSpace/TANADA.Takayuki/402170",
+      "itra_performance_index": 525,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "327416",
+      "slug": "SO.Richard",
+      "name_from_link": "SO Richard",
+      "profile_url": "https://itra.run/RunnerSpace/SO.Richard/327416",
+      "itra_performance_index": 482,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817923",
+      "slug": "SCALVINONI.Fabio",
+      "name_from_link": "SCALVINONI Fabio",
+      "profile_url": "https://itra.run/RunnerSpace/SCALVINONI.Fabio/6817923",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "46051",
+      "slug": "WEBER.Brad",
+      "name_from_link": "WEBER Brad",
+      "profile_url": "https://itra.run/RunnerSpace/WEBER.Brad/46051",
+      "itra_performance_index": 532,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "158133",
+      "slug": "STELLA.Paolo",
+      "name_from_link": "STELLA Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/STELLA.Paolo/158133",
+      "itra_performance_index": 466,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "25349",
+      "slug": "DELIAU.Bastien",
+      "name_from_link": "DELIAU Bastien",
+      "profile_url": "https://itra.run/RunnerSpace/DELIAU.Bastien/25349",
+      "itra_performance_index": 559,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4451534",
+      "slug": "YUSOFF.KHAIRUL AZMI",
+      "name_from_link": "YUSOFF KHAIRUL AZMI",
+      "profile_url": "https://itra.run/RunnerSpace/YUSOFF.KHAIRUL AZMI/4451534",
+      "itra_performance_index": 447,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2219237",
+      "slug": "RATTO.Francesco",
+      "name_from_link": "RATTO Francesco",
+      "profile_url": "https://itra.run/RunnerSpace/RATTO.Francesco/2219237",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4277873",
+      "slug": "GIACOMINI.Gianluca",
+      "name_from_link": "GIACOMINI Gianluca",
+      "profile_url": "https://itra.run/RunnerSpace/GIACOMINI.Gianluca/4277873",
+      "itra_performance_index": 588,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1065893",
+      "slug": "SZMYT.Maciej",
+      "name_from_link": "SZMYT Maciej",
+      "profile_url": "https://itra.run/RunnerSpace/SZMYT.Maciej/1065893",
+      "itra_performance_index": 587,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3868513",
+      "slug": "BETHENCOURT JORGE.Guillermo",
+      "name_from_link": "BETHENCOURT JORGE Guillermo",
+      "profile_url": "https://itra.run/RunnerSpace/BETHENCOURT JORGE.Guillermo/3868513",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5126140",
+      "slug": "MANITTO.Andrea Vittorio",
+      "name_from_link": "MANITTO Andrea Vittorio",
+      "profile_url": "https://itra.run/RunnerSpace/MANITTO.Andrea Vittorio/5126140",
+      "itra_performance_index": 518,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2172515",
+      "slug": "KUWAZANE.Isao",
+      "name_from_link": "KUWAZANE Isao",
+      "profile_url": "https://itra.run/RunnerSpace/KUWAZANE.Isao/2172515",
+      "itra_performance_index": 446,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1061889",
+      "slug": "BIZZI.Daniele",
+      "name_from_link": "BIZZI Daniele",
+      "profile_url": "https://itra.run/RunnerSpace/BIZZI.Daniele/1061889",
+      "itra_performance_index": 493,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "178548",
+      "slug": "PELLETIER.Bertrand",
+      "name_from_link": "PELLETIER Bertrand",
+      "profile_url": "https://itra.run/RunnerSpace/PELLETIER.Bertrand/178548",
+      "itra_performance_index": 515,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "385734",
+      "slug": "GONGET.Christophe",
+      "name_from_link": "GONGET Christophe",
+      "profile_url": "https://itra.run/RunnerSpace/GONGET.Christophe/385734",
+      "itra_performance_index": 528,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1481931",
+      "slug": "ANDRE.Geoffray",
+      "name_from_link": "ANDRE Geoffray",
+      "profile_url": "https://itra.run/RunnerSpace/ANDRE.Geoffray/1481931",
+      "itra_performance_index": 617,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2423839",
+      "slug": "CHEN.Haoyue",
+      "name_from_link": "CHEN Haoyue",
+      "profile_url": "https://itra.run/RunnerSpace/CHEN.Haoyue/2423839",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4427017",
+      "slug": "DESNOYERS .Jonathan",
+      "name_from_link": "DESNOYERS  Jonathan",
+      "profile_url": "https://itra.run/RunnerSpace/DESNOYERS .Jonathan/4427017",
+      "itra_performance_index": 553,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2324767",
+      "slug": "SCARAMELLI.Emanuele",
+      "name_from_link": "SCARAMELLI Emanuele",
+      "profile_url": "https://itra.run/RunnerSpace/SCARAMELLI.Emanuele/2324767",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "429297",
+      "slug": "BOUYER.Fabien",
+      "name_from_link": "BOUYER Fabien",
+      "profile_url": "https://itra.run/RunnerSpace/BOUYER.Fabien/429297",
+      "itra_performance_index": 630,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2101603",
+      "slug": "TUAN ISMAIL.TUAN HAFANDI",
+      "name_from_link": "TUAN ISMAIL TUAN HAFANDI",
+      "profile_url": "https://itra.run/RunnerSpace/TUAN ISMAIL.TUAN HAFANDI/2101603",
+      "itra_performance_index": 590,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "20997",
+      "slug": "CORRADO.Vacca",
+      "name_from_link": "CORRADO Vacca",
+      "profile_url": "https://itra.run/RunnerSpace/CORRADO.Vacca/20997",
+      "itra_performance_index": 578,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "865435",
+      "slug": "BACILE.Audrey",
+      "name_from_link": "BACILE Audrey",
+      "profile_url": "https://itra.run/RunnerSpace/BACILE.Audrey/865435",
+      "itra_performance_index": 567,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2406425",
+      "slug": "ROSSI.Fabio",
+      "name_from_link": "ROSSI Fabio",
+      "profile_url": "https://itra.run/RunnerSpace/ROSSI.Fabio/2406425",
+      "itra_performance_index": 529,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817924",
+      "slug": "PETERSEN.Ian",
+      "name_from_link": "PETERSEN Ian",
+      "profile_url": "https://itra.run/RunnerSpace/PETERSEN.Ian/6817924",
+      "itra_performance_index": 443,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "41667",
+      "slug": "SIMARD.Arnaud",
+      "name_from_link": "SIMARD Arnaud",
+      "profile_url": "https://itra.run/RunnerSpace/SIMARD.Arnaud/41667",
+      "itra_performance_index": 527,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2091351",
+      "slug": "DURIEUX.Mathieu",
+      "name_from_link": "DURIEUX Mathieu",
+      "profile_url": "https://itra.run/RunnerSpace/DURIEUX.Mathieu/2091351",
+      "itra_performance_index": 535,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6976",
+      "slug": "BOUCHER.Frederic",
+      "name_from_link": "BOUCHER Frederic",
+      "profile_url": "https://itra.run/RunnerSpace/BOUCHER.Frederic/6976",
+      "itra_performance_index": 548,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "145342",
+      "slug": "JOUBERT.Frederic",
+      "name_from_link": "JOUBERT Frederic",
+      "profile_url": "https://itra.run/RunnerSpace/JOUBERT.Frederic/145342",
+      "itra_performance_index": 574,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "410684",
+      "slug": "VERNET.Thomas",
+      "name_from_link": "VERNET Thomas",
+      "profile_url": "https://itra.run/RunnerSpace/VERNET.Thomas/410684",
+      "itra_performance_index": 598,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4312023",
+      "slug": "BASTRENTAZ.Andrea Antonio",
+      "name_from_link": "BASTRENTAZ Andrea Antonio",
+      "profile_url": "https://itra.run/RunnerSpace/BASTRENTAZ.Andrea Antonio/4312023",
+      "itra_performance_index": 563,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "499212",
+      "slug": "VINCENDET.Jean Baptiste",
+      "name_from_link": "VINCENDET Jean Baptiste",
+      "profile_url": "https://itra.run/RunnerSpace/VINCENDET.Jean Baptiste/499212",
+      "itra_performance_index": 466,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "116619",
+      "slug": "MARCHAND.Michel",
+      "name_from_link": "MARCHAND Michel",
+      "profile_url": "https://itra.run/RunnerSpace/MARCHAND.Michel/116619",
+      "itra_performance_index": 554,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4860344",
+      "slug": "LIU .Shangpeng ",
+      "name_from_link": "LIU  Shangpeng",
+      "profile_url": "https://itra.run/RunnerSpace/LIU .Shangpeng /4860344",
+      "itra_performance_index": 631,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "648254",
+      "slug": "SORENSEN.Christian",
+      "name_from_link": "SORENSEN Christian",
+      "profile_url": "https://itra.run/RunnerSpace/SORENSEN.Christian/648254",
+      "itra_performance_index": 538,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "475512",
+      "slug": "MASSIMINO.Simone",
+      "name_from_link": "MASSIMINO Simone",
+      "profile_url": "https://itra.run/RunnerSpace/MASSIMINO.Simone/475512",
+      "itra_performance_index": 442,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2259109",
+      "slug": "PARINI.fabrizio ",
+      "name_from_link": "PARINI fabrizio",
+      "profile_url": "https://itra.run/RunnerSpace/PARINI.fabrizio /2259109",
+      "itra_performance_index": 621,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2105691",
+      "slug": "CRIPPA.Andrea",
+      "name_from_link": "CRIPPA Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/CRIPPA.Andrea/2105691",
+      "itra_performance_index": 548,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1384409",
+      "slug": "SCOPEL.Paolo",
+      "name_from_link": "SCOPEL Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/SCOPEL.Paolo/1384409",
+      "itra_performance_index": 584,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1008855",
+      "slug": "GANASSIN.Emanuele Carlo",
+      "name_from_link": "GANASSIN Emanuele Carlo",
+      "profile_url": "https://itra.run/RunnerSpace/GANASSIN.Emanuele Carlo/1008855",
+      "itra_performance_index": 593,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2479183",
+      "slug": "HOLMES.Jake",
+      "name_from_link": "HOLMES Jake",
+      "profile_url": "https://itra.run/RunnerSpace/HOLMES.Jake/2479183",
+      "itra_performance_index": 501,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4241368",
+      "slug": "MICHEL.Alain",
+      "name_from_link": "MICHEL Alain",
+      "profile_url": "https://itra.run/RunnerSpace/MICHEL.Alain/4241368",
+      "itra_performance_index": 522,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4194169",
+      "slug": "BARRA.Silvio Andrea",
+      "name_from_link": "BARRA Silvio Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/BARRA.Silvio Andrea/4194169",
+      "itra_performance_index": 607,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2477813",
+      "slug": "FRINO.Stefano",
+      "name_from_link": "FRINO Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/FRINO.Stefano/2477813",
+      "itra_performance_index": 564,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "630824",
+      "slug": "GHERSI.Luca",
+      "name_from_link": "GHERSI Luca",
+      "profile_url": "https://itra.run/RunnerSpace/GHERSI.Luca/630824",
+      "itra_performance_index": 523,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817925",
+      "slug": "PLOETNER.Kay",
+      "name_from_link": "PLOETNER Kay",
+      "profile_url": "https://itra.run/RunnerSpace/PLOETNER.Kay/6817925",
+      "itra_performance_index": 441,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "877303",
+      "slug": "VILLANUEVA.Abrahan",
+      "name_from_link": "VILLANUEVA Abrahan",
+      "profile_url": "https://itra.run/RunnerSpace/VILLANUEVA.Abrahan/877303",
+      "itra_performance_index": 585,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1265391",
+      "slug": "SUNTHORNWIT.Montha",
+      "name_from_link": "SUNTHORNWIT Montha",
+      "profile_url": "https://itra.run/RunnerSpace/SUNTHORNWIT.Montha/1265391",
+      "itra_performance_index": 555,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1400773",
+      "slug": "BOUCHOUX.Romain",
+      "name_from_link": "BOUCHOUX Romain",
+      "profile_url": "https://itra.run/RunnerSpace/BOUCHOUX.Romain/1400773",
+      "itra_performance_index": 514,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6829047",
+      "slug": "WU.Xu dong",
+      "name_from_link": "WU Xu dong",
+      "profile_url": "https://itra.run/RunnerSpace/WU.Xu dong/6829047",
+      "itra_performance_index": 440,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4178692",
+      "slug": "MARIANI.Laura",
+      "name_from_link": "MARIANI Laura",
+      "profile_url": "https://itra.run/RunnerSpace/MARIANI.Laura/4178692",
+      "itra_performance_index": 621,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3541927",
+      "slug": "POCHOLLE.Benjamin",
+      "name_from_link": "POCHOLLE Benjamin",
+      "profile_url": "https://itra.run/RunnerSpace/POCHOLLE.Benjamin/3541927",
+      "itra_performance_index": 553,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "591926",
+      "slug": "DAIX.Vincent",
+      "name_from_link": "DAIX Vincent",
+      "profile_url": "https://itra.run/RunnerSpace/DAIX.Vincent/591926",
+      "itra_performance_index": 566,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "150373",
+      "slug": "BERAUD.Gabriel",
+      "name_from_link": "BERAUD Gabriel",
+      "profile_url": "https://itra.run/RunnerSpace/BERAUD.Gabriel/150373",
+      "itra_performance_index": 654,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2473871",
+      "slug": "KURIHARA.Yuta",
+      "name_from_link": "KURIHARA Yuta",
+      "profile_url": "https://itra.run/RunnerSpace/KURIHARA.Yuta/2473871",
+      "itra_performance_index": 611,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3234715",
+      "slug": "ORIZIO.Andrea",
+      "name_from_link": "ORIZIO Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/ORIZIO.Andrea/3234715",
+      "itra_performance_index": 535,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "494793",
+      "slug": "VILLA.Emanuele ",
+      "name_from_link": "VILLA Emanuele",
+      "profile_url": "https://itra.run/RunnerSpace/VILLA.Emanuele /494793",
+      "itra_performance_index": 542,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "527721",
+      "slug": "RIGO.Andrea",
+      "name_from_link": "RIGO Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/RIGO.Andrea/527721",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4169265",
+      "slug": "CASANOVA.DAVIDE",
+      "name_from_link": "CASANOVA DAVIDE",
+      "profile_url": "https://itra.run/RunnerSpace/CASANOVA.DAVIDE/4169265",
+      "itra_performance_index": 603,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "55499",
+      "slug": "ANASTASIADIS.Stergios",
+      "name_from_link": "ANASTASIADIS Stergios",
+      "profile_url": "https://itra.run/RunnerSpace/ANASTASIADIS.Stergios/55499",
+      "itra_performance_index": 569,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "582902",
+      "slug": "OLDHAM.Ian",
+      "name_from_link": "OLDHAM Ian",
+      "profile_url": "https://itra.run/RunnerSpace/OLDHAM.Ian/582902",
+      "itra_performance_index": 531,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "985839",
+      "slug": "TABET.Roberta",
+      "name_from_link": "TABET Roberta",
+      "profile_url": "https://itra.run/RunnerSpace/TABET.Roberta/985839",
+      "itra_performance_index": 532,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6530214",
+      "slug": "BOZZI.Luca",
+      "name_from_link": "BOZZI Luca",
+      "profile_url": "https://itra.run/RunnerSpace/BOZZI.Luca/6530214",
+      "itra_performance_index": 585,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "972315",
+      "slug": "FESTI.Nicola",
+      "name_from_link": "FESTI Nicola",
+      "profile_url": "https://itra.run/RunnerSpace/FESTI.Nicola/972315",
+      "itra_performance_index": 513,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4585677",
+      "slug": "RUCCI.Paolo ",
+      "name_from_link": "RUCCI Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/RUCCI.Paolo /4585677",
+      "itra_performance_index": 575,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "825929",
+      "slug": "COLLS AVILA.Oscar",
+      "name_from_link": "COLLS AVILA Oscar",
+      "profile_url": "https://itra.run/RunnerSpace/COLLS AVILA.Oscar/825929",
+      "itra_performance_index": 570,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4289616",
+      "slug": "SCARANO.Pamela",
+      "name_from_link": "SCARANO Pamela",
+      "profile_url": "https://itra.run/RunnerSpace/SCARANO.Pamela/4289616",
+      "itra_performance_index": 578,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1618637",
+      "slug": "ISOMURA.Chieko",
+      "name_from_link": "ISOMURA Chieko",
+      "profile_url": "https://itra.run/RunnerSpace/ISOMURA.Chieko/1618637",
+      "itra_performance_index": 523,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "580291",
+      "slug": "CHEUNG.Ming Fung",
+      "name_from_link": "CHEUNG Ming Fung",
+      "profile_url": "https://itra.run/RunnerSpace/CHEUNG.Ming Fung/580291",
+      "itra_performance_index": 460,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4085933",
+      "slug": "GAO.feifei",
+      "name_from_link": "GAO feifei",
+      "profile_url": "https://itra.run/RunnerSpace/GAO.feifei/4085933",
+      "itra_performance_index": 633,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "410229",
+      "slug": "BRIAN.Agustin",
+      "name_from_link": "BRIAN Agustin",
+      "profile_url": "https://itra.run/RunnerSpace/BRIAN.Agustin/410229",
+      "itra_performance_index": 479,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1510875",
+      "slug": "BENNETT.Sophie",
+      "name_from_link": "BENNETT Sophie",
+      "profile_url": "https://itra.run/RunnerSpace/BENNETT.Sophie/1510875",
+      "itra_performance_index": 538,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4246341",
+      "slug": "CASET.Ivan",
+      "name_from_link": "CASET Ivan",
+      "profile_url": "https://itra.run/RunnerSpace/CASET.Ivan/4246341",
+      "itra_performance_index": 538,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3416571",
+      "slug": "STENICO.Simone",
+      "name_from_link": "STENICO Simone",
+      "profile_url": "https://itra.run/RunnerSpace/STENICO.Simone/3416571",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4162862",
+      "slug": "FONTANA GIUSTI.Giovanni",
+      "name_from_link": "FONTANA GIUSTI Giovanni",
+      "profile_url": "https://itra.run/RunnerSpace/FONTANA GIUSTI.Giovanni/4162862",
+      "itra_performance_index": 445,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1609",
+      "slug": "JOUFFROY.Romain",
+      "name_from_link": "JOUFFROY Romain",
+      "profile_url": "https://itra.run/RunnerSpace/JOUFFROY.Romain/1609",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "110633",
+      "slug": "LAMY.Frederic",
+      "name_from_link": "LAMY Frederic",
+      "profile_url": "https://itra.run/RunnerSpace/LAMY.Frederic/110633",
+      "itra_performance_index": 567,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "297529",
+      "slug": "SPIVAK.Roman",
+      "name_from_link": "SPIVAK Roman",
+      "profile_url": "https://itra.run/RunnerSpace/SPIVAK.Roman/297529",
+      "itra_performance_index": 507,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4235442",
+      "slug": "SCHOENMAEKERS.Ruben",
+      "name_from_link": "SCHOENMAEKERS Ruben",
+      "profile_url": "https://itra.run/RunnerSpace/SCHOENMAEKERS.Ruben/4235442",
+      "itra_performance_index": 494,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4386605",
+      "slug": "HAUSPY.Jules",
+      "name_from_link": "HAUSPY Jules",
+      "profile_url": "https://itra.run/RunnerSpace/HAUSPY.Jules/4386605",
+      "itra_performance_index": 613,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1098235",
+      "slug": "MOZZONE.GIOVANNI",
+      "name_from_link": "MOZZONE GIOVANNI",
+      "profile_url": "https://itra.run/RunnerSpace/MOZZONE.GIOVANNI/1098235",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1680309",
+      "slug": "SHIPOVIKJ.Katerina",
+      "name_from_link": "SHIPOVIKJ Katerina",
+      "profile_url": "https://itra.run/RunnerSpace/SHIPOVIKJ.Katerina/1680309",
+      "itra_performance_index": 515,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "689576",
+      "slug": "GAI.Yuanpei",
+      "name_from_link": "GAI Yuanpei",
+      "profile_url": "https://itra.run/RunnerSpace/GAI.Yuanpei/689576",
+      "itra_performance_index": 523,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4992687",
+      "slug": "ARANDA.David",
+      "name_from_link": "ARANDA David",
+      "profile_url": "https://itra.run/RunnerSpace/ARANDA.David/4992687",
+      "itra_performance_index": 558,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4403420",
+      "slug": "COSSA.Michele",
+      "name_from_link": "COSSA Michele",
+      "profile_url": "https://itra.run/RunnerSpace/COSSA.Michele/4403420",
+      "itra_performance_index": 603,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1946371",
+      "slug": "GERASIMOVIC.Marko",
+      "name_from_link": "GERASIMOVIC Marko",
+      "profile_url": "https://itra.run/RunnerSpace/GERASIMOVIC.Marko/1946371",
+      "itra_performance_index": 530,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1507145",
+      "slug": "HARA.Ippei",
+      "name_from_link": "HARA Ippei",
+      "profile_url": "https://itra.run/RunnerSpace/HARA.Ippei/1507145",
+      "itra_performance_index": 499,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "810695",
+      "slug": "PONT.Marcella",
+      "name_from_link": "PONT Marcella",
+      "profile_url": "https://itra.run/RunnerSpace/PONT.Marcella/810695",
+      "itra_performance_index": 499,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4762513",
+      "slug": "FLETGEN.Carole",
+      "name_from_link": "FLETGEN Carole",
+      "profile_url": "https://itra.run/RunnerSpace/FLETGEN.Carole/4762513",
+      "itra_performance_index": 520,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "294623",
+      "slug": "OSWALD.Manfred",
+      "name_from_link": "OSWALD Manfred",
+      "profile_url": "https://itra.run/RunnerSpace/OSWALD.Manfred/294623",
+      "itra_performance_index": 605,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "475741",
+      "slug": "LONGEARET.Sebastien",
+      "name_from_link": "LONGEARET Sebastien",
+      "profile_url": "https://itra.run/RunnerSpace/LONGEARET.Sebastien/475741",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4820548",
+      "slug": "VALSERIATI.Lara",
+      "name_from_link": "VALSERIATI Lara",
+      "profile_url": "https://itra.run/RunnerSpace/VALSERIATI.Lara/4820548",
+      "itra_performance_index": 571,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4008941",
+      "slug": "QUAINI.Marco",
+      "name_from_link": "QUAINI Marco",
+      "profile_url": "https://itra.run/RunnerSpace/QUAINI.Marco/4008941",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4820547",
+      "slug": "COCCOLI.Daniele",
+      "name_from_link": "COCCOLI Daniele",
+      "profile_url": "https://itra.run/RunnerSpace/COCCOLI.Daniele/4820547",
+      "itra_performance_index": 597,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4542315",
+      "slug": "LESTIENNE .Axel",
+      "name_from_link": "LESTIENNE  Axel",
+      "profile_url": "https://itra.run/RunnerSpace/LESTIENNE .Axel/4542315",
+      "itra_performance_index": 568,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "204153",
+      "slug": "CHAN.Chun Fai",
+      "name_from_link": "CHAN Chun Fai",
+      "profile_url": "https://itra.run/RunnerSpace/CHAN.Chun Fai/204153",
+      "itra_performance_index": 431,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "883279",
+      "slug": "CASARES.THOMAS",
+      "name_from_link": "CASARES THOMAS",
+      "profile_url": "https://itra.run/RunnerSpace/CASARES.THOMAS/883279",
+      "itra_performance_index": 558,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "486400",
+      "slug": "SCHWEGLER.Jennifer",
+      "name_from_link": "SCHWEGLER Jennifer",
+      "profile_url": "https://itra.run/RunnerSpace/SCHWEGLER.Jennifer/486400",
+      "itra_performance_index": 460,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "473509",
+      "slug": "FRANÇOIS.Goyot",
+      "name_from_link": "FRANÇOIS Goyot",
+      "profile_url": "https://itra.run/RunnerSpace/FRANÇOIS.Goyot/473509",
+      "itra_performance_index": 563,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4294083",
+      "slug": "ZAROLI.Luca Teresio",
+      "name_from_link": "ZAROLI Luca Teresio",
+      "profile_url": "https://itra.run/RunnerSpace/ZAROLI.Luca Teresio/4294083",
+      "itra_performance_index": 479,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "526681",
+      "slug": "BORDINI.William",
+      "name_from_link": "BORDINI William",
+      "profile_url": "https://itra.run/RunnerSpace/BORDINI.William/526681",
+      "itra_performance_index": 492,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2104329",
+      "slug": "DELOUCHE.Olivier",
+      "name_from_link": "DELOUCHE Olivier",
+      "profile_url": "https://itra.run/RunnerSpace/DELOUCHE.Olivier/2104329",
+      "itra_performance_index": 656,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "329771",
+      "slug": "PIGASSE.Thomas",
+      "name_from_link": "PIGASSE Thomas",
+      "profile_url": "https://itra.run/RunnerSpace/PIGASSE.Thomas/329771",
+      "itra_performance_index": 464,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5050946",
+      "slug": "FABRETTI.Fabrizio",
+      "name_from_link": "FABRETTI Fabrizio",
+      "profile_url": "https://itra.run/RunnerSpace/FABRETTI.Fabrizio/5050946",
+      "itra_performance_index": 574,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4975295",
+      "slug": "SUZUKI.MIKI",
+      "name_from_link": "SUZUKI MIKI",
+      "profile_url": "https://itra.run/RunnerSpace/SUZUKI.MIKI/4975295",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1088467",
+      "slug": "WILLIAMS.Sarah Kirsty",
+      "name_from_link": "WILLIAMS Sarah Kirsty",
+      "profile_url": "https://itra.run/RunnerSpace/WILLIAMS.Sarah Kirsty/1088467",
+      "itra_performance_index": 493,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4875751",
+      "slug": "FALANGA.Iacopo",
+      "name_from_link": "FALANGA Iacopo",
+      "profile_url": "https://itra.run/RunnerSpace/FALANGA.Iacopo/4875751",
+      "itra_performance_index": 584,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "727174",
+      "slug": "Zani.Paolo",
+      "name_from_link": "Zani Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/Zani.Paolo/727174",
+      "itra_performance_index": 454,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1246547",
+      "slug": "BOYER.Maxime ",
+      "name_from_link": "BOYER Maxime",
+      "profile_url": "https://itra.run/RunnerSpace/BOYER.Maxime /1246547",
+      "itra_performance_index": 546,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "141838",
+      "slug": "KUBO.Akiko",
+      "name_from_link": "KUBO Akiko",
+      "profile_url": "https://itra.run/RunnerSpace/KUBO.Akiko/141838",
+      "itra_performance_index": 593,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4236860",
+      "slug": "SILVER.Carl ",
+      "name_from_link": "SILVER Carl",
+      "profile_url": "https://itra.run/RunnerSpace/SILVER.Carl /4236860",
+      "itra_performance_index": 472,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2969517",
+      "slug": "JONES.David",
+      "name_from_link": "JONES David",
+      "profile_url": "https://itra.run/RunnerSpace/JONES.David/2969517",
+      "itra_performance_index": 425,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1504349",
+      "slug": "RUTSCH.Andreas",
+      "name_from_link": "RUTSCH Andreas",
+      "profile_url": "https://itra.run/RunnerSpace/RUTSCH.Andreas/1504349",
+      "itra_performance_index": 590,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4491317",
+      "slug": "ROSSATO.Pietro",
+      "name_from_link": "ROSSATO Pietro",
+      "profile_url": "https://itra.run/RunnerSpace/ROSSATO.Pietro/4491317",
+      "itra_performance_index": 571,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "38225",
+      "slug": "GRABIASZ.Miguel",
+      "name_from_link": "GRABIASZ Miguel",
+      "profile_url": "https://itra.run/RunnerSpace/GRABIASZ.Miguel/38225",
+      "itra_performance_index": 551,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2349319",
+      "slug": "ORSINI.Alessio Bortolo Sergio",
+      "name_from_link": "ORSINI Alessio Bortolo Sergio",
+      "profile_url": "https://itra.run/RunnerSpace/ORSINI.Alessio Bortolo Sergio/2349319",
+      "itra_performance_index": 462,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4616626",
+      "slug": "ORSINI.Sebastian",
+      "name_from_link": "ORSINI Sebastian",
+      "profile_url": "https://itra.run/RunnerSpace/ORSINI.Sebastian/4616626",
+      "itra_performance_index": 471,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4189594",
+      "slug": "SERVIDIO.GIUSEPPE",
+      "name_from_link": "SERVIDIO GIUSEPPE",
+      "profile_url": "https://itra.run/RunnerSpace/SERVIDIO.GIUSEPPE/4189594",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4236466",
+      "slug": "VELASCO MAGALDI.Fernando",
+      "name_from_link": "VELASCO MAGALDI Fernando",
+      "profile_url": "https://itra.run/RunnerSpace/VELASCO MAGALDI.Fernando/4236466",
+      "itra_performance_index": 423,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4243148",
+      "slug": "DELEPLANQUE.Aymeric",
+      "name_from_link": "DELEPLANQUE Aymeric",
+      "profile_url": "https://itra.run/RunnerSpace/DELEPLANQUE.Aymeric/4243148",
+      "itra_performance_index": 497,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1114607",
+      "slug": "BOGLIO.Davide",
+      "name_from_link": "BOGLIO Davide",
+      "profile_url": "https://itra.run/RunnerSpace/BOGLIO.Davide/1114607",
+      "itra_performance_index": 422,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "771669",
+      "slug": "HUI.Lai Pui",
+      "name_from_link": "HUI Lai Pui",
+      "profile_url": "https://itra.run/RunnerSpace/HUI.Lai Pui/771669",
+      "itra_performance_index": 431,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4304646",
+      "slug": "ADELMANN.Yann",
+      "name_from_link": "ADELMANN Yann",
+      "profile_url": "https://itra.run/RunnerSpace/ADELMANN.Yann/4304646",
+      "itra_performance_index": 519,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "9681",
+      "slug": "ROYAT.Laurent",
+      "name_from_link": "ROYAT Laurent",
+      "profile_url": "https://itra.run/RunnerSpace/ROYAT.Laurent/9681",
+      "itra_performance_index": 438,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1651165",
+      "slug": "CHAILLET.Olivier",
+      "name_from_link": "CHAILLET Olivier",
+      "profile_url": "https://itra.run/RunnerSpace/CHAILLET.Olivier/1651165",
+      "itra_performance_index": 510,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4895569",
+      "slug": "TAK.Hyoung Suk",
+      "name_from_link": "TAK Hyoung Suk",
+      "profile_url": "https://itra.run/RunnerSpace/TAK.Hyoung Suk/4895569",
+      "itra_performance_index": 547,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "537599",
+      "slug": "MEJIA.Sandra",
+      "name_from_link": "MEJIA Sandra",
+      "profile_url": "https://itra.run/RunnerSpace/MEJIA.Sandra/537599",
+      "itra_performance_index": 538,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "357857",
+      "slug": "POLLONO .Massimiliano ",
+      "name_from_link": "POLLONO  Massimiliano",
+      "profile_url": "https://itra.run/RunnerSpace/POLLONO .Massimiliano /357857",
+      "itra_performance_index": 545,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2360823",
+      "slug": "LUCA.Conrado",
+      "name_from_link": "LUCA Conrado",
+      "profile_url": "https://itra.run/RunnerSpace/LUCA.Conrado/2360823",
+      "itra_performance_index": 550,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "323956",
+      "slug": "MILEWICZ.Daniel",
+      "name_from_link": "MILEWICZ Daniel",
+      "profile_url": "https://itra.run/RunnerSpace/MILEWICZ.Daniel/323956",
+      "itra_performance_index": 561,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817927",
+      "slug": "CARRILLO.Yosu",
+      "name_from_link": "CARRILLO Yosu",
+      "profile_url": "https://itra.run/RunnerSpace/CARRILLO.Yosu/6817927",
+      "itra_performance_index": 421,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "51553",
+      "slug": "BURTON.Garry",
+      "name_from_link": "BURTON Garry",
+      "profile_url": "https://itra.run/RunnerSpace/BURTON.Garry/51553",
+      "itra_performance_index": 430,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2541639",
+      "slug": "GALLI.Andrea",
+      "name_from_link": "GALLI Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/GALLI.Andrea/2541639",
+      "itra_performance_index": 613,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "384839",
+      "slug": "LA MARTINA.Dario",
+      "name_from_link": "LA MARTINA Dario",
+      "profile_url": "https://itra.run/RunnerSpace/LA MARTINA.Dario/384839",
+      "itra_performance_index": 519,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1869939",
+      "slug": "LEE.Glenn",
+      "name_from_link": "LEE Glenn",
+      "profile_url": "https://itra.run/RunnerSpace/LEE.Glenn/1869939",
+      "itra_performance_index": 537,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1560079",
+      "slug": "BRUGNETTI.Gabriele",
+      "name_from_link": "BRUGNETTI Gabriele",
+      "profile_url": "https://itra.run/RunnerSpace/BRUGNETTI.Gabriele/1560079",
+      "itra_performance_index": 626,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "988589",
+      "slug": "CAVALIERI.Alessio",
+      "name_from_link": "CAVALIERI Alessio",
+      "profile_url": "https://itra.run/RunnerSpace/CAVALIERI.Alessio/988589",
+      "itra_performance_index": 618,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "988701",
+      "slug": "GILARDI.Silvia",
+      "name_from_link": "GILARDI Silvia",
+      "profile_url": "https://itra.run/RunnerSpace/GILARDI.Silvia/988701",
+      "itra_performance_index": 575,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4407304",
+      "slug": "TIRONI.Matteo",
+      "name_from_link": "TIRONI Matteo",
+      "profile_url": "https://itra.run/RunnerSpace/TIRONI.Matteo/4407304",
+      "itra_performance_index": 576,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5480689",
+      "slug": "PORRO.Samuele",
+      "name_from_link": "PORRO Samuele",
+      "profile_url": "https://itra.run/RunnerSpace/PORRO.Samuele/5480689",
+      "itra_performance_index": 572,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4724693",
+      "slug": "BLINN.Rachel",
+      "name_from_link": "BLINN Rachel",
+      "profile_url": "https://itra.run/RunnerSpace/BLINN.Rachel/4724693",
+      "itra_performance_index": 446,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2034475",
+      "slug": "BARTHES.Ludovic",
+      "name_from_link": "BARTHES Ludovic",
+      "profile_url": "https://itra.run/RunnerSpace/BARTHES.Ludovic/2034475",
+      "itra_performance_index": 583,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2233521",
+      "slug": "LAMA.Jeevan",
+      "name_from_link": "LAMA Jeevan",
+      "profile_url": "https://itra.run/RunnerSpace/LAMA.Jeevan/2233521",
+      "itra_performance_index": 671,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5845484",
+      "slug": "VALENTE.Kevin",
+      "name_from_link": "VALENTE Kevin",
+      "profile_url": "https://itra.run/RunnerSpace/VALENTE.Kevin/5845484",
+      "itra_performance_index": 456,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3499521",
+      "slug": "CHARLOT.Cyril",
+      "name_from_link": "CHARLOT Cyril",
+      "profile_url": "https://itra.run/RunnerSpace/CHARLOT.Cyril/3499521",
+      "itra_performance_index": 526,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "140680",
+      "slug": "ALVEZ BARRERO.Fernando",
+      "name_from_link": "ALVEZ BARRERO Fernando",
+      "profile_url": "https://itra.run/RunnerSpace/ALVEZ BARRERO.Fernando/140680",
+      "itra_performance_index": 549,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "756842",
+      "slug": "GIROLAMI.Paolo",
+      "name_from_link": "GIROLAMI Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/GIROLAMI.Paolo/756842",
+      "itra_performance_index": 442,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2360819",
+      "slug": "TASSONE.Lorenzo",
+      "name_from_link": "TASSONE Lorenzo",
+      "profile_url": "https://itra.run/RunnerSpace/TASSONE.Lorenzo/2360819",
+      "itra_performance_index": 609,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1314357",
+      "slug": "PIKE.Anne",
+      "name_from_link": "PIKE Anne",
+      "profile_url": "https://itra.run/RunnerSpace/PIKE.Anne/1314357",
+      "itra_performance_index": 449,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "481134",
+      "slug": "LAMY.Guillaume",
+      "name_from_link": "LAMY Guillaume",
+      "profile_url": "https://itra.run/RunnerSpace/LAMY.Guillaume/481134",
+      "itra_performance_index": 525,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "200155",
+      "slug": "CRUZ.Diego",
+      "name_from_link": "CRUZ Diego",
+      "profile_url": "https://itra.run/RunnerSpace/CRUZ.Diego/200155",
+      "itra_performance_index": 581,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1098141",
+      "slug": "CORREALE.Enrico",
+      "name_from_link": "CORREALE Enrico",
+      "profile_url": "https://itra.run/RunnerSpace/CORREALE.Enrico/1098141",
+      "itra_performance_index": 531,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2349055",
+      "slug": "GHIGLIA.Martina",
+      "name_from_link": "GHIGLIA Martina",
+      "profile_url": "https://itra.run/RunnerSpace/GHIGLIA.Martina/2349055",
+      "itra_performance_index": 530,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "70513",
+      "slug": "GRIMALDI.Fabrizio",
+      "name_from_link": "GRIMALDI Fabrizio",
+      "profile_url": "https://itra.run/RunnerSpace/GRIMALDI.Fabrizio/70513",
+      "itra_performance_index": 556,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5600837",
+      "slug": "BAGLIONI.Carlo",
+      "name_from_link": "BAGLIONI Carlo",
+      "profile_url": "https://itra.run/RunnerSpace/BAGLIONI.Carlo/5600837",
+      "itra_performance_index": 555,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1852715",
+      "slug": "TASSAN TOFFOLA.Mauro",
+      "name_from_link": "TASSAN TOFFOLA Mauro",
+      "profile_url": "https://itra.run/RunnerSpace/TASSAN TOFFOLA.Mauro/1852715",
+      "itra_performance_index": 559,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1108127",
+      "slug": "SALOMONI.Cesare",
+      "name_from_link": "SALOMONI Cesare",
+      "profile_url": "https://itra.run/RunnerSpace/SALOMONI.Cesare/1108127",
+      "itra_performance_index": 580,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "19920",
+      "slug": "MALLOL.Luc",
+      "name_from_link": "MALLOL Luc",
+      "profile_url": "https://itra.run/RunnerSpace/MALLOL.Luc/19920",
+      "itra_performance_index": 449,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "25865",
+      "slug": "FABICK.Gregory",
+      "name_from_link": "FABICK Gregory",
+      "profile_url": "https://itra.run/RunnerSpace/FABICK.Gregory/25865",
+      "itra_performance_index": 578,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4185698",
+      "slug": "GEZ.Maxime",
+      "name_from_link": "GEZ Maxime",
+      "profile_url": "https://itra.run/RunnerSpace/GEZ.Maxime/4185698",
+      "itra_performance_index": 528,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1507427",
+      "slug": "HAMA.Saiko",
+      "name_from_link": "HAMA Saiko",
+      "profile_url": "https://itra.run/RunnerSpace/HAMA.Saiko/1507427",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "19539",
+      "slug": "LOSIO.Augusto",
+      "name_from_link": "LOSIO Augusto",
+      "profile_url": "https://itra.run/RunnerSpace/LOSIO.Augusto/19539",
+      "itra_performance_index": 504,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "664845",
+      "slug": "IKEDA.Yukihiro",
+      "name_from_link": "IKEDA Yukihiro",
+      "profile_url": "https://itra.run/RunnerSpace/IKEDA.Yukihiro/664845",
+      "itra_performance_index": 463,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3788197",
+      "slug": "PHAN.Trung Hau",
+      "name_from_link": "PHAN Trung Hau",
+      "profile_url": "https://itra.run/RunnerSpace/PHAN.Trung Hau/3788197",
+      "itra_performance_index": 442,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "26753",
+      "slug": "FLANDRIN.Jerome",
+      "name_from_link": "FLANDRIN Jerome",
+      "profile_url": "https://itra.run/RunnerSpace/FLANDRIN.Jerome/26753",
+      "itra_performance_index": 513,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3151523",
+      "slug": "BROGGI.Vittorio",
+      "name_from_link": "BROGGI Vittorio",
+      "profile_url": "https://itra.run/RunnerSpace/BROGGI.Vittorio/3151523",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "243191",
+      "slug": "MARGERTE.Philippe",
+      "name_from_link": "MARGERTE Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/MARGERTE.Philippe/243191",
+      "itra_performance_index": 467,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "17581",
+      "slug": "JUNKO.Kazukawa",
+      "name_from_link": "JUNKO Kazukawa",
+      "profile_url": "https://itra.run/RunnerSpace/JUNKO.Kazukawa/17581",
+      "itra_performance_index": 484,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "158967",
+      "slug": "KAZUKI.Morimoto",
+      "name_from_link": "KAZUKI Morimoto",
+      "profile_url": "https://itra.run/RunnerSpace/KAZUKI.Morimoto/158967",
+      "itra_performance_index": 546,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3167879",
+      "slug": "JINNO.Tomonori",
+      "name_from_link": "JINNO Tomonori",
+      "profile_url": "https://itra.run/RunnerSpace/JINNO.Tomonori/3167879",
+      "itra_performance_index": 523,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1196443",
+      "slug": "BASTAMOW.Tanja",
+      "name_from_link": "BASTAMOW Tanja",
+      "profile_url": "https://itra.run/RunnerSpace/BASTAMOW.Tanja/1196443",
+      "itra_performance_index": 436,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "302386",
+      "slug": "KANWISCHER.Derek",
+      "name_from_link": "KANWISCHER Derek",
+      "profile_url": "https://itra.run/RunnerSpace/KANWISCHER.Derek/302386",
+      "itra_performance_index": 410,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4343023",
+      "slug": "NUNES.Dawn",
+      "name_from_link": "NUNES Dawn",
+      "profile_url": "https://itra.run/RunnerSpace/NUNES.Dawn/4343023",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3283305",
+      "slug": "MONTANGE.Aimeric",
+      "name_from_link": "MONTANGE Aimeric",
+      "profile_url": "https://itra.run/RunnerSpace/MONTANGE.Aimeric/3283305",
+      "itra_performance_index": 492,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3283307",
+      "slug": "NEGRAULT.Nicolas",
+      "name_from_link": "NEGRAULT Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/NEGRAULT.Nicolas/3283307",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "357156",
+      "slug": "BONANNO.Carmelo",
+      "name_from_link": "BONANNO Carmelo",
+      "profile_url": "https://itra.run/RunnerSpace/BONANNO.Carmelo/357156",
+      "itra_performance_index": 519,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2466685",
+      "slug": "LICCIARDI.Gregory",
+      "name_from_link": "LICCIARDI Gregory",
+      "profile_url": "https://itra.run/RunnerSpace/LICCIARDI.Gregory/2466685",
+      "itra_performance_index": 468,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4717860",
+      "slug": "VANZANDT.Marie",
+      "name_from_link": "VANZANDT Marie",
+      "profile_url": "https://itra.run/RunnerSpace/VANZANDT.Marie/4717860",
+      "itra_performance_index": 498,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "73943",
+      "slug": "HUILLE.Alexandre",
+      "name_from_link": "HUILLE Alexandre",
+      "profile_url": "https://itra.run/RunnerSpace/HUILLE.Alexandre/73943",
+      "itra_performance_index": 429,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2025807",
+      "slug": "ALBERT.Florent",
+      "name_from_link": "ALBERT Florent",
+      "profile_url": "https://itra.run/RunnerSpace/ALBERT.Florent/2025807",
+      "itra_performance_index": 655,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3328857",
+      "slug": "OGGIER.Nicolas",
+      "name_from_link": "OGGIER Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/OGGIER.Nicolas/3328857",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "361529",
+      "slug": "RODRIGUEZ BANDE.Jose Antonio",
+      "name_from_link": "RODRIGUEZ BANDE Jose Antonio",
+      "profile_url": "https://itra.run/RunnerSpace/RODRIGUEZ BANDE.Jose Antonio/361529",
+      "itra_performance_index": 506,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "342557",
+      "slug": "FORNERO.Andrea Domenico",
+      "name_from_link": "FORNERO Andrea Domenico",
+      "profile_url": "https://itra.run/RunnerSpace/FORNERO.Andrea Domenico/342557",
+      "itra_performance_index": 417,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "512788",
+      "slug": "HANNA.David",
+      "name_from_link": "HANNA David",
+      "profile_url": "https://itra.run/RunnerSpace/HANNA.David/512788",
+      "itra_performance_index": 655,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3151627",
+      "slug": "BARACCO.Alberto",
+      "name_from_link": "BARACCO Alberto",
+      "profile_url": "https://itra.run/RunnerSpace/BARACCO.Alberto/3151627",
+      "itra_performance_index": 511,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "78562",
+      "slug": "CHARLOPIN.Yannick",
+      "name_from_link": "CHARLOPIN Yannick",
+      "profile_url": "https://itra.run/RunnerSpace/CHARLOPIN.Yannick/78562",
+      "itra_performance_index": 495,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "9076",
+      "slug": "GLORIA.Daniel",
+      "name_from_link": "GLORIA Daniel",
+      "profile_url": "https://itra.run/RunnerSpace/GLORIA.Daniel/9076",
+      "itra_performance_index": 407,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "999145",
+      "slug": "ZANINI.Giovanni",
+      "name_from_link": "ZANINI Giovanni",
+      "profile_url": "https://itra.run/RunnerSpace/ZANINI.Giovanni/999145",
+      "itra_performance_index": 406,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "77690",
+      "slug": "NARAS.Philippe",
+      "name_from_link": "NARAS Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/NARAS.Philippe/77690",
+      "itra_performance_index": 515,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "141508",
+      "slug": "GHIRELLI.Eugenio",
+      "name_from_link": "GHIRELLI Eugenio",
+      "profile_url": "https://itra.run/RunnerSpace/GHIRELLI.Eugenio/141508",
+      "itra_performance_index": 457,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4161728",
+      "slug": "PELLIZZARO.Egidio",
+      "name_from_link": "PELLIZZARO Egidio",
+      "profile_url": "https://itra.run/RunnerSpace/PELLIZZARO.Egidio/4161728",
+      "itra_performance_index": 529,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4257867",
+      "slug": "SANCHI.Matteo ",
+      "name_from_link": "SANCHI Matteo",
+      "profile_url": "https://itra.run/RunnerSpace/SANCHI.Matteo /4257867",
+      "itra_performance_index": 404,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1435309",
+      "slug": "FONTANA.Renato",
+      "name_from_link": "FONTANA Renato",
+      "profile_url": "https://itra.run/RunnerSpace/FONTANA.Renato/1435309",
+      "itra_performance_index": 533,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2009819",
+      "slug": "FORNASIER.Fausto",
+      "name_from_link": "FORNASIER Fausto",
+      "profile_url": "https://itra.run/RunnerSpace/FORNASIER.Fausto/2009819",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3320503",
+      "slug": "SASSO .Massimiliano ",
+      "name_from_link": "SASSO  Massimiliano",
+      "profile_url": "https://itra.run/RunnerSpace/SASSO .Massimiliano /3320503",
+      "itra_performance_index": 485,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "901861",
+      "slug": "VAN DE BERGH.Ingo",
+      "name_from_link": "VAN DE BERGH Ingo",
+      "profile_url": "https://itra.run/RunnerSpace/VAN DE BERGH.Ingo/901861",
+      "itra_performance_index": 481,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4374526",
+      "slug": "DE FROISSARD.Anne-Charlotte",
+      "name_from_link": "DE FROISSARD Anne-Charlotte",
+      "profile_url": "https://itra.run/RunnerSpace/DE FROISSARD.Anne-Charlotte/4374526",
+      "itra_performance_index": 535,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4545527",
+      "slug": "BENTHAM.Darren",
+      "name_from_link": "BENTHAM Darren",
+      "profile_url": "https://itra.run/RunnerSpace/BENTHAM.Darren/4545527",
+      "itra_performance_index": 514,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "474591",
+      "slug": "NODOMI.Hiroshi",
+      "name_from_link": "NODOMI Hiroshi",
+      "profile_url": "https://itra.run/RunnerSpace/NODOMI.Hiroshi/474591",
+      "itra_performance_index": 453,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "695640",
+      "slug": "TOKITA.Megumi",
+      "name_from_link": "TOKITA Megumi",
+      "profile_url": "https://itra.run/RunnerSpace/TOKITA.Megumi/695640",
+      "itra_performance_index": 481,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "23449",
+      "slug": "JEGERLEHNER.Beat",
+      "name_from_link": "JEGERLEHNER Beat",
+      "profile_url": "https://itra.run/RunnerSpace/JEGERLEHNER.Beat/23449",
+      "itra_performance_index": 451,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2347591",
+      "slug": "PICARD.Francis",
+      "name_from_link": "PICARD Francis",
+      "profile_url": "https://itra.run/RunnerSpace/PICARD.Francis/2347591",
+      "itra_performance_index": 454,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "289272",
+      "slug": "ROSSAINI.DAVIDE",
+      "name_from_link": "ROSSAINI DAVIDE",
+      "profile_url": "https://itra.run/RunnerSpace/ROSSAINI.DAVIDE/289272",
+      "itra_performance_index": 621,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4606818",
+      "slug": "SCOTTI.stefano",
+      "name_from_link": "SCOTTI stefano",
+      "profile_url": "https://itra.run/RunnerSpace/SCOTTI.stefano/4606818",
+      "itra_performance_index": 625,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2163013",
+      "slug": "FERRERO.Jerome",
+      "name_from_link": "FERRERO Jerome",
+      "profile_url": "https://itra.run/RunnerSpace/FERRERO.Jerome/2163013",
+      "itra_performance_index": 459,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2174289",
+      "slug": "BRAMANTE.Paolo",
+      "name_from_link": "BRAMANTE Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/BRAMANTE.Paolo/2174289",
+      "itra_performance_index": 495,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4597672",
+      "slug": "HENNUS.Luc",
+      "name_from_link": "HENNUS Luc",
+      "profile_url": "https://itra.run/RunnerSpace/HENNUS.Luc/4597672",
+      "itra_performance_index": 450,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4049277",
+      "slug": "CISLAGHI.Stella",
+      "name_from_link": "CISLAGHI Stella",
+      "profile_url": "https://itra.run/RunnerSpace/CISLAGHI.Stella/4049277",
+      "itra_performance_index": 554,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "179247",
+      "slug": "JEANCLAUDE.Eric",
+      "name_from_link": "JEANCLAUDE Eric",
+      "profile_url": "https://itra.run/RunnerSpace/JEANCLAUDE.Eric/179247",
+      "itra_performance_index": 479,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "395",
+      "slug": "TREMAUDEUX.Nicolas",
+      "name_from_link": "TREMAUDEUX Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/TREMAUDEUX.Nicolas/395",
+      "itra_performance_index": 395,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "448453",
+      "slug": "RECH.Arnaud",
+      "name_from_link": "RECH Arnaud",
+      "profile_url": "https://itra.run/RunnerSpace/RECH.Arnaud/448453",
+      "itra_performance_index": 437,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1060433",
+      "slug": "BENVENUTI.Vittorio",
+      "name_from_link": "BENVENUTI Vittorio",
+      "profile_url": "https://itra.run/RunnerSpace/BENVENUTI.Vittorio/1060433",
+      "itra_performance_index": 568,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "641146",
+      "slug": "ODER.Pascal",
+      "name_from_link": "ODER Pascal",
+      "profile_url": "https://itra.run/RunnerSpace/ODER.Pascal/641146",
+      "itra_performance_index": 485,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3125155",
+      "slug": "JOVANOVA.Radmila",
+      "name_from_link": "JOVANOVA Radmila",
+      "profile_url": "https://itra.run/RunnerSpace/JOVANOVA.Radmila/3125155",
+      "itra_performance_index": 509,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1871111",
+      "slug": "SANCHI.Marco",
+      "name_from_link": "SANCHI Marco",
+      "profile_url": "https://itra.run/RunnerSpace/SANCHI.Marco/1871111",
+      "itra_performance_index": 580,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1518909",
+      "slug": "VERNAILLEN.Frank",
+      "name_from_link": "VERNAILLEN Frank",
+      "profile_url": "https://itra.run/RunnerSpace/VERNAILLEN.Frank/1518909",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3118861",
+      "slug": "FENG.Ronghuang",
+      "name_from_link": "FENG Ronghuang",
+      "profile_url": "https://itra.run/RunnerSpace/FENG.Ronghuang/3118861",
+      "itra_performance_index": 496,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4011176",
+      "slug": "YANG.Wanyi",
+      "name_from_link": "YANG Wanyi",
+      "profile_url": "https://itra.run/RunnerSpace/YANG.Wanyi/4011176",
+      "itra_performance_index": 518,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "117574",
+      "slug": "RINALDI.Ivan",
+      "name_from_link": "RINALDI Ivan",
+      "profile_url": "https://itra.run/RunnerSpace/RINALDI.Ivan/117574",
+      "itra_performance_index": 534,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4604315",
+      "slug": "ZORODDU .Giovanni",
+      "name_from_link": "ZORODDU  Giovanni",
+      "profile_url": "https://itra.run/RunnerSpace/ZORODDU .Giovanni/4604315",
+      "itra_performance_index": 664,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4317298",
+      "slug": "MAZZINI .Milena",
+      "name_from_link": "MAZZINI  Milena",
+      "profile_url": "https://itra.run/RunnerSpace/MAZZINI .Milena/4317298",
+      "itra_performance_index": 553,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "734675",
+      "slug": "BRAAD .Rasmus ",
+      "name_from_link": "BRAAD  Rasmus",
+      "profile_url": "https://itra.run/RunnerSpace/BRAAD .Rasmus /734675",
+      "itra_performance_index": 457,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "293402",
+      "slug": "KENNY.Shane Christopher ",
+      "name_from_link": "KENNY Shane Christopher",
+      "profile_url": "https://itra.run/RunnerSpace/KENNY.Shane Christopher /293402",
+      "itra_performance_index": 473,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "551215",
+      "slug": "LAZIC.Marina",
+      "name_from_link": "LAZIC Marina",
+      "profile_url": "https://itra.run/RunnerSpace/LAZIC.Marina/551215",
+      "itra_performance_index": 396,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2641885",
+      "slug": "BANNACH.BRUNO",
+      "name_from_link": "BANNACH BRUNO",
+      "profile_url": "https://itra.run/RunnerSpace/BANNACH.BRUNO/2641885",
+      "itra_performance_index": 482,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "630828",
+      "slug": "DE BIASE.Anna",
+      "name_from_link": "DE BIASE Anna",
+      "profile_url": "https://itra.run/RunnerSpace/DE BIASE.Anna/630828",
+      "itra_performance_index": 537,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "881771",
+      "slug": "TOZZATO.Andrea",
+      "name_from_link": "TOZZATO Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/TOZZATO.Andrea/881771",
+      "itra_performance_index": 465,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1529455",
+      "slug": "GRIMALDI.Andrea",
+      "name_from_link": "GRIMALDI Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/GRIMALDI.Andrea/1529455",
+      "itra_performance_index": 608,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "34651",
+      "slug": "RIBONI.Giulio",
+      "name_from_link": "RIBONI Giulio",
+      "profile_url": "https://itra.run/RunnerSpace/RIBONI.Giulio/34651",
+      "itra_performance_index": 584,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1584399",
+      "slug": "HARDEMAN.Vincent",
+      "name_from_link": "HARDEMAN Vincent",
+      "profile_url": "https://itra.run/RunnerSpace/HARDEMAN.Vincent/1584399",
+      "itra_performance_index": 491,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1859925",
+      "slug": "DIAO.SHU",
+      "name_from_link": "DIAO SHU",
+      "profile_url": "https://itra.run/RunnerSpace/DIAO.SHU/1859925",
+      "itra_performance_index": 500,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1070497",
+      "slug": "WHITE.Deuglan",
+      "name_from_link": "WHITE Deuglan",
+      "profile_url": "https://itra.run/RunnerSpace/WHITE.Deuglan/1070497",
+      "itra_performance_index": 449,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1244259",
+      "slug": "BASSETTI.Federico",
+      "name_from_link": "BASSETTI Federico",
+      "profile_url": "https://itra.run/RunnerSpace/BASSETTI.Federico/1244259",
+      "itra_performance_index": 615,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "297514",
+      "slug": "STEINBAUER.Martin",
+      "name_from_link": "STEINBAUER Martin",
+      "profile_url": "https://itra.run/RunnerSpace/STEINBAUER.Martin/297514",
+      "itra_performance_index": 498,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "506902",
+      "slug": "SCHMAUCH.Georg",
+      "name_from_link": "SCHMAUCH Georg",
+      "profile_url": "https://itra.run/RunnerSpace/SCHMAUCH.Georg/506902",
+      "itra_performance_index": 486,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2649741",
+      "slug": "MIGLIORE.Bruno",
+      "name_from_link": "MIGLIORE Bruno",
+      "profile_url": "https://itra.run/RunnerSpace/MIGLIORE.Bruno/2649741",
+      "itra_performance_index": 535,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "711655",
+      "slug": "RESTELLINI.Sebastien",
+      "name_from_link": "RESTELLINI Sebastien",
+      "profile_url": "https://itra.run/RunnerSpace/RESTELLINI.Sebastien/711655",
+      "itra_performance_index": 408,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817929",
+      "slug": "CERISE.Ludivine",
+      "name_from_link": "CERISE Ludivine",
+      "profile_url": "https://itra.run/RunnerSpace/CERISE.Ludivine/6817929",
+      "itra_performance_index": 393,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "757945",
+      "slug": "DEGREMONT.Gaetan",
+      "name_from_link": "DEGREMONT Gaetan",
+      "profile_url": "https://itra.run/RunnerSpace/DEGREMONT.Gaetan/757945",
+      "itra_performance_index": 538,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3276741",
+      "slug": "FRESIA.giancarlo",
+      "name_from_link": "FRESIA giancarlo",
+      "profile_url": "https://itra.run/RunnerSpace/FRESIA.giancarlo/3276741",
+      "itra_performance_index": 492,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "431416",
+      "slug": "MESQUITA.Philippe",
+      "name_from_link": "MESQUITA Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/MESQUITA.Philippe/431416",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4343865",
+      "slug": "CANNI FERRARI.Eugenio Maria",
+      "name_from_link": "CANNI FERRARI Eugenio Maria",
+      "profile_url": "https://itra.run/RunnerSpace/CANNI FERRARI.Eugenio Maria/4343865",
+      "itra_performance_index": 452,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4307595",
+      "slug": "MELOTTI.Alessio",
+      "name_from_link": "MELOTTI Alessio",
+      "profile_url": "https://itra.run/RunnerSpace/MELOTTI.Alessio/4307595",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1757105",
+      "slug": "FLAMINI.Erik",
+      "name_from_link": "FLAMINI Erik",
+      "profile_url": "https://itra.run/RunnerSpace/FLAMINI.Erik/1757105",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "306276",
+      "slug": "SASSOULAS.Pierre",
+      "name_from_link": "SASSOULAS Pierre",
+      "profile_url": "https://itra.run/RunnerSpace/SASSOULAS.Pierre/306276",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "186855",
+      "slug": "PROUD.Matthias",
+      "name_from_link": "PROUD Matthias",
+      "profile_url": "https://itra.run/RunnerSpace/PROUD.Matthias/186855",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2114657",
+      "slug": "OCKELOEN.Frank",
+      "name_from_link": "OCKELOEN Frank",
+      "profile_url": "https://itra.run/RunnerSpace/OCKELOEN.Frank/2114657",
+      "itra_performance_index": 400,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4172591",
+      "slug": "GREGORINI.FILIPPO",
+      "name_from_link": "GREGORINI FILIPPO",
+      "profile_url": "https://itra.run/RunnerSpace/GREGORINI.FILIPPO/4172591",
+      "itra_performance_index": 404,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4937876",
+      "slug": "PROSPERI.Luca",
+      "name_from_link": "PROSPERI Luca",
+      "profile_url": "https://itra.run/RunnerSpace/PROSPERI.Luca/4937876",
+      "itra_performance_index": 534,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4103876",
+      "slug": "NISTRI.Leonardo",
+      "name_from_link": "NISTRI Leonardo",
+      "profile_url": "https://itra.run/RunnerSpace/NISTRI.Leonardo/4103876",
+      "itra_performance_index": 483,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4616646",
+      "slug": "MORNIROLI.Alessandro",
+      "name_from_link": "MORNIROLI Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/MORNIROLI.Alessandro/4616646",
+      "itra_performance_index": 452,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4504888",
+      "slug": "DEL GIORGIO.Danilo",
+      "name_from_link": "DEL GIORGIO Danilo",
+      "profile_url": "https://itra.run/RunnerSpace/DEL GIORGIO.Danilo/4504888",
+      "itra_performance_index": 436,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "488628",
+      "slug": "BOURGET.MICKAEL",
+      "name_from_link": "BOURGET MICKAEL",
+      "profile_url": "https://itra.run/RunnerSpace/BOURGET.MICKAEL/488628",
+      "itra_performance_index": 531,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "642349",
+      "slug": "VALLE.Fabrizio",
+      "name_from_link": "VALLE Fabrizio",
+      "profile_url": "https://itra.run/RunnerSpace/VALLE.Fabrizio/642349",
+      "itra_performance_index": 543,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4909731",
+      "slug": "BERTOLDI.Lucio Guido Pietro ",
+      "name_from_link": "BERTOLDI Lucio Guido Pietro",
+      "profile_url": "https://itra.run/RunnerSpace/BERTOLDI.Lucio Guido Pietro /4909731",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1466647",
+      "slug": "BROSEGHINI.Raniero",
+      "name_from_link": "BROSEGHINI Raniero",
+      "profile_url": "https://itra.run/RunnerSpace/BROSEGHINI.Raniero/1466647",
+      "itra_performance_index": 579,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "485886",
+      "slug": "GLASER.Mat",
+      "name_from_link": "GLASER Mat",
+      "profile_url": "https://itra.run/RunnerSpace/GLASER.Mat/485886",
+      "itra_performance_index": 508,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "449680",
+      "slug": "IGUSA.Tom",
+      "name_from_link": "IGUSA Tom",
+      "profile_url": "https://itra.run/RunnerSpace/IGUSA.Tom/449680",
+      "itra_performance_index": 447,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1600813",
+      "slug": "HEID.Jens",
+      "name_from_link": "HEID Jens",
+      "profile_url": "https://itra.run/RunnerSpace/HEID.Jens/1600813",
+      "itra_performance_index": 447,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4223058",
+      "slug": "ELIAS.Manuel",
+      "name_from_link": "ELIAS Manuel",
+      "profile_url": "https://itra.run/RunnerSpace/ELIAS.Manuel/4223058",
+      "itra_performance_index": 538,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3292409",
+      "slug": "OUGIER.Laurent",
+      "name_from_link": "OUGIER Laurent",
+      "profile_url": "https://itra.run/RunnerSpace/OUGIER.Laurent/3292409",
+      "itra_performance_index": 467,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4325349",
+      "slug": "SIGNORELLI.ANGELO",
+      "name_from_link": "SIGNORELLI ANGELO",
+      "profile_url": "https://itra.run/RunnerSpace/SIGNORELLI.ANGELO/4325349",
+      "itra_performance_index": 506,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "145154",
+      "slug": "GERMAIN.Cyrille ",
+      "name_from_link": "GERMAIN Cyrille",
+      "profile_url": "https://itra.run/RunnerSpace/GERMAIN.Cyrille /145154",
+      "itra_performance_index": 485,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "544619",
+      "slug": "SCHIFFER.Michael",
+      "name_from_link": "SCHIFFER Michael",
+      "profile_url": "https://itra.run/RunnerSpace/SCHIFFER.Michael/544619",
+      "itra_performance_index": 566,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3712617",
+      "slug": "LAURET.Bruno",
+      "name_from_link": "LAURET Bruno",
+      "profile_url": "https://itra.run/RunnerSpace/LAURET.Bruno/3712617",
+      "itra_performance_index": 455,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4902724",
+      "slug": "GAMBETTA.gianluca",
+      "name_from_link": "GAMBETTA gianluca",
+      "profile_url": "https://itra.run/RunnerSpace/GAMBETTA.gianluca/4902724",
+      "itra_performance_index": 390,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1302327",
+      "slug": "DALIN.Liang",
+      "name_from_link": "DALIN Liang",
+      "profile_url": "https://itra.run/RunnerSpace/DALIN.Liang/1302327",
+      "itra_performance_index": 524,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "757740",
+      "slug": "HAMEL.Vincent",
+      "name_from_link": "HAMEL Vincent",
+      "profile_url": "https://itra.run/RunnerSpace/HAMEL.Vincent/757740",
+      "itra_performance_index": 597,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "475411",
+      "slug": "MUSIARI.Raffaella",
+      "name_from_link": "MUSIARI Raffaella",
+      "profile_url": "https://itra.run/RunnerSpace/MUSIARI.Raffaella/475411",
+      "itra_performance_index": 517,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "309608",
+      "slug": "GRANELLI.Francesca",
+      "name_from_link": "GRANELLI Francesca",
+      "profile_url": "https://itra.run/RunnerSpace/GRANELLI.Francesca/309608",
+      "itra_performance_index": 513,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4215995",
+      "slug": "PADOVANI.Andrea",
+      "name_from_link": "PADOVANI Andrea",
+      "profile_url": "https://itra.run/RunnerSpace/PADOVANI.Andrea/4215995",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4492867",
+      "slug": "BUTTA.Chiara Maria",
+      "name_from_link": "BUTTA Chiara Maria",
+      "profile_url": "https://itra.run/RunnerSpace/BUTTA.Chiara Maria/4492867",
+      "itra_performance_index": 510,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4544420",
+      "slug": "BRUSAMENTO.Lorena",
+      "name_from_link": "BRUSAMENTO Lorena",
+      "profile_url": "https://itra.run/RunnerSpace/BRUSAMENTO.Lorena/4544420",
+      "itra_performance_index": 532,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4469850",
+      "slug": "BAUMGARTNER.Marc",
+      "name_from_link": "BAUMGARTNER Marc",
+      "profile_url": "https://itra.run/RunnerSpace/BAUMGARTNER.Marc/4469850",
+      "itra_performance_index": 494,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "679559",
+      "slug": "HENDERSON.Victoria",
+      "name_from_link": "HENDERSON Victoria",
+      "profile_url": "https://itra.run/RunnerSpace/HENDERSON.Victoria/679559",
+      "itra_performance_index": 483,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "309564",
+      "slug": "ALLUVIONE.Diego",
+      "name_from_link": "ALLUVIONE Diego",
+      "profile_url": "https://itra.run/RunnerSpace/ALLUVIONE.Diego/309564",
+      "itra_performance_index": 481,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "19416",
+      "slug": "GHEDI.Osvaldo",
+      "name_from_link": "GHEDI Osvaldo",
+      "profile_url": "https://itra.run/RunnerSpace/GHEDI.Osvaldo/19416",
+      "itra_performance_index": 423,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "715410",
+      "slug": "ZHONG.Ming",
+      "name_from_link": "ZHONG Ming",
+      "profile_url": "https://itra.run/RunnerSpace/ZHONG.Ming/715410",
+      "itra_performance_index": 561,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1213641",
+      "slug": "PONS GUAL.Bartolome",
+      "name_from_link": "PONS GUAL Bartolome",
+      "profile_url": "https://itra.run/RunnerSpace/PONS GUAL.Bartolome/1213641",
+      "itra_performance_index": 466,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "367017",
+      "slug": "FERRON.Philippe",
+      "name_from_link": "FERRON Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/FERRON.Philippe/367017",
+      "itra_performance_index": 449,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1803651",
+      "slug": "FOK BOR.Anthony",
+      "name_from_link": "FOK BOR Anthony",
+      "profile_url": "https://itra.run/RunnerSpace/FOK BOR.Anthony/1803651",
+      "itra_performance_index": 489,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1198717",
+      "slug": "POSTIGO.Silvia",
+      "name_from_link": "POSTIGO Silvia",
+      "profile_url": "https://itra.run/RunnerSpace/POSTIGO.Silvia/1198717",
+      "itra_performance_index": 419,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4212386",
+      "slug": "PARODI.Alessandro",
+      "name_from_link": "PARODI Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/PARODI.Alessandro/4212386",
+      "itra_performance_index": 571,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2423079",
+      "slug": "LEE.Sangsin",
+      "name_from_link": "LEE Sangsin",
+      "profile_url": "https://itra.run/RunnerSpace/LEE.Sangsin/2423079",
+      "itra_performance_index": 500,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5184442",
+      "slug": "NAGEL.Sven-Malte",
+      "name_from_link": "NAGEL Sven-Malte",
+      "profile_url": "https://itra.run/RunnerSpace/NAGEL.Sven-Malte/5184442",
+      "itra_performance_index": 553,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1132099",
+      "slug": "SZABO.Sandor",
+      "name_from_link": "SZABO Sandor",
+      "profile_url": "https://itra.run/RunnerSpace/SZABO.Sandor/1132099",
+      "itra_performance_index": 583,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "386582",
+      "slug": "ADELHANOFF.Nicolas",
+      "name_from_link": "ADELHANOFF Nicolas",
+      "profile_url": "https://itra.run/RunnerSpace/ADELHANOFF.Nicolas/386582",
+      "itra_performance_index": 525,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1135755",
+      "slug": "JIANG.Yujin",
+      "name_from_link": "JIANG Yujin",
+      "profile_url": "https://itra.run/RunnerSpace/JIANG.Yujin/1135755",
+      "itra_performance_index": 571,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "236775",
+      "slug": "MORENO.Jose",
+      "name_from_link": "MORENO Jose",
+      "profile_url": "https://itra.run/RunnerSpace/MORENO.Jose/236775",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5715481",
+      "slug": "LUCI.Valerio",
+      "name_from_link": "LUCI Valerio",
+      "profile_url": "https://itra.run/RunnerSpace/LUCI.Valerio/5715481",
+      "itra_performance_index": 552,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4307109",
+      "slug": "TOMASELLO .Domenico",
+      "name_from_link": "TOMASELLO  Domenico",
+      "profile_url": "https://itra.run/RunnerSpace/TOMASELLO .Domenico/4307109",
+      "itra_performance_index": 569,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1627877",
+      "slug": "PETRIAUX.Marc",
+      "name_from_link": "PETRIAUX Marc",
+      "profile_url": "https://itra.run/RunnerSpace/PETRIAUX.Marc/1627877",
+      "itra_performance_index": 469,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4619446",
+      "slug": "FLEISHER.Aaron",
+      "name_from_link": "FLEISHER Aaron",
+      "profile_url": "https://itra.run/RunnerSpace/FLEISHER.Aaron/4619446",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4616513",
+      "slug": "FACCIA.Daniele",
+      "name_from_link": "FACCIA Daniele",
+      "profile_url": "https://itra.run/RunnerSpace/FACCIA.Daniele/4616513",
+      "itra_performance_index": 533,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3303349",
+      "slug": "TERCIER.Frédéric",
+      "name_from_link": "TERCIER Frédéric",
+      "profile_url": "https://itra.run/RunnerSpace/TERCIER.Frédéric/3303349",
+      "itra_performance_index": 497,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4214603",
+      "slug": "BOSSARD.yohann",
+      "name_from_link": "BOSSARD yohann",
+      "profile_url": "https://itra.run/RunnerSpace/BOSSARD.yohann/4214603",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4310679",
+      "slug": "TARANIK.Charity",
+      "name_from_link": "TARANIK Charity",
+      "profile_url": "https://itra.run/RunnerSpace/TARANIK.Charity/4310679",
+      "itra_performance_index": 388,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5566118",
+      "slug": "TARANIK.Bryan",
+      "name_from_link": "TARANIK Bryan",
+      "profile_url": "https://itra.run/RunnerSpace/TARANIK.Bryan/5566118",
+      "itra_performance_index": 424,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817931",
+      "slug": "LANCINI.Vincenzo",
+      "name_from_link": "LANCINI Vincenzo",
+      "profile_url": "https://itra.run/RunnerSpace/LANCINI.Vincenzo/6817931",
+      "itra_performance_index": 388,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817932",
+      "slug": "MORETTI.Paolo",
+      "name_from_link": "MORETTI Paolo",
+      "profile_url": "https://itra.run/RunnerSpace/MORETTI.Paolo/6817932",
+      "itra_performance_index": 388,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "660075",
+      "slug": "PFEILER OPITZ.Marianne",
+      "name_from_link": "PFEILER OPITZ Marianne",
+      "profile_url": "https://itra.run/RunnerSpace/PFEILER OPITZ.Marianne/660075",
+      "itra_performance_index": 465,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "656286",
+      "slug": "KAYSER.Jean",
+      "name_from_link": "KAYSER Jean",
+      "profile_url": "https://itra.run/RunnerSpace/KAYSER.Jean/656286",
+      "itra_performance_index": 536,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4529500",
+      "slug": "HE.HU",
+      "name_from_link": "HE HU",
+      "profile_url": "https://itra.run/RunnerSpace/HE.HU/4529500",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4596553",
+      "slug": "CELLI.Stefano",
+      "name_from_link": "CELLI Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/CELLI.Stefano/4596553",
+      "itra_performance_index": 601,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1560247",
+      "slug": "POZZONI.Iader",
+      "name_from_link": "POZZONI Iader",
+      "profile_url": "https://itra.run/RunnerSpace/POZZONI.Iader/1560247",
+      "itra_performance_index": 429,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2519137",
+      "slug": "SHIMOMURA.shoko",
+      "name_from_link": "SHIMOMURA shoko",
+      "profile_url": "https://itra.run/RunnerSpace/SHIMOMURA.shoko/2519137",
+      "itra_performance_index": 542,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5681118",
+      "slug": "POZZOLO.Alberto",
+      "name_from_link": "POZZOLO Alberto",
+      "profile_url": "https://itra.run/RunnerSpace/POZZOLO.Alberto/5681118",
+      "itra_performance_index": 432,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2259183",
+      "slug": "SCUCCATO.Massimo",
+      "name_from_link": "SCUCCATO Massimo",
+      "profile_url": "https://itra.run/RunnerSpace/SCUCCATO.Massimo/2259183",
+      "itra_performance_index": 505,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1204325",
+      "slug": "TASHIRO.Hiroyuki",
+      "name_from_link": "TASHIRO Hiroyuki",
+      "profile_url": "https://itra.run/RunnerSpace/TASHIRO.Hiroyuki/1204325",
+      "itra_performance_index": 430,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "402930",
+      "slug": "SUZUKI.Takahiro",
+      "name_from_link": "SUZUKI Takahiro",
+      "profile_url": "https://itra.run/RunnerSpace/SUZUKI.Takahiro/402930",
+      "itra_performance_index": 394,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "766497",
+      "slug": "POLGAR.Levente Ioan",
+      "name_from_link": "POLGAR Levente Ioan",
+      "profile_url": "https://itra.run/RunnerSpace/POLGAR.Levente Ioan/766497",
+      "itra_performance_index": 524,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4327585",
+      "slug": "CHARROIN.Pascal",
+      "name_from_link": "CHARROIN Pascal",
+      "profile_url": "https://itra.run/RunnerSpace/CHARROIN.Pascal/4327585",
+      "itra_performance_index": 498,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "746390",
+      "slug": "UCHIYAMA.TSUTOMU",
+      "name_from_link": "UCHIYAMA TSUTOMU",
+      "profile_url": "https://itra.run/RunnerSpace/UCHIYAMA.TSUTOMU/746390",
+      "itra_performance_index": 388,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4026151",
+      "slug": "PACOT.david",
+      "name_from_link": "PACOT david",
+      "profile_url": "https://itra.run/RunnerSpace/PACOT.david/4026151",
+      "itra_performance_index": 480,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "567025",
+      "slug": "TSUJIMOTO.Arihito",
+      "name_from_link": "TSUJIMOTO Arihito",
+      "profile_url": "https://itra.run/RunnerSpace/TSUJIMOTO.Arihito/567025",
+      "itra_performance_index": 553,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "425017",
+      "slug": "DAFFINI.Angela",
+      "name_from_link": "DAFFINI Angela",
+      "profile_url": "https://itra.run/RunnerSpace/DAFFINI.Angela/425017",
+      "itra_performance_index": 485,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "435650",
+      "slug": "BARRAUD.Laurent",
+      "name_from_link": "BARRAUD Laurent",
+      "profile_url": "https://itra.run/RunnerSpace/BARRAUD.Laurent/435650",
+      "itra_performance_index": 472,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1700645",
+      "slug": "KANAMOTO.Kazutoshi",
+      "name_from_link": "KANAMOTO Kazutoshi",
+      "profile_url": "https://itra.run/RunnerSpace/KANAMOTO.Kazutoshi/1700645",
+      "itra_performance_index": 553,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2239627",
+      "slug": "ALBERTONE.Joel",
+      "name_from_link": "ALBERTONE Joel",
+      "profile_url": "https://itra.run/RunnerSpace/ALBERTONE.Joel/2239627",
+      "itra_performance_index": 513,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "73007",
+      "slug": "AUVINET.Cyril",
+      "name_from_link": "AUVINET Cyril",
+      "profile_url": "https://itra.run/RunnerSpace/AUVINET.Cyril/73007",
+      "itra_performance_index": 475,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1522581",
+      "slug": "ASSASSA.Yann Joel",
+      "name_from_link": "ASSASSA Yann Joel",
+      "profile_url": "https://itra.run/RunnerSpace/ASSASSA.Yann Joel/1522581",
+      "itra_performance_index": 490,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4909870",
+      "slug": "VERONESE.Romano",
+      "name_from_link": "VERONESE Romano",
+      "profile_url": "https://itra.run/RunnerSpace/VERONESE.Romano/4909870",
+      "itra_performance_index": 522,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "642309",
+      "slug": "CASTAGNERI.FABRIZIO ",
+      "name_from_link": "CASTAGNERI FABRIZIO",
+      "profile_url": "https://itra.run/RunnerSpace/CASTAGNERI.FABRIZIO /642309",
+      "itra_performance_index": 478,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1559999",
+      "slug": "BARCELLA.Stefano",
+      "name_from_link": "BARCELLA Stefano",
+      "profile_url": "https://itra.run/RunnerSpace/BARCELLA.Stefano/1559999",
+      "itra_performance_index": 505,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "79316",
+      "slug": "FAUVARQUE.Thierry",
+      "name_from_link": "FAUVARQUE Thierry",
+      "profile_url": "https://itra.run/RunnerSpace/FAUVARQUE.Thierry/79316",
+      "itra_performance_index": 443,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6372474",
+      "slug": "TACCHINI.Denis",
+      "name_from_link": "TACCHINI Denis",
+      "profile_url": "https://itra.run/RunnerSpace/TACCHINI.Denis/6372474",
+      "itra_performance_index": 385,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1005913",
+      "slug": "ROBYR.Xavier",
+      "name_from_link": "ROBYR Xavier",
+      "profile_url": "https://itra.run/RunnerSpace/ROBYR.Xavier/1005913",
+      "itra_performance_index": 468,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "800987",
+      "slug": "CHEUNG.Kashing",
+      "name_from_link": "CHEUNG Kashing",
+      "profile_url": "https://itra.run/RunnerSpace/CHEUNG.Kashing/800987",
+      "itra_performance_index": 579,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "44057",
+      "slug": "WEHRLE.Pierre",
+      "name_from_link": "WEHRLE Pierre",
+      "profile_url": "https://itra.run/RunnerSpace/WEHRLE.Pierre/44057",
+      "itra_performance_index": 442,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3478399",
+      "slug": "ABE.Masahiro",
+      "name_from_link": "ABE Masahiro",
+      "profile_url": "https://itra.run/RunnerSpace/ABE.Masahiro/3478399",
+      "itra_performance_index": 501,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "103279",
+      "slug": "MALLET.Luc",
+      "name_from_link": "MALLET Luc",
+      "profile_url": "https://itra.run/RunnerSpace/MALLET.Luc/103279",
+      "itra_performance_index": 385,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4497535",
+      "slug": "NIBBIO.alessandro",
+      "name_from_link": "NIBBIO alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/NIBBIO.alessandro/4497535",
+      "itra_performance_index": 471,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "78694",
+      "slug": "BOYDENS.Wim",
+      "name_from_link": "BOYDENS Wim",
+      "profile_url": "https://itra.run/RunnerSpace/BOYDENS.Wim/78694",
+      "itra_performance_index": 423,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "387729",
+      "slug": "GIACALONE.Daniele",
+      "name_from_link": "GIACALONE Daniele",
+      "profile_url": "https://itra.run/RunnerSpace/GIACALONE.Daniele/387729",
+      "itra_performance_index": 491,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4460917",
+      "slug": "GIARAMIDA.Giuseppe",
+      "name_from_link": "GIARAMIDA Giuseppe",
+      "profile_url": "https://itra.run/RunnerSpace/GIARAMIDA.Giuseppe/4460917",
+      "itra_performance_index": 495,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "36574",
+      "slug": "LEUNG.Wan Yee",
+      "name_from_link": "LEUNG Wan Yee",
+      "profile_url": "https://itra.run/RunnerSpace/LEUNG.Wan Yee/36574",
+      "itra_performance_index": 402,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1164581",
+      "slug": "PENG.Cheng",
+      "name_from_link": "PENG Cheng",
+      "profile_url": "https://itra.run/RunnerSpace/PENG.Cheng/1164581",
+      "itra_performance_index": 544,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1713059",
+      "slug": "MU.Kai",
+      "name_from_link": "MU Kai",
+      "profile_url": "https://itra.run/RunnerSpace/MU.Kai/1713059",
+      "itra_performance_index": 564,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "400617",
+      "slug": "YEUNG.Ka Lun",
+      "name_from_link": "YEUNG Ka Lun",
+      "profile_url": "https://itra.run/RunnerSpace/YEUNG.Ka Lun/400617",
+      "itra_performance_index": 487,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1313165",
+      "slug": "SURACE.Fabio",
+      "name_from_link": "SURACE Fabio",
+      "profile_url": "https://itra.run/RunnerSpace/SURACE.Fabio/1313165",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "962483",
+      "slug": "VITKOV.Ilian",
+      "name_from_link": "VITKOV Ilian",
+      "profile_url": "https://itra.run/RunnerSpace/VITKOV.Ilian/962483",
+      "itra_performance_index": 384,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4909737",
+      "slug": "DUROUX.Sergio",
+      "name_from_link": "DUROUX Sergio",
+      "profile_url": "https://itra.run/RunnerSpace/DUROUX.Sergio/4909737",
+      "itra_performance_index": 504,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "207643",
+      "slug": "TRAVAILLOT.Laurent",
+      "name_from_link": "TRAVAILLOT Laurent",
+      "profile_url": "https://itra.run/RunnerSpace/TRAVAILLOT.Laurent/207643",
+      "itra_performance_index": 508,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "207642",
+      "slug": "TRAVAILLOT.Marie Laure",
+      "name_from_link": "TRAVAILLOT Marie Laure",
+      "profile_url": "https://itra.run/RunnerSpace/TRAVAILLOT.Marie Laure/207642",
+      "itra_performance_index": 438,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "461318",
+      "slug": "LE BRETON.Christophe",
+      "name_from_link": "LE BRETON Christophe",
+      "profile_url": "https://itra.run/RunnerSpace/LE BRETON.Christophe/461318",
+      "itra_performance_index": 395,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5118464",
+      "slug": "RISSONE.Mauro",
+      "name_from_link": "RISSONE Mauro",
+      "profile_url": "https://itra.run/RunnerSpace/RISSONE.Mauro/5118464",
+      "itra_performance_index": 541,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4320880",
+      "slug": "WALSH.Padraic",
+      "name_from_link": "WALSH Padraic",
+      "profile_url": "https://itra.run/RunnerSpace/WALSH.Padraic/4320880",
+      "itra_performance_index": 406,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5316737",
+      "slug": "COLDRAY.Joshua",
+      "name_from_link": "COLDRAY Joshua",
+      "profile_url": "https://itra.run/RunnerSpace/COLDRAY.Joshua/5316737",
+      "itra_performance_index": 542,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3447445",
+      "slug": "MOLON.Fabio",
+      "name_from_link": "MOLON Fabio",
+      "profile_url": "https://itra.run/RunnerSpace/MOLON.Fabio/3447445",
+      "itra_performance_index": 519,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "33340",
+      "slug": "DUTERME.Virginie",
+      "name_from_link": "DUTERME Virginie",
+      "profile_url": "https://itra.run/RunnerSpace/DUTERME.Virginie/33340",
+      "itra_performance_index": 520,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2405755",
+      "slug": "SESSANTINI.Ferdinando",
+      "name_from_link": "SESSANTINI Ferdinando",
+      "profile_url": "https://itra.run/RunnerSpace/SESSANTINI.Ferdinando/2405755",
+      "itra_performance_index": 520,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "82861",
+      "slug": "EFFRANCEY.Philippe",
+      "name_from_link": "EFFRANCEY Philippe",
+      "profile_url": "https://itra.run/RunnerSpace/EFFRANCEY.Philippe/82861",
+      "itra_performance_index": 400,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4550783",
+      "slug": "ANDRIEUX.Sylvain",
+      "name_from_link": "ANDRIEUX Sylvain",
+      "profile_url": "https://itra.run/RunnerSpace/ANDRIEUX.Sylvain/4550783",
+      "itra_performance_index": 567,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2206387",
+      "slug": "SGRO CERAVOLO.Silvio",
+      "name_from_link": "SGRO CERAVOLO Silvio",
+      "profile_url": "https://itra.run/RunnerSpace/SGRO CERAVOLO.Silvio/2206387",
+      "itra_performance_index": 535,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4223121",
+      "slug": "GAVRIILIDOU.DESPOINA",
+      "name_from_link": "GAVRIILIDOU DESPOINA",
+      "profile_url": "https://itra.run/RunnerSpace/GAVRIILIDOU.DESPOINA/4223121",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1185863",
+      "slug": "PIREDDA.Stefania",
+      "name_from_link": "PIREDDA Stefania",
+      "profile_url": "https://itra.run/RunnerSpace/PIREDDA.Stefania/1185863",
+      "itra_performance_index": 510,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4356002",
+      "slug": "PRAESI.suraroek",
+      "name_from_link": "PRAESI suraroek",
+      "profile_url": "https://itra.run/RunnerSpace/PRAESI.suraroek/4356002",
+      "itra_performance_index": 444,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4237204",
+      "slug": "SHAO.Sebastien",
+      "name_from_link": "SHAO Sebastien",
+      "profile_url": "https://itra.run/RunnerSpace/SHAO.Sebastien/4237204",
+      "itra_performance_index": 531,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4274930",
+      "slug": "ORENGO.GIORGIO",
+      "name_from_link": "ORENGO GIORGIO",
+      "profile_url": "https://itra.run/RunnerSpace/ORENGO.GIORGIO/4274930",
+      "itra_performance_index": 598,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4425055",
+      "slug": "BROWNE.Colleen",
+      "name_from_link": "BROWNE Colleen",
+      "profile_url": "https://itra.run/RunnerSpace/BROWNE.Colleen/4425055",
+      "itra_performance_index": 408,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3422335",
+      "slug": "SLEGERS.NICOLAS",
+      "name_from_link": "SLEGERS NICOLAS",
+      "profile_url": "https://itra.run/RunnerSpace/SLEGERS.NICOLAS/3422335",
+      "itra_performance_index": 493,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "559326",
+      "slug": "KOBAYASHI.Daiki",
+      "name_from_link": "KOBAYASHI Daiki",
+      "profile_url": "https://itra.run/RunnerSpace/KOBAYASHI.Daiki/559326",
+      "itra_performance_index": 382,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4596152",
+      "slug": "PETRONE.angelo",
+      "name_from_link": "PETRONE angelo",
+      "profile_url": "https://itra.run/RunnerSpace/PETRONE.angelo/4596152",
+      "itra_performance_index": 530,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "269402",
+      "slug": "CAPELLONI.Francesca",
+      "name_from_link": "CAPELLONI Francesca",
+      "profile_url": "https://itra.run/RunnerSpace/CAPELLONI.Francesca/269402",
+      "itra_performance_index": 542,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1040873",
+      "slug": "ANDEOL.Guillaume",
+      "name_from_link": "ANDEOL Guillaume",
+      "profile_url": "https://itra.run/RunnerSpace/ANDEOL.Guillaume/1040873",
+      "itra_performance_index": 479,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "675352",
+      "slug": "REICHARDT.Frank",
+      "name_from_link": "REICHARDT Frank",
+      "profile_url": "https://itra.run/RunnerSpace/REICHARDT.Frank/675352",
+      "itra_performance_index": 381,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4709120",
+      "slug": "ARMANDO.Rigolli",
+      "name_from_link": "ARMANDO Rigolli",
+      "profile_url": "https://itra.run/RunnerSpace/ARMANDO.Rigolli/4709120",
+      "itra_performance_index": 473,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1039739",
+      "slug": "GHIO.Alfredo",
+      "name_from_link": "GHIO Alfredo",
+      "profile_url": "https://itra.run/RunnerSpace/GHIO.Alfredo/1039739",
+      "itra_performance_index": 386,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "42429",
+      "slug": "WILLIAMS.Kaz",
+      "name_from_link": "WILLIAMS Kaz",
+      "profile_url": "https://itra.run/RunnerSpace/WILLIAMS.Kaz/42429",
+      "itra_performance_index": 380,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "301055",
+      "slug": "NEMET.Alex",
+      "name_from_link": "NEMET Alex",
+      "profile_url": "https://itra.run/RunnerSpace/NEMET.Alex/301055",
+      "itra_performance_index": 380,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "315666",
+      "slug": "HAMANO.Tomohide",
+      "name_from_link": "HAMANO Tomohide",
+      "profile_url": "https://itra.run/RunnerSpace/HAMANO.Tomohide/315666",
+      "itra_performance_index": 401,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1019939",
+      "slug": "DE CORDOVA.July",
+      "name_from_link": "DE CORDOVA July",
+      "profile_url": "https://itra.run/RunnerSpace/DE CORDOVA.July/1019939",
+      "itra_performance_index": 380,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4181346",
+      "slug": "MAGLIANO.GUIDO",
+      "name_from_link": "MAGLIANO GUIDO",
+      "profile_url": "https://itra.run/RunnerSpace/MAGLIANO.GUIDO/4181346",
+      "itra_performance_index": 503,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "235667",
+      "slug": "DAL.Frederic",
+      "name_from_link": "DAL Frederic",
+      "profile_url": "https://itra.run/RunnerSpace/DAL.Frederic/235667",
+      "itra_performance_index": 515,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "5126144",
+      "slug": "AZNAREZ.Jorge",
+      "name_from_link": "AZNAREZ Jorge",
+      "profile_url": "https://itra.run/RunnerSpace/AZNAREZ.Jorge/5126144",
+      "itra_performance_index": 382,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "386153",
+      "slug": "RENARD.Delphine",
+      "name_from_link": "RENARD Delphine",
+      "profile_url": "https://itra.run/RunnerSpace/RENARD.Delphine/386153",
+      "itra_performance_index": 457,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "697118",
+      "slug": "FONTANIE.Christophe",
+      "name_from_link": "FONTANIE Christophe",
+      "profile_url": "https://itra.run/RunnerSpace/FONTANIE.Christophe/697118",
+      "itra_performance_index": 461,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2514359",
+      "slug": "MUKAI.Yuichi",
+      "name_from_link": "MUKAI Yuichi",
+      "profile_url": "https://itra.run/RunnerSpace/MUKAI.Yuichi/2514359",
+      "itra_performance_index": 406,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1486781",
+      "slug": "NAHACZ.Gregory",
+      "name_from_link": "NAHACZ Gregory",
+      "profile_url": "https://itra.run/RunnerSpace/NAHACZ.Gregory/1486781",
+      "itra_performance_index": 453,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1718939",
+      "slug": "MOSELE.Alessia",
+      "name_from_link": "MOSELE Alessia",
+      "profile_url": "https://itra.run/RunnerSpace/MOSELE.Alessia/1718939",
+      "itra_performance_index": 582,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3541807",
+      "slug": "KUZNETSOV.Petr",
+      "name_from_link": "KUZNETSOV Petr",
+      "profile_url": "https://itra.run/RunnerSpace/KUZNETSOV.Petr/3541807",
+      "itra_performance_index": 542,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4454975",
+      "slug": "LE.Khang",
+      "name_from_link": "LE Khang",
+      "profile_url": "https://itra.run/RunnerSpace/LE.Khang/4454975",
+      "itra_performance_index": 378,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4910",
+      "slug": "CASTANON.Noe",
+      "name_from_link": "CASTANON Noe",
+      "profile_url": "https://itra.run/RunnerSpace/CASTANON.Noe/4910",
+      "itra_performance_index": 378,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "59474",
+      "slug": "MANONI.Giorgio",
+      "name_from_link": "MANONI Giorgio",
+      "profile_url": "https://itra.run/RunnerSpace/MANONI.Giorgio/59474",
+      "itra_performance_index": 459,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "50043",
+      "slug": "MCDERMOTT.David",
+      "name_from_link": "MCDERMOTT David",
+      "profile_url": "https://itra.run/RunnerSpace/MCDERMOTT.David/50043",
+      "itra_performance_index": 378,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "212993",
+      "slug": "OGASAWARA.Hiroshi",
+      "name_from_link": "OGASAWARA Hiroshi",
+      "profile_url": "https://itra.run/RunnerSpace/OGASAWARA.Hiroshi/212993",
+      "itra_performance_index": 456,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "536729",
+      "slug": "SHEN.Qiaolin",
+      "name_from_link": "SHEN Qiaolin",
+      "profile_url": "https://itra.run/RunnerSpace/SHEN.Qiaolin/536729",
+      "itra_performance_index": 378,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817934",
+      "slug": "ZHENG.Xiaohui",
+      "name_from_link": "ZHENG Xiaohui",
+      "profile_url": "https://itra.run/RunnerSpace/ZHENG.Xiaohui/6817934",
+      "itra_performance_index": 378,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3541803",
+      "slug": "VILF.Victoria",
+      "name_from_link": "VILF Victoria",
+      "profile_url": "https://itra.run/RunnerSpace/VILF.Victoria/3541803",
+      "itra_performance_index": 488,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "758312",
+      "slug": "GUIRONNET.Jerome",
+      "name_from_link": "GUIRONNET Jerome",
+      "profile_url": "https://itra.run/RunnerSpace/GUIRONNET.Jerome/758312",
+      "itra_performance_index": 439,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "386177",
+      "slug": "LE GAL.Matthieu",
+      "name_from_link": "LE GAL Matthieu",
+      "profile_url": "https://itra.run/RunnerSpace/LE GAL.Matthieu/386177",
+      "itra_performance_index": 486,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4251813",
+      "slug": "TANG.Ying",
+      "name_from_link": "TANG Ying",
+      "profile_url": "https://itra.run/RunnerSpace/TANG.Ying/4251813",
+      "itra_performance_index": 476,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "479102",
+      "slug": "CAPELLI.Alessandro",
+      "name_from_link": "CAPELLI Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/CAPELLI.Alessandro/479102",
+      "itra_performance_index": 411,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "6817935",
+      "slug": "WONGWORRATHEVA.Wanlika",
+      "name_from_link": "WONGWORRATHEVA Wanlika",
+      "profile_url": "https://itra.run/RunnerSpace/WONGWORRATHEVA.Wanlika/6817935",
+      "itra_performance_index": 377,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "740019",
+      "slug": "DIBADGE.Payam",
+      "name_from_link": "DIBADGE Payam",
+      "profile_url": "https://itra.run/RunnerSpace/DIBADGE.Payam/740019",
+      "itra_performance_index": 376,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "807263",
+      "slug": "BISAZZA.Tiziano",
+      "name_from_link": "BISAZZA Tiziano",
+      "profile_url": "https://itra.run/RunnerSpace/BISAZZA.Tiziano/807263",
+      "itra_performance_index": 419,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "2091901",
+      "slug": "XIONG.Yonggang",
+      "name_from_link": "XIONG Yonggang",
+      "profile_url": "https://itra.run/RunnerSpace/XIONG.Yonggang/2091901",
+      "itra_performance_index": 612,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "588501",
+      "slug": "POLOTTI.Diego",
+      "name_from_link": "POLOTTI Diego",
+      "profile_url": "https://itra.run/RunnerSpace/POLOTTI.Diego/588501",
+      "itra_performance_index": 397,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1997757",
+      "slug": "JI.Hang",
+      "name_from_link": "JI Hang",
+      "profile_url": "https://itra.run/RunnerSpace/JI.Hang/1997757",
+      "itra_performance_index": 498,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4818961",
+      "slug": "WANG.XIAODONG",
+      "name_from_link": "WANG XIAODONG",
+      "profile_url": "https://itra.run/RunnerSpace/WANG.XIAODONG/4818961",
+      "itra_performance_index": 468,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1294159",
+      "slug": "SHEMING.Lu",
+      "name_from_link": "SHEMING Lu",
+      "profile_url": "https://itra.run/RunnerSpace/SHEMING.Lu/1294159",
+      "itra_performance_index": 423,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "3059545",
+      "slug": "XUAN.Liang",
+      "name_from_link": "XUAN Liang",
+      "profile_url": "https://itra.run/RunnerSpace/XUAN.Liang/3059545",
+      "itra_performance_index": 511,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "1218747",
+      "slug": "TANG.William",
+      "name_from_link": "TANG William",
+      "profile_url": "https://itra.run/RunnerSpace/TANG.William/1218747",
+      "itra_performance_index": 446,
+      "retry_needed": false
+    },
+    {
+      "itra_id": "4008991",
+      "slug": "GIARDINO.Alessandro",
+      "name_from_link": "GIARDINO Alessandro",
+      "profile_url": "https://itra.run/RunnerSpace/GIARDINO.Alessandro/4008991",
+      "itra_performance_index": 620,
+      "retry_needed": false
+    }
+  ]
+}
