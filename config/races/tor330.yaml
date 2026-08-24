@@ -37,38 +37,42 @@ aid_stations:
     distance_km: 12.8
     elevation_m: 2036   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Col ARP (2586 m)"
+    notes: "Up Col ARP (2,568m) and halfway down. Grassy, smooth, and fast, but traffic jams happen. Push pace a bit on the first 2 km on roads, to avoid being caught in traffic jams."
+    aid_type: "Minimal apline shelter"
     gmaps_link: "https://maps.app.goo.gl/CwaoG4isr5FW19Mg6"
-    cutoff_in_time: "D1 19:00"
 
   - name: "La Thuille"
     distance_km: 19.0
     elevation_m: 1486   # reference
     stop_time_s: 120
-    notes: "Ristoro + Soccorso"
+    notes: "Long runnable downhill on singletrack and forested switchbacks. Hold back!"
+    aid_type: "Major valley aid"
     gmaps_link: "https://maps.app.goo.gl/CyYXjmraJEe6FXb76"
-    cutoff_in_time: "D2 15:30"
+    cutoff_in_time: "D1 15:30"
     car_access: true
 
   - name: "Rifugio Deffeyes"
     distance_km: 27.5
     elevation_m: 2490   # reference
     stop_time_s: 180
-    notes: "Ristoro"
+    notes: "Steep ascent of over 1,000m+ from La Thuile up past Rutor waterfalls into glacial terrain. Quick stop for hot food."
+    aid_type: "Basic rifugio, Next to glacial lakes. Hot minestrone and polenta"
     gmaps_link: "https://maps.app.goo.gl/Bunzew8sd1xYTPNX7"
 
   - name: "Bivacco Zappelli"
     distance_km: 32.5
     elevation_m: 2274   # reference
     stop_time_s: 240
-    notes: "Ristoro + Soccorso. Waypoint: Col Passo Alto (2856 m)"
+    notes: "Technical and rocky up and down Col Passo Alto (2,856m). Exposed and often windy."
+    aid_type: "Minimal apline shelter"
     gmaps_link: "https://maps.app.goo.gl/Yii7VwcHu1TLY3Zp9"
 
   - name: "Planaval"
     distance_km: 42.8
     elevation_m: 1562   # reference
     stop_time_s: 180
-    notes: "Ristoro + Soccorso. Waypoints: Col de la Crosatie, (2823 m, A), Lac Du Fond (2441 m)"
+    notes: "Long, steep, and technical descent down from Col de la Crosatie (2,823m), fixed ropes on loose scree. Run past Lac Du Fond (2441m)"
+    aid_type: "Basic valley aid, small valley hamlet checkpoint."
     gmaps_link: "https://maps.app.goo.gl/Nb3QTRKyfDT9f3ZW9"
     car_access: true
 
@@ -76,16 +80,18 @@ aid_stations:
     distance_km: 48.5
     elevation_m: 1693   # reference
     stop_time_s: 300
-    notes: "Base Vita!"
+    notes: "Short, gentle valley section. Do the aid transition as fast as possible. Quick stop for hot food and out."
+    aid_type: "BASE VITA! Sleep halls loud and chaotic."
     gmaps_link: "https://maps.app.goo.gl/kSAJQTMEeX4RmFfY8"
-    cutoff_in_time: "D2 5:00"
+    cutoff_in_time: "D2 7:00"
     car_access: true
 
   - name: "Rifugio Chalet de L'epée"
     distance_km: 54.9
     elevation_m: 2370   # reference
     stop_time_s: 120
-    notes: "Ristoro"
+    notes: "Steep, continuous climb."
+    aid_type: "Full rifugio. Polenta. Sleep: A tier."
     gmaps_link: "https://maps.app.goo.gl/hD73YtmMu8YhUvaU8"
     car_access: true
 
@@ -93,7 +99,8 @@ aid_stations:
     distance_km: 62.9
     elevation_m: 1732   # reference
     stop_time_s: 90
-    notes: "Ristoro + Soccorso. Waypoints: Col Fenetre (2844 m)"
+    notes: "Up Col Fenêtre (2,844m), then steep, rocky descent, transitioning to fast, runnable valley floor. 15-20 min power nap if starting to feel sleepy."
+    aid_type: "Major valley aid. Pasta. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/n79iXqF6asAqBtgM8"
     car_access: true
 
@@ -101,7 +108,8 @@ aid_stations:
     distance_km: 78.3
     elevation_m: 1679   # reference
     stop_time_s: 120
-    notes: "Ristoro + Soccorso. Waypoints: Col Entrelor (3004 m, A)"
+    notes: "Up and down Col Entrelor (3004m). Fast, direct downhill. Get some hot food and load food supplies before long climb to Col Loson!"
+    aid_type: "Basic valley aid. Hot pasta, soup, and local delicacies. Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/iZoHPRuGgEMgVo1y9"
     cutoff_in_time: "D2 19:30"
     car_access: true
@@ -110,38 +118,43 @@ aid_stations:
     distance_km: 95.2
     elevation_m: 2585   # reference
     stop_time_s: 240
-    notes: "Ristoro. Waypoints: Col Loson (3295 m, A)"
+    notes: "Looong climb to Col Loson (3,295m), highest point of the race, followed by a technical alpine descent. Get some warm soup and 20 min power nap"
+    aid_type: "Basic rifugio. Polenta and soup. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/M83XrLxgVcUJtJ6M9"
 
   - name: "**COGNE**"
     distance_km: 104
     elevation_m: 1536   # reference
     stop_time_s: 60
-    notes: "Base Vita! Waypoint: Valnontey (1670 m). 3 km road down from here."
+    notes: "Long, gradual, runnable dirt trail descent down the valley. 3 km road from Valnontey (1670m). Quick stop for hot food. Maybe change clothes?"
+    aid_type: "BASE VITA! Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
-    cutoff_in_time: "D3 04:00"
+    cutoff_in_time: "D3 06:00"
     car_access: true
 
   - name: "Goilles Dessous"
     distance_km: 109.8
     elevation_m: 1836  # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Lilaz (1637 m)"
+    notes: "Flat/easy valley trail going past Lillaz (1637m)."
+    aid_type: "Minimal alpine shelter (pasture hut, alpeggio). Load food supplies for next long section."
     gmaps_link: "https://maps.app.goo.gl/zfpmHzP1nbV4o5EA6"
 
   - name: "Rifugio Dondena"
     distance_km: 125.8
     elevation_m: 2192   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Finestra Di Champorcher (2827 m), Rifugio Del Misérin (2583 m). 4 km road from Miserin"
+    notes: "Climb over Fenêtre de Champorcher (2,827m), a bit rocky and exposed. 4 km road from Rifugio Miserin (2583m). Take some solid food but not too much, long descent from here"
+    aid_type: "Full rifugio. They sign souvenir TOR posters. Pasta, soup, polenta. Sleep: A tier"
     gmaps_link: "https://maps.app.goo.gl/bDUUPrjPHkMbqXjj6"
     car_access: true
 
-  - name: "Chardonnay - Champorcher"
+  - name: "Chardonney - Champorcher"
     distance_km: 131.6
     elevation_m: 1442   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso"
+    notes: "Long, steady downhill into Champorcher valley."
+    aid_type: "Major valley aid. Very enthusiastic local volunteers, sometimes providing ice cream or other treats. Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/c7ac7uMnGdhWshQx5"
     car_access: true
 
@@ -149,24 +162,27 @@ aid_stations:
     distance_km: 139.4
     elevation_m: 782   # reference
     stop_time_s: 60
-    notes: "Ristoro"
-    gmaps_link: "https://maps.app.goo.gl/c7ac7uMnGdhWshQx5"
+    notes: "Rolling, contouring valley singletrack through woods."
+    aid_type: "Basic valley aid. Tiny village famous for stone bridges over Ayasse torrent. Sleep: B tier."
+    gmaps_link: "https://maps.app.goo.gl/CquYKWTdxCVKYKj96"
     car_access: true
 
   - name: "**DONNAS**"
     distance_km: 149.8
     elevation_m: 323   # reference
     stop_time_s: 60
-    notes: "Base Vita! Waypoint: Bard (377 m). Last 5 km are road."
+    notes: "Into lowest and hottest point. Passes some medieval Roman roads, last 5 km (from Bard, 377m) are road. Cool down with cold water. Change clothes if I hadn't done it at Cogne. Get hot food."
+    aid_type: "BASE VITA! Super hot during the day, loud and chaotic. Regional rice dishes and fresh grapes"
     gmaps_link: "https://maps.app.goo.gl/weej3znGKYnM7h2o8"
-    cutoff_in_time: "D4 00:00"
+    cutoff_in_time: "D4 02:00"
     car_access: true
 
   - name: "Perloz"
     distance_km: 155.1
     elevation_m: 649   # reference
     stop_time_s: 60
-    notes: "Ristoro"
+    notes: "Steep climb up stone staircases and cobblestones. Pour cold water on head if still very hot."
+    aid_type: "Basic valley aid. Community-run station. Local snacks"
     gmaps_link: "https://maps.app.goo.gl/LorEDxaaKFHujSE76"
     car_access: true
 
@@ -174,7 +190,8 @@ aid_stations:
     distance_km: 162.4
     elevation_m: 1440   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Tour d'Hereraz (559 m)"
+    notes: "Relentless climb out of the valley bottom. Enjoy the homemade pastries! No civilization for a whiel after this."
+    aid_type: "Basic rifugio. Polenta, homemade tarts/pastries. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/5KzzLJhnpQhebNrZ8"
     car_access: true
 
@@ -182,14 +199,16 @@ aid_stations:
     distance_km: 166.9
     elevation_m: 2252   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso. Waypoint: Col Carissey (2125 m)"
+    notes: "Steep, narrow and technical climb over exposed granite slabs until Col Carissey (2125m). Get some polenta and soup"
+    aid_type: "Basic rifugio. Sitting on Aosta/Piedmont border, incredible views. Typically windy, cold, foggy. Sleep: D tier."
     gmaps_link: "https://maps.app.goo.gl/tYkMefY51vGzBVmt5"
 
   - name: "Rifugio Della Barma"
     distance_km: 175.0
     elevation_m: 2049   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Crest (1915 m), car access here."
+    notes: "Technical, rocky, endless small ups and downs over boulder fields. Cheer point at Crest (1915m). 20 or 90 minutes sleep depending on time."
+    aid_type: "Full rifugio. Clean and comfortable. Hot pasta. Sleep: A tier."
     gmaps_link: "https://maps.app.goo.gl/gLw7bhzhkWNQAjs88"
     cutoff_in_time: "D4 13:00"
 
@@ -197,21 +216,24 @@ aid_stations:
     distance_km: 179.8
     elevation_m: 2091   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Col du Marmontana (2347 m)"
+    notes: "Rugged, technical granite terrain after Col Marmontana (2347m). Enjoy the meat if the stomach can handle it!"
+    aid_type: "Basic rifugio. Outdoor tent setup. Outdoor barbecue run by volunteers (grilled meats, sausages)!"
     gmaps_link: "https://maps.app.goo.gl/m4xze5vdhaasxyFz5"
 
   - name: "Col Della Vecchia"
     distance_km: 183.4
     elevation_m: 2196   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso. Waypoint: Crenna di Ley (2312 m)"
+    notes: "Technical mountain trail crossing between cols. Waypoint: Crenna di Ley (2312 m)"
+    aid_type: "Minimal alpine shelter"
     gmaps_link: "https://maps.app.goo.gl/U7mRD2B8NiF7gdEz7"
 
   - name: "Niel - Dortoir La Gruba"
     distance_km: 188.5
     elevation_m: 1557   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso"
+    notes: "Steep stone steps descent into valley bottom. Try the hot food from here!"
+    aid_type: "Major valley aid. Warm, cozy, welcoming. Famously good home-cooked food: fresh hot polenta with melted fontina, stews, local cheeses. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/ughUSVbjEJFyusfR9"
     cutoff_in_time: "D4 19:30"
     car_access: true
@@ -220,23 +242,26 @@ aid_stations:
     distance_km: 194.6
     elevation_m: 2061   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Colle Lazoney (2395 m)"
+    notes: "Long, steep climb over Col Lazoney (2395m). Get some fresh fruit"
+    aid_type: "Basic rifugio"
     gmaps_link: "https://maps.app.goo.gl/TL1EQT7QLPapW5399"
 
   - name: "**GRESSONEY**"
     distance_km: 201.1
     elevation_m: 1376   # reference
     stop_time_s: 60
-    notes: "Base Vita!"
+    notes: "Long, scenic, gentle descent into Gressoney valley floor. 90 or 20 minutes sleep"
+    aid_type: "BASE VITA! Considered the best/quietest life base to sleep. Sleep: A tier."
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
-    cutoff_in_time: "D4 23:00"
+    cutoff_in_time: "D5 01:00"
     car_access: true
 
   - name: "Rifugio Alpenzu"
     distance_km: 206.4
     elevation_m: 1776   # reference
     stop_time_s: 60
-    notes: "Ristoro. All road from Gressoney."
+    notes: "4 km of road and then short, steep climb."
+    aid_type: "Basic rifugio. Polenta. Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/rmodVVS1CWWmj5UL9"
     car_access: true
 
@@ -244,7 +269,8 @@ aid_stations:
     distance_km: 218.1
     elevation_m: 1576   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso. Waypoints: Col Pinter (2782 m), Cuneaz (2051 m, car access, restaurant)"
+    notes: "Up and down Col Pinter (2777m), downhill goes from loose scree to forested trails. Restaurant and car access at Cuneaz (2051m)"
+    aid_type: "Major valley aid. Pasta. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/V7ZSRSSodT4XZ1Vn8"
     cutoff_in_time: "D5 13:00"
     car_access: true
@@ -253,7 +279,8 @@ aid_stations:
     distance_km: 225.6
     elevation_m: 2514   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Saint-Jaques (1693 m)"
+    notes: "Around 3 km on the valley until Saint Jacques (1693m) before long, continuous climb. Get warm food before push to Col Des Fontaines"
+    aid_type: "Basic rifugio. Hearty hot soups, polenta. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/pSrKMxxDF7iTYY6HA"
     car_access: true
     
@@ -261,16 +288,18 @@ aid_stations:
     distance_km: 234.2
     elevation_m: 1504   # reference
     stop_time_s: 60
-    notes: "Base Vita! Waypoints: Col Des Fontaines (2694 m, W), Chenal (2110 m, W)"
+    notes: "Long downhill trail coming down from Col de Nannaz (2773m) and Col des Fontaines (2693m). Warm shower? and clothes change"
+    aid_type: "BASE VITA! Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/Dprw9RcpNrkbsedj7"
-    cutoff_in_time: "D5 19:00"
+    cutoff_in_time: "D5 21:00"
     car_access: true
 
   - name: "Rifugio Barmasse"
     distance_km: 239.0
     elevation_m: 2173   # reference
     stop_time_s: 60
-    notes: "Ristoro"
+    notes: "Initial steep climb, then becomes more gradual."
+    aid_type: "Basic rifugio. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/bVXTHmHed6repurJ6"
     car_access: true
 
@@ -278,36 +307,41 @@ aid_stations:
     distance_km: 243.9
     elevation_m: 2272   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Fenêtre d'Ersaz (2290 m)"
+    notes: "Runnable downhill from Barmasse along the aqueduct, then traverse over Fenetre D'ersaz (2290m)"
+    aid_type: "Minimal alpine shelter"
     gmaps_link: "https://maps.app.goo.gl/uWd1JjA9Hhmch64F8"
 
   - name: "Rifugio Lo Magià"
     distance_km: 252.8
     elevation_m: 1996   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Fenêtre Du Tsan (2739 m)"
+    notes: "Up and down from Fenetre Du Tsan (2736m). Get warm food, prime place for 90 minutes sleep"
+    aid_type: "Full rifugio. Quiet, cozy, very welcoming. Famous for excellent food! Sleep: A tier."
     gmaps_link: "https://maps.app.goo.gl/12WNSxLdKf92VpTy7"
     car_access: true
 
   - name: "Rifugio Cuney"
     distance_km: 256.2
-    elevation_m: 2655   # reference
+    elevation_m: 2652   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso"
+    notes: "Sustained climb through barren, rocky terrain."
+    aid_type: "Basic rifugio. Highest refuge on course! Polenta. Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/fkZ8QozX13c3nb3V7"
 
   - name: "Bivacco R. Clermont"
     distance_km: 260.8
     elevation_m: 2705   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Col de Chabey (2684 m)"
+    notes: "Steep, rocky push. Past Col de Chaleby (2683m)."
+    aid_type: "Minimal alpine shelter. Right under Col Vessonaz (2,780m)."
     gmaps_link: "https://maps.app.goo.gl/h3xstZmtHj21FyACA"
 
   - name: "Oyace"
     distance_km: 271.6
     elevation_m: 1351   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso. Waypoint: Col de Vassonaz (2788 m)"
+    notes: "Very steep, considered one of the most brutal descents of the course. Eat some warm food after the long descent!"
+    aid_type: "Basic valley aid. Pasta. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/CEbpLBpfrFyAa3oEA"
     cutoff_in_time: "D6 12:00"
     car_access: true
@@ -316,37 +350,42 @@ aid_stations:
     distance_km: 275.8
     elevation_m: 2188   # reference
     stop_time_s: 60
-    notes: "Ristoro"
+    notes: "Steep, hard climb up toward Col Brison."
+    aid_type: "Minimal alpine shelter. Warm cola!"
     gmaps_link: "https://maps.app.goo.gl/zey7shAN35evPfdVA"
 
   - name: "**OLLOMONT**"
     distance_km: 283.5
     elevation_m: 1384   # reference
     stop_time_s: 60
-    notes: "Base Vita! Waypoint: Col Brison (2519 m, A) Berrio Damon (1936 m)"
+    notes: "Technical, steep downhill from Col Brison (2,520m), past Berrio Damon (1936m). 20 minutes nap?"
+    aid_type: "BASE VITA! Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"
-    cutoff_in_time: "D6 17:00"
+    cutoff_in_time: "D6 19:00"
     car_access: true
 
   - name: "Rifugio Champillon"
     distance_km: 288.3
     elevation_m: 2422   # reference
     stop_time_s: 60
-    notes: "Ristoro"
+    notes: "Long, steady uphill. Have some warm soup before continuing."
+    aid_type: "Full rifugio. Very welcoming. Excellent hot minestrone, polenta. Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/UD5VJQ4B7TGhCzb19"
 
   - name: "Ponteille"
     distance_km: 294.7
     elevation_m: 1880   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Col de Champillon (2711 m)"
+    notes: "Descent from Col de Champillon (2,709m) through open pastures. Try the bruschettas!"
+    aid_type: "Basic rifugio. DIY bruschettas with fontina and motzetta."
     gmaps_link: "https://maps.app.goo.gl/J4t8qDWuAbhfb7pH7"
 
   - name: "Bosses"
     distance_km: 305.0
     elevation_m: 1525   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso. Waypoint: Saint Rhemy (1618 m)"
+    notes: "Long, fast, very runnable downhill with switchbacks on dirt roads and valley paths. Stock up on food before final big mountain push. Maybe 20 minutes nap."
+    aid_type: "Major valley aid. Famous for local Jambon de Bosses. Pasta. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/x6jiyRBpao27RzDfA"
     cutoff_in_time: "D7 06:00"
     car_access: true
@@ -355,30 +394,33 @@ aid_stations:
     distance_km: 314.1
     elevation_m: 2548   # reference
     stop_time_s: 60
-    notes: "Ristoro. Waypoint: Merdeux (2272 m, car access)"
+    notes: "Long, uphill march from valley into high alpine stone country. Cheer point at Merdeux (2272m)."
+    aid_type: "Basic rifugio. Right below Col Malatrà. Last warm refuge. Pasta. Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/nQQwNp3d5tgwMhES8"
 
   - name: "Rifugio Bonatti"
     distance_km: 321.7
     elevation_m: 2025   # reference
     stop_time_s: 60
-    notes: "Ristoro + Soccorso. Waypoint: Col Malatra (2921 m, A)"
+    notes: "Iconic passing through Col Malatrà keyhole pass (2,925m), balcony trail on the descent. After Malatra, hard climbing is over!!"
+    aid_type: "Full rifugio. Large refuge with panoramic views of Mont Blanc massif. Pasta."
     gmaps_link: "https://maps.app.goo.gl/ziKba3LPVgWeb2Si9"
 
   - name: "Mont de la Saxe (Rifugio Bertone?)"
     distance_km: 328.7
     elevation_m: 2037   # reference
     stop_time_s: 60
-    notes: "Ristoro"
+    notes: "Rolling ridge traverse."
+    aid_type: "Basic rifugio"
     gmaps_link: "https://maps.app.goo.gl/omYENiJT29sB6Yg96"
 
   - name: "FINISH"
     distance_km: 333.6
     elevation_m: 1224  # reference
     stop_time_s: 0
-    notes: "Goal at Courmayeur!"
+    notes: "Goal at Courmayeur! Final 1,000 m descent into Courmayeur on forest trails."
     gmaps_link: "https://maps.app.goo.gl/u1oBUuavNqurWTV36"
-    cutoff_in_time: "D6 16:00"
+    cutoff_in_time: "D7 16:00"
     car_access: true
 
 
