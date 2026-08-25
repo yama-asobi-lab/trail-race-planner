@@ -798,6 +798,21 @@ class PaceCalculator:
                     point_effective_weighted_distance_km_values * seconds_per_weighted_km
                 )
 
+        elif isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            # Bypass Riegel and use absolute sigmoid speeds directly
+            v_start = (
+                self.fatigue_model_instance.threshold_speed_kmh
+                * self.fatigue_model_instance.start_pct
+            )
+            fed_baseline_pace_s_per_km = 3600.0 / v_start
+
+            point_times_s = (
+                point_distance_km_values * fed_baseline_pace_s_per_km * grade_correction_factors
+            )
+            point_times_s = point_times_s * fatigue_multiplier_values
+            point_times_s = point_times_s * altitude_multiplier_values
+            riegel_method = "absolute-sigmoid"
+
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
             riegel_running_time_approx_s = self.predict_riegel_race_time_sec(
