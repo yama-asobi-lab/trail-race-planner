@@ -19,6 +19,16 @@ OUT_DIR = Path(__file__).parent / "results" / "analyze_tor330_pacing_strategies"
 # Define sleep strategies:
 SLEEP_STRATEGIES = {
     "no_sleep": [],
+    "late_sleep_only": [
+        ("GRESSONEY", 5100),
+    ],
+    "late_long_sleep_only": [
+        ("GRESSONEY", 10200),
+    ],
+    "2x90min_sleep": [
+        ("Rifugio Della Barma", 5100),
+        ("Rifugio Lo Magià", 5100),
+    ],
     "strategy_1": [
         ("Rhemes-Notre-Dame", 1080),
         ("Rifugio Dondena", 1080),
@@ -28,12 +38,12 @@ SLEEP_STRATEGIES = {
         ("OLLOMONT", 1080),
         ("Bosses", 1080),
     ],
-    "strategy_2": [
-        ("Rifugio Dondena", 1200),
-        ("Rifugio Della Barma", 1200),
-        ("GRESSONEY", 10800),
-        ("OLLOMONT", 5100),
-    ],
+    # "strategy_2": [
+    #     ("Rifugio Dondena", 1200),
+    #     ("Rifugio Della Barma", 1200),
+    #     ("GRESSONEY", 10200),
+    #     ("OLLOMONT", 5100),
+    # ],
     "strategy_3": [
         ("Rifugio Dondena", 1200),
         ("Rifugio Della Barma", 1200),
