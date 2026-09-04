@@ -8,51 +8,32 @@ import yaml
 import sys
 from pathlib import Path
 import matplotlib.pyplot as plt
+from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from race_planner.models.tools import seconds_per_km_to_pace
+from race_planner.run_scenarios_tor import race_config_map
 
 
 BASE_CONFIG_PATH = "config/races/tor330.yaml"
 OUT_DIR = Path(__file__).parent / "results" / "analyze_tor330_pacing_strategies"
 
 # Define sleep strategies:
-SLEEP_STRATEGIES = {
-    "no_sleep": [],
-    "late_sleep_only": [
-        ("GRESSONEY", 5100),
-    ],
-    "late_long_sleep_only": [
-        ("GRESSONEY", 10200),
-    ],
-    "2x90min_sleep": [
-        ("Rifugio Della Barma", 5100),
-        ("Rifugio Lo Magià", 5100),
-    ],
-    "strategy_1": [
-        ("Rhemes-Notre-Dame", 1080),
-        ("Rifugio Dondena", 1080),
-        ("Rifugio Della Barma", 5100),
-        ("GRESSONEY", 1080),
-        ("Rifugio Lo Magià", 5100),
-        ("OLLOMONT", 1080),
-        ("Bosses", 1080),
-    ],
-    # "strategy_2": [
-    #     ("Rifugio Dondena", 1200),
-    #     ("Rifugio Della Barma", 1200),
-    #     ("GRESSONEY", 10200),
-    #     ("OLLOMONT", 5100),
-    # ],
-    "strategy_3": [
-        ("Rifugio Dondena", 1200),
-        ("Rifugio Della Barma", 1200),
-        ("GRESSONEY", 5100),
-        ("OLLOMONT", 5100),
-    ],
-}
+SCENARIOS_TO_RUN = [
+    # "baseline",
+    "no_sleep",
+    "strategy_1",
+    "strategy_2",
+    "strategy_3",
+    "strategy_4",
+    "late_90_min_sleep",
+    # "valtournenche_90_min_sleep",
+    # "ollomont_90_min_sleep",
+    # "late_180_min_sleep",
+    "twice_90_min_sleep",
+]
 
-PACE_RANGE = (310, 480)  # in seconds/km
+PACE_RANGE = (315, 450)  # in seconds/km
 PACE_STEP_SIZE = 15  # in seconds/km
 
 
@@ -124,6 +105,8 @@ def plot_tradespace(df: pd.DataFrame):
     plt.legend(title="Sleep Strategy", fontsize=10)
     plt.tight_layout()
 
+    # Ensure output directory exists
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     output_plot_path = OUT_DIR / "tor330_strategy_tradespace_plot.png"
     plt.savefig(output_plot_path, dpi=300)
     print(f"\n[INFO] Tradespace plot saved to {output_plot_path}")
@@ -134,9 +117,31 @@ def run_cli_tradespace():
     paces = generate_paces(PACE_RANGE[0], PACE_RANGE[1], PACE_STEP_SIZE)
     results = []
 
-    for strategy_key, sleep_plan in SLEEP_STRATEGIES.items():
-        # Create temp config for this specific sleep strategy
-        temp_config_path = create_temp_config(BASE_CONFIG_PATH, sleep_plan)
+    for scenario_name in SCENARIOS_TO_RUN:
+        if scenario_name not in race_config_map:
+            print(f"[WARNING] Scenario '{scenario_name}' not found in map. Skipping.")
+            continue
+
+        config_dict = race_config_map[scenario_name]
+
+        # Extract sleep time dynamically from the dictionary to keep plot labels accurate
+        total_sleep_s = 0
+
+        # Check standard nesting (config["race"]["aid_stations"]) or root fallback
+        aid_stations = config_dict.get("race", {}).get("aid_stations", [])
+        if not aid_stations:
+            aid_stations = config_dict.get("aid_stations", [])
+
+        for station in aid_stations:
+            total_sleep_s += station.get("sleep_duration_s", 0)
+
+        total_sleep_h = total_sleep_s / 3600.0
+
+        # Write out temporary YAML for this specific scenario
+        temp_file = tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False)
+        yaml.safe_dump(config_dict, temp_file)
+        temp_file.close()
+        temp_config_path = temp_file.name
 
         try:
             for pace_s in paces:
@@ -168,7 +173,7 @@ def run_cli_tradespace():
                     )
                 except subprocess.CalledProcessError as e:
                     print(
-                        f"\n[ERROR] Command failed for strategy '{strategy_key}' at pace '{pace_str}':"
+                        f"\n[ERROR] Command failed for strategy '{scenario_name}' at pace '{pace_str}':"
                     )
                     print(f"Command: {' '.join(cmd)}")  # Printable string for easy debugging
                     print("--- Subprocess Stderr ---")
@@ -193,13 +198,16 @@ def run_cli_tradespace():
 
                 results.append(
                     {
-                        "Strategy_ID": strategy_key,
+                        "Strategy_ID": scenario_name,
                         "Pace_s": pace_s,
                         "Start_GAP": pace_str,
-                        "Total_Sleep_h": sum(s for _, s in sleep_plan) / 3600.0,
+                        "Total_Sleep_h": total_sleep_h,
                         "Final_Time_h": final_time_h,
-                        "Sleep_Plan": str(sleep_plan),
                     }
+                )
+                logger.info(
+                    f"[INFO] Scenario: {scenario_name}, Pace: {pace_str}, "
+                    f"Total Sleep: {total_sleep_h:.2f}h, Final Time: {final_time_h}"
                 )
 
         finally:

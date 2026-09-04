@@ -32,6 +32,7 @@ _KNOWN_AID_STATION_FIELDS = {
     "notes",
     "aid_type",  # added for categorization for TOR
     "car_access",
+    "sleep_duration_s",
     "gmaps_link",
     "top_in_time",
     "cutoff_in_time",
@@ -658,7 +659,13 @@ def _build_comments_view_model(
 
     stop_time_s = float(aid_station.get("stop_time_s", 0) or 0)
     if stop_time_s > 0:
-        comments.append(CommentsLineViewModel(tag="Rest", value=seconds_to_hms(stop_time_s)))
+        comments.append(CommentsLineViewModel(tag="Stop", value=seconds_to_hms(stop_time_s)))
+
+    sleep_duration_s = float(aid_station.get("sleep_duration_s", 0) or 0)
+    if sleep_duration_s > 0:
+        comments.append(
+            CommentsLineViewModel(tag="Sleep 😴", value=seconds_to_hms(sleep_duration_s))
+        )
 
     aid_type = aid_station.get("aid_type")
     if aid_type:

@@ -65,50 +65,110 @@ late_90_min_sleep_config = apply_sleep_plan(
 )
 late_90_min_sleep_config["race"]["name"] = "TOR330 - 90-min sleep Gressoney"
 
-late_180_min_sleep_config = copy.deepcopy(base_config)
-late_180_min_sleep_config = apply_sleep_plan(
-    late_180_min_sleep_config,
+valtournenche_90_min_sleep_config = copy.deepcopy(base_config)
+valtournenche_90_min_sleep_config = apply_sleep_plan(
+    valtournenche_90_min_sleep_config,
     [
-        ("GRESSONEY", 10200),
+        ("VALTOURNENCHE", 5100),
     ],
 )
-late_180_min_sleep_config["race"]["name"] = "TOR330 - 180-min sleep Gressoney"
+valtournenche_90_min_sleep_config["race"]["name"] = "TOR330 - 90-min sleep Valtournenche"
+
+ollomont_90_min_sleep_config = copy.deepcopy(base_config)
+ollomont_90_min_sleep_config = apply_sleep_plan(
+    ollomont_90_min_sleep_config,
+    [
+        ("OLLOMONT", 5100),
+    ],
+)
+ollomont_90_min_sleep_config["race"]["name"] = "TOR330 - 90-min sleep Ollomont"
+
+# late_180_min_sleep_config = copy.deepcopy(base_config)
+# late_180_min_sleep_config = apply_sleep_plan(
+#     late_180_min_sleep_config,
+#     [
+#         ("GRESSONEY", 10200),
+#     ],
+# )
+# late_180_min_sleep_config["race"]["name"] = "TOR330 - 180-min sleep Gressoney"
 
 twice_90_min_sleep_config = copy.deepcopy(base_config)
 twice_90_min_sleep_config = apply_sleep_plan(
     twice_90_min_sleep_config,
     [
         ("Rifugio Della Barma", 5100),
-        ("Rifugio Lo Magià", 5100),
+        ("Rifugio Lo Magia", 5100),
     ],
 )
 twice_90_min_sleep_config["race"]["name"] = "TOR330 - 2x90-min sleep Rifugio Della Barma & Lo Magià"
 
 
-# Strategy 1 (Aggressive)
+# Strategy 1 (Balanced)
 strat_1 = copy.deepcopy(base_config)
 strat_1 = apply_sleep_plan(
     strat_1,
     [
+        ("Rifugio Dondena", 1080),
         ("Rifugio Della Barma", 5100),
         ("GRESSONEY", 1080),
+        ("Rifugio Lo Magia", 5100),
+        ("OLLOMONT", 1080),
+        ("Bosses", 1080),
     ],
 )
-strat_1["race"]["name"] = "TOR330 - Strategy 1 (Aggressive)"
+strat_1["race"]["name"] = "TOR330 - Strategy 1 (Balanced)"
 # strat_1["race"]["planning"]["fatigue_parameters"]["start_threshold_fraction"] = 0.75
 
-# Create Variation: Strategy 2 (Conservative Sleep)
 strat_2 = copy.deepcopy(base_config)
 strat_2 = apply_sleep_plan(
     strat_2,
     [
-        ("Rifugio Dondena", 10800),
-        ("GRESSONEY", 14400),
-        ("OLLOMONT", 10800),
+        ("Rifugio Dondena", 1080),
+        ("Rifugio Della Barma", 1080),
+        ("GRESSONEY", 5100),
+        ("Rifugio Lo Magia", 1080),
+        ("Oyace", 5100),
+        ("Bosses", 1080),
     ],
 )
-strat_2["race"]["name"] = "TOR330 - Strategy 2 (Conservative)"
-# strat_2["race"]["start_time"] = "12:00:00" # Example of changing other YAML properties
+strat_2["race"]["name"] = "TOR330 - Strategy 2 (Sleep Low)"
+
+strat_3 = copy.deepcopy(base_config)
+strat_3 = apply_sleep_plan(
+    strat_3,
+    [
+        ("Rifugio Dondena", 1080),
+        ("Niel - Dortoir La Gruba", 5100),
+        ("Rifugio Lo Magia", 1080),
+        ("Oyace", 5100),
+        ("Bosses", 1080),
+    ],
+)
+strat_3["race"]["name"] = "TOR330 - Strategy 3 (delayed sleep)"
+
+strat_4 = copy.deepcopy(base_config)
+strat_4 = apply_sleep_plan(
+    strat_4,
+    sleep_plan=[
+        ("Rifugio Dondena", 1080),  # 18 minutes
+        ("Rifugio Della Barma", 1080),
+        ("Niel - Dortoir La Gruba", 1080),
+        ("Champluc", 1080),
+        ("Rifugio Lo Magia", 5100),
+        ("Oyace", 1080),
+        ("Bosses", 1080),
+    ],
+    stop_plan=[
+        ("Rifugio Dondena", 420),  # 7 minutes
+        ("Rifugio Della Barma", 420),
+        ("Niel - Dortoir La Gruba", 420),
+        ("Champluc", 420),
+        ("Rifugio Lo Magia", 720),  # 12 minutes
+        ("Oyace", 420),
+        ("Bosses", 420),
+    ],
+)
+strat_4["race"]["name"] = "TOR330 - Strategy 4 (short sleeps, more frequent)"
 
 # Create configuration map
 race_config_map = {
@@ -116,8 +176,12 @@ race_config_map = {
     "no_sleep": no_sleep_config,
     "strategy_1": strat_1,
     "strategy_2": strat_2,
+    "strategy_3": strat_3,
+    "strategy_4": strat_4,
     "late_90_min_sleep": late_90_min_sleep_config,
-    "late_180_min_sleep": late_180_min_sleep_config,
+    "valtournenche_90_min_sleep": valtournenche_90_min_sleep_config,
+    "ollomont_90_min_sleep": ollomont_90_min_sleep_config,
+    # "late_180_min_sleep": late_180_min_sleep_config,
     "twice_90_min_sleep": twice_90_min_sleep_config,
 }
 
