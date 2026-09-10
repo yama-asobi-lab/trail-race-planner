@@ -33,15 +33,16 @@ matplotlib.use("Agg")
 # ---------------------------------------------------------------------------
 
 ATHLETE_WEIGHT_KG = 65.0
-RACE_DURATION_H = 32.0
-RACE_START_TIME = "16:00"
+RACE_DURATION_H = 55.0
+RACE_START_TIME = "10:00"
 
 INGESTION_PLAN = [
-    (5.0, 200.0),
-    (8.0, 200.0),
     (13.0, 200.0),
-    (22.0, 200.0),
-    (27.0, 200.0),
+    (16.0, 200.0),
+    (21.0, 200.0),
+    (37.0, 200.0),
+    (40.0, 200.0),
+    (45.0, 200.0),
 ]  # list of (time_hours, dose_mg) tuples
 
 # PK-style parameters

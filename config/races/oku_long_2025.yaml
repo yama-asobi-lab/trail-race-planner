@@ -5,7 +5,7 @@ race:
   
   # File paths (relative to project root)
   gpx_file: "config/gpx_repo/Okumusashi_Long_Trail_Race_105K_2025.gpx"
-  output_file: "results/oku_long_2025_segment_analysis.xlsx"
+  output_file: "results/oku_long_2025/segment_analysis.xlsx"
   
   # Analysis settings
   resample_m: 5  # Resample course to 5 m intervals
