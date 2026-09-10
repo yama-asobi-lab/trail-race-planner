@@ -19,7 +19,19 @@ race:
 
   # Optional planning assumptions (can be overridden via CLI)
   planning:
-    fatigue_total_decay_pct: 14     # 14% linear decay from start to finish
+    fatigue_total_decay_pct: 14     # 14% linear decay from start to finish (used when fatigue-mode=race)
+
+    # Sigmoidal fatigue model configuration (used when --fatigue-mode sigmoid).
+    # Set fatigue_model_type to "sigmoid" to enable automatically without CLI flag.
+    fatigue_model_type: "sigmoid"
+
+    fatigue_parameters:
+      # Starting speed as a fraction of Lactate Threshold.
+      # TOR athletes start close to the fatigue floor (~55% of LT).
+      start_threshold_fraction: 0.7  # TODO: update this. Temporary high value for easier debugging
+
+      # Circadian period in hours (standard 24 h cycle).
+      circadian_period_hours: 24
 
   # Race start time for clock time calculations in reports (optional, defaults to 00:00:00)
   start_time: "10:00:00"
@@ -125,7 +137,7 @@ aid_stations:
   - name: "**COGNE**"
     distance_km: 104
     elevation_m: 1536   # reference
-    stop_time_s: 60
+    stop_time_s: 300
     notes: "Long, gradual, runnable dirt trail descent down the valley. 3 km road from Valnontey (1670m). Quick stop for hot food. Maybe change clothes?"
     aid_type: "BASE VITA! Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/dTkRp7xKB5QhWgXc9"
@@ -143,11 +155,12 @@ aid_stations:
   - name: "Rifugio Dondena"
     distance_km: 125.8
     elevation_m: 2192   # reference
-    stop_time_s: 60
+    stop_time_s: 1800
     notes: "Climb over Fenêtre de Champorcher (2,827m), a bit rocky and exposed. 4 km road from Rifugio Miserin (2583m). Take some solid food but not too much, long descent from here"
     aid_type: "Full rifugio. They sign souvenir TOR posters. Pasta, soup, polenta. Sleep: A tier"
     gmaps_link: "https://maps.app.goo.gl/bDUUPrjPHkMbqXjj6"
     car_access: true
+    sleep_duration_s: 1200
 
   - name: "Chardonney - Champorcher"
     distance_km: 131.6
@@ -170,7 +183,7 @@ aid_stations:
   - name: "**DONNAS**"
     distance_km: 149.8
     elevation_m: 323   # reference
-    stop_time_s: 60
+    stop_time_s: 300
     notes: "Into lowest and hottest point. Passes some medieval Roman roads, last 5 km (from Bard, 377m) are road. Cool down with cold water. Change clothes if I hadn't done it at Cogne. Get hot food."
     aid_type: "BASE VITA! Super hot during the day, loud and chaotic. Regional rice dishes and fresh grapes"
     gmaps_link: "https://maps.app.goo.gl/weej3znGKYnM7h2o8"
@@ -231,12 +244,13 @@ aid_stations:
   - name: "Niel - Dortoir La Gruba"
     distance_km: 188.5
     elevation_m: 1557   # reference
-    stop_time_s: 60
+    stop_time_s: 6000
     notes: "Steep stone steps descent into valley bottom. Try the hot food from here!"
     aid_type: "Major valley aid. Warm, cozy, welcoming. Famously good home-cooked food: fresh hot polenta with melted fontina, stews, local cheeses. Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/ughUSVbjEJFyusfR9"
     cutoff_in_time: "D4 19:30"
     car_access: true
+    sleep_duration_s: 5400
 
   - name: "Bleckene - Loo Superiore"
     distance_km: 194.6
@@ -249,7 +263,7 @@ aid_stations:
   - name: "**GRESSONEY**"
     distance_km: 201.1
     elevation_m: 1376   # reference
-    stop_time_s: 60
+    stop_time_s: 300
     notes: "Long, scenic, gentle descent into Gressoney valley floor. 90 or 20 minutes sleep"
     aid_type: "BASE VITA! Considered the best/quietest life base to sleep. Sleep: A tier."
     gmaps_link: "https://maps.app.goo.gl/FRAPkrFht4n6VRHe7"
@@ -287,7 +301,7 @@ aid_stations:
   - name: "**VALTOURNENCHE**"
     distance_km: 234.2
     elevation_m: 1504   # reference
-    stop_time_s: 60
+    stop_time_s: 1000
     notes: "Long downhill trail coming down from Col de Nannaz (2773m) and Col des Fontaines (2693m). Warm shower? and clothes change"
     aid_type: "BASE VITA! Sleep: B tier."
     gmaps_link: "https://maps.app.goo.gl/Dprw9RcpNrkbsedj7"
@@ -314,11 +328,12 @@ aid_stations:
   - name: "Rifugio Lo Magià"
     distance_km: 252.8
     elevation_m: 1996   # reference
-    stop_time_s: 60
+    stop_time_s: 6000
     notes: "Up and down from Fenetre Du Tsan (2736m). Get warm food, prime place for 90 minutes sleep"
     aid_type: "Full rifugio. Quiet, cozy, very welcoming. Famous for excellent food! Sleep: A tier."
     gmaps_link: "https://maps.app.goo.gl/12WNSxLdKf92VpTy7"
     car_access: true
+    sleep_duration_s: 5400
 
   - name: "Rifugio Cuney"
     distance_km: 256.2
@@ -357,7 +372,7 @@ aid_stations:
   - name: "**OLLOMONT**"
     distance_km: 283.5
     elevation_m: 1384   # reference
-    stop_time_s: 60
+    stop_time_s: 300
     notes: "Technical, steep downhill from Col Brison (2,520m), past Berrio Damon (1936m). 20 minutes nap?"
     aid_type: "BASE VITA! Sleep: C tier."
     gmaps_link: "https://maps.app.goo.gl/6VPcmT3TxtmB7iYV7"

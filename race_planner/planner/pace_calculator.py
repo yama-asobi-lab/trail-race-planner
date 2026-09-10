@@ -94,14 +94,17 @@ References:
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
 
 from race_planner.course.course import Course
+from race_planner.models.fatigue_model import LinearFatigueModel, MultiDaySigmoidalFatigueModel
 from race_planner.models.pacing_model import PacingModel
 from race_planner.models.tools import seconds_per_km_to_mmss, seconds_to_hms
+
+EPS: float = 1e-6  # small epsilon to avoid floating-point equality issues
 
 
 class PaceCalculator:
@@ -126,6 +129,17 @@ class PaceCalculator:
         total, so they control only the *distribution* of time across
         segments, not the overall scale.
 
+    Two fatigue model modes are supported:
+
+    **Linear fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.LinearFatigueModel`):
+        Pace multiplier rises linearly from 1.0 at start to
+        ``1.0 + decay_fraction`` at finish.  Suitable for shorter races and
+        simple percentage-based decay planning.
+
+    **Sigmoidal fatigue** (``fatigue_model_instance`` is a :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`):
+        Tracks cumulative elapsed time and sleep duration per point
+        to return physiologically-grounded pace multipliers.
+
     Args:
         ref_dist_km: Reference flat race distance in km (e.g. 42.195).
         ref_time_s:  Reference flat race time in seconds.
@@ -133,6 +147,17 @@ class PaceCalculator:
                      [grade_decimal, correction_factor].  Rows need not be
                      sorted.  Defaults to the built-in table described in
                      the module docstring.
+        fatigue_total_decay_pct:
+            Convenience shorthand for a linear fatigue model (0–100 %).
+            When non-zero and ``fatigue_model_instance`` is ``None``, a
+            :class:`~race_planner.models.fatigue_model.LinearFatigueModel`
+            is automatically created with this value.
+        fatigue_model_instance:
+            Optional fatigue model instance — either a
+            :class:`~race_planner.models.fatigue_model.LinearFatigueModel`
+            or a
+            :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`.
+            When provided, takes precedence over ``fatigue_total_decay_pct``.
     """
 
     # Expose model constants from the pure-model layer.
@@ -152,6 +177,9 @@ class PaceCalculator:
         ref_time_s: float,
         gap_curve: Optional[np.ndarray] = None,
         fatigue_total_decay_pct: float = 0.0,
+        fatigue_model_instance: Optional[
+            Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]
+        ] = None,
         altitude_slowdown_per_vertical_km: float = ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM,
         use_altitude_effects: bool = True,
     ) -> None:
@@ -166,6 +194,13 @@ class PaceCalculator:
         self.fatigue_total_decay_pct = float(fatigue_total_decay_pct)
         if not 0.0 <= self.fatigue_total_decay_pct <= 100.0:
             raise ValueError("fatigue_total_decay_pct must be between 0 and 100")
+        # Auto-wrap a bare fatigue_total_decay_pct into a LinearFatigueModel so
+        # that all fatigue logic is centralised in the model layer.
+        if fatigue_model_instance is None and self.fatigue_total_decay_pct > 0.0:
+            fatigue_model_instance = LinearFatigueModel(
+                total_decay_pct=self.fatigue_total_decay_pct
+            )
+        self.fatigue_model_instance = fatigue_model_instance
         self.altitude_slowdown_per_vertical_km = float(altitude_slowdown_per_vertical_km)
         if self.altitude_slowdown_per_vertical_km < 0.0:
             raise ValueError("altitude_slowdown_per_vertical_km must be non-negative")
@@ -180,6 +215,9 @@ class PaceCalculator:
         cls,
         athlete_config: Dict,
         fatigue_total_decay_pct: float = 0.0,
+        fatigue_model_instance: Optional[
+            Union[LinearFatigueModel, MultiDaySigmoidalFatigueModel]
+        ] = None,
         use_altitude_effects: bool = True,
     ) -> "PaceCalculator":
         """
@@ -199,6 +237,7 @@ class PaceCalculator:
         Args:
             athlete_config: Loaded athlete YAML as a Python dict.
             fatigue_total_decay_pct: Linear fatigue decay (0-100); optional override.
+            fatigue_model_instance: Optional sigmoidal fatigue model instance.
             use_altitude_effects: If false, disables altitude-effects slowdown.
 
         Returns:
@@ -218,12 +257,13 @@ class PaceCalculator:
             ref_time_s=model.ref_time_s,
             gap_curve=model.gap_curve,
             fatigue_total_decay_pct=fatigue_total_decay_pct,
+            fatigue_model_instance=fatigue_model_instance,
             altitude_slowdown_per_vertical_km=altitude_slowdown_per_vertical_km,
             use_altitude_effects=use_altitude_effects,
         )
 
     # ------------------------------------------------------------------
-    # Compatibility wrappers around the pure-model layer
+    # Pure-model delegation helpers
     # ------------------------------------------------------------------
 
     def flat_equivalent_distance_km(self, dist_km: float, gain_m: float) -> float:
@@ -285,20 +325,120 @@ class PaceCalculator:
         point_mask = course.df["cum_dist_m"].values <= end_distance_m
         return float(weighted_distance_km_values[point_mask].sum())
 
-    def fatigue_multiplier(self, progress_fraction_values: np.ndarray) -> np.ndarray:
-        """Converts “how far through the race am I?” into a pace slowdown multiplier.
-        Return per-point pace multipliers for linear fatigue model.
+    def _build_sleep_events(
+        self,
+        aid_stations: List[Dict],
+    ) -> List[tuple[float, float]]:
+        """Derive sleep events (nap_start_time_hours, nap_duration_hours) from aid stations."""
+        if not isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            return []
 
-        Pace multiplier rises linearly from 1.0 (start) to 1.0 + decay_fraction (finish).
+        sleep_events: List[tuple[float, float]] = []
+        for aid in aid_stations:
+            sleep_s = float(aid.get("sleep_duration_s") or 0.0)
+            if sleep_s <= 0:
+                continue
+
+            d_km = float(aid.get("distance_km", 0.0))
+            # Solve arrival time in hours using sleep events logged up to this aid station
+            t_arrival_h = self.fatigue_model_instance.elapsed_hours_for_distance(
+                d_km, sleep_events=sleep_events
+            )
+            nap_duration_h = sleep_s / 3600.0
+            sleep_events.append((t_arrival_h, nap_duration_h))
+
+        return sleep_events
+
+    def fatigue_multiplier(
+        self,
+        progress_fraction_values: np.ndarray,
+        cumulative_distance_km_values: Optional[np.ndarray] = None,
+        sleep_events: Optional[List[tuple[float, float]]] = None,
+    ) -> np.ndarray:
+        """Return per-point pace multipliers, delegating to the configured fatigue model.
+
+        Dispatches to the appropriate fatigue model class:
+
+        - If ``fatigue_model_instance`` is a
+          :class:`~race_planner.models.fatigue_model.MultiDaySigmoidalFatigueModel`,
+          ``cumulative_distance_km_values`` and ``cumulative_sleep_duration_s_values``
+          must be provided.
+        - If ``fatigue_model_instance`` is a
+          :class:`~race_planner.models.fatigue_model.LinearFatigueModel`,
+          ``progress_fraction_values`` is used.
+        - If no ``fatigue_model_instance`` is set, returns all-ones (no fatigue).
+
+        Args:
+            progress_fraction_values: Race completion fraction per point, in [0, 1].
+            cumulative_distance_km_values: Cumulative distance (km) per point;
+                required when a sigmoidal model is active.
+            sleep_events: List of (nap_start_time_hours, nap_duration_hours) tuples.
+
+        Returns:
+            Array of pace multipliers (≥ 1.0 means slower than starting pace).
         """
-        if np.any(progress_fraction_values < 0.0) or np.any(progress_fraction_values > 1.0):
-            raise ValueError("progress_fraction_values must be between 0 and 1")
+        if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            assert cumulative_distance_km_values is not None
 
-        if self.fatigue_total_decay_pct == 0.0:
-            return np.ones_like(progress_fraction_values)
+            dist_km = np.asarray(cumulative_distance_km_values, dtype=float)
+            if dist_km.size == 0:
+                return np.array([], dtype=float)
 
-        total_decay_fraction = self.fatigue_total_decay_pct / 100.0
-        return 1.0 + total_decay_fraction * progress_fraction_values
+            max_dist_km = float(dist_km.max())
+            sample_count = min(256, max(8, dist_km.size))
+            # Build a sampling grid that includes nap start/end distances so interpolation
+            # does not straddle nap boundaries (prevents pre-nap "anticipation").
+            base_samples = np.linspace(0.0, max_dist_km, num=sample_count)
+            nap_boundary_distances = []
+            if sleep_events:
+                for nap_start_h, nap_dur_h in sleep_events:
+                    # Convert nap start/end times to distances (km) using the fatigue model.
+                    try:
+                        d_start = self.fatigue_model_instance.distance_travelled_in_time(
+                            nap_start_h, sleep_events
+                        )
+                        d_end = self.fatigue_model_instance.distance_travelled_in_time(
+                            nap_start_h + nap_dur_h, sleep_events
+                        )
+                        # Only include boundaries that lie within the course range
+                        if 0.0 <= d_start <= max_dist_km:
+                            nap_boundary_distances.extend(
+                                [max(0.0, d_start - EPS), d_start, min(max_dist_km, d_start + EPS)]
+                            )
+                        if 0.0 <= d_end <= max_dist_km:
+                            nap_boundary_distances.extend(
+                                [max(0.0, d_end - EPS), d_end, min(max_dist_km, d_end + EPS)]
+                            )
+                    except Exception:
+                        # If conversion fails for any reason, skip adding boundaries.
+                        pass
+            if nap_boundary_distances:
+                sample_dist_km = np.unique(
+                    np.concatenate([base_samples, np.array(nap_boundary_distances, dtype=float)])
+                )
+            else:
+                sample_dist_km = base_samples
+
+            sample_multipliers = np.array(
+                [
+                    self.fatigue_model_instance.pace_multiplier_for_distance(
+                        float(d), sleep_events=sleep_events
+                    )
+                    for d in sample_dist_km
+                ],
+                dtype=float,
+            )
+            return np.interp(dist_km, sample_dist_km, sample_multipliers)
+
+        if isinstance(self.fatigue_model_instance, LinearFatigueModel):
+            return np.array(
+                [
+                    self.fatigue_model_instance.fatigue_multiplier(float(p))
+                    for p in progress_fraction_values
+                ]
+            )
+
+        return np.ones_like(progress_fraction_values, dtype=float)
 
     def altitude_multiplier(self, elevation_m_values: np.ndarray) -> np.ndarray:
         """Return per-point pace multipliers for altitude-effects slowdown.
@@ -313,6 +453,149 @@ class PaceCalculator:
         altitude_above_threshold_m = np.maximum(elevation_m - 1000.0, 0.0)
         vertical_km_values = altitude_above_threshold_m / 1000.0
         return 1.0 + self.altitude_slowdown_per_vertical_km * vertical_km_values
+
+    def _build_cumulative_sleep_duration_s_values(
+        self,
+        cumulative_distance_m_values: np.ndarray,
+        aid_stations: List[Dict],
+    ) -> np.ndarray:
+        """Build cumulative sleep duration per course point for the sigmoidal model."""
+        sleep_at_distance: dict[float, float] = {}
+        for aid in aid_stations:
+            sleep_s = aid.get("sleep_duration_s")
+            if sleep_s is None:
+                continue
+
+            sleep_s = float(sleep_s)
+            stop_s = float(aid.get("stop_time_s", 0))
+            if stop_s < sleep_s:
+                raise ValueError(
+                    f"Aid station '{aid.get('name', '?')}': stop_time_s ({stop_s:.0f} s) "
+                    f"must be >= sleep_duration_s ({sleep_s:.0f} s)"
+                )
+
+            d_km = float(aid.get("distance_km", 0.0))
+            sleep_at_distance[d_km] = sleep_s
+
+        if not sleep_at_distance:
+            return np.zeros(len(cumulative_distance_m_values), dtype=float)
+
+        sorted_sleep = sorted(sleep_at_distance.items())
+        cumulative_sleep_s = 0.0
+        sleep_thresholds_m: list[float] = []
+        cumulative_sleep_vals: list[float] = []
+        for d_km, sleep_s in sorted_sleep:
+            sleep_thresholds_m.append(d_km * 1000.0)
+            cumulative_sleep_s += sleep_s
+            cumulative_sleep_vals.append(cumulative_sleep_s)
+
+        sleep_thresholds_arr = np.array(sleep_thresholds_m, dtype=float)
+        cumulative_sleep_vals_arr = np.array(cumulative_sleep_vals, dtype=float)
+        per_point_sleep_s = np.zeros(len(cumulative_distance_m_values), dtype=float)
+        for j in range(len(sleep_thresholds_arr)):
+            mask = cumulative_distance_m_values >= sleep_thresholds_arr[j]
+            per_point_sleep_s[mask] = cumulative_sleep_vals_arr[j]
+
+        return per_point_sleep_s
+
+    def _build_pace_profile_data(
+        self,
+        point_times_s: np.ndarray,
+        point_grade_weighted_distance_km_values: np.ndarray,
+        altitude_multiplier_values: np.ndarray,
+        cumulative_distance_km_values: np.ndarray,
+        cumulative_distance_m_values: np.ndarray,
+        elevation_m_values: np.ndarray,
+        planned_point_mask: np.ndarray,
+        aid_stations: List[Dict],
+        total_time_s: float,
+    ) -> dict:
+        """Create a plot-ready payload so visualization can stay pure rendering."""
+        if not np.any(planned_point_mask):
+            raise ValueError("No course points found up to planned finish distance")
+
+        point_times_s_planned = point_times_s[planned_point_mask]
+        point_gap_weighted_km_planned = point_grade_weighted_distance_km_values[planned_point_mask]
+        point_altitude_multiplier_planned = altitude_multiplier_values[planned_point_mask]
+        cumulative_distance_km_planned = cumulative_distance_km_values[planned_point_mask]
+        cumulative_distance_m_planned = cumulative_distance_m_values[planned_point_mask]
+        elevation_m_planned = elevation_m_values[planned_point_mask]
+
+        # Back-converted GAP pace removes grade effects and keeps the terrain
+        # signal from dominating the fatigue trend; actual course pace keeps the
+        # raw slope effect so the two views can be compared directly.
+        point_gap_pace_s_per_km_planned = np.full_like(point_times_s_planned, np.nan, dtype=float)
+        point_actual_pace_s_per_km_planned = np.full_like(
+            point_times_s_planned, np.nan, dtype=float
+        )
+        valid_gap_distance_mask = point_gap_weighted_km_planned > 1e-6
+        valid_actual_distance_mask = cumulative_distance_km_planned > 1e-6
+        valid_altitude_mask = point_altitude_multiplier_planned > 1e-12
+        valid_gap_mask = valid_gap_distance_mask & valid_altitude_mask
+        valid_actual_mask = valid_actual_distance_mask & valid_altitude_mask
+        point_gap_pace_s_per_km_planned[valid_gap_mask] = (
+            point_times_s_planned[valid_gap_mask]
+            / point_gap_weighted_km_planned[valid_gap_mask]
+            / point_altitude_multiplier_planned[valid_gap_mask]
+        )
+        point_actual_pace_s_per_km_planned[valid_actual_mask] = (
+            point_times_s_planned[valid_actual_mask]
+            / cumulative_distance_km_planned[valid_actual_mask]
+            / point_altitude_multiplier_planned[valid_actual_mask]
+        )
+        pace_min_per_km_planned = point_gap_pace_s_per_km_planned / 60.0
+        actual_pace_min_per_km_planned = point_actual_pace_s_per_km_planned / 60.0
+
+        cumulative_running_time_s_planned = np.cumsum(point_times_s_planned)
+        cumulative_stop_before_point_s_planned = np.zeros_like(cumulative_running_time_s_planned)
+
+        aid_plot_points: list[dict[str, float | int | str]] = []
+        break_indices: list[int] = []
+        for aid in aid_stations:
+            aid_name = str(aid.get("name", "Aid station"))
+            aid_distance_km = float(aid.get("distance_km", 0.0))
+            aid_distance_m = aid_distance_km * 1000.0
+            stop_time_s = float(aid.get("stop_time_s", 0.0))
+
+            aid_idx = int(np.abs(cumulative_distance_m_planned - aid_distance_m).argmin())
+            aid_elapsed_time_h = float(
+                (
+                    cumulative_running_time_s_planned[aid_idx]
+                    + cumulative_stop_before_point_s_planned[aid_idx]
+                )
+                / 3600.0
+            )
+            aid_plot_points.append(
+                {
+                    "name": aid_name,
+                    "index": aid_idx,
+                    "distance_km": float(cumulative_distance_km_planned[aid_idx]),
+                    "elapsed_time_h": aid_elapsed_time_h,
+                    "pace_min_per_km": float(pace_min_per_km_planned[aid_idx]),
+                    "stop_time_s": stop_time_s,
+                }
+            )
+
+            if stop_time_s > 0:
+                cumulative_stop_before_point_s_planned[aid_idx + 1 :] += stop_time_s
+                if 0 < aid_idx < len(cumulative_running_time_s_planned) - 1:
+                    break_indices.append(aid_idx)
+
+        elapsed_time_h_planned = (
+            cumulative_running_time_s_planned + cumulative_stop_before_point_s_planned
+        ) / 3600.0
+
+        return {
+            "elapsed_time_h": elapsed_time_h_planned.astype(float).tolist(),
+            "distance_km": cumulative_distance_km_planned.astype(float).tolist(),
+            "pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
+            "actual_pace_min_per_km": actual_pace_min_per_km_planned.astype(float).tolist(),
+            "grade_adjusted_pace_min_per_km": pace_min_per_km_planned.astype(float).tolist(),
+            "elevation_m": elevation_m_planned.astype(float).tolist(),
+            "aid_points": aid_plot_points,
+            "break_indices": break_indices,
+            "total_time_h": float(total_time_s / 3600.0),
+        }
 
     # ------------------------------------------------------------------
     # Pacing plan
@@ -414,7 +697,10 @@ class PaceCalculator:
             point_grade_weighted_distance_km_values[planned_point_mask].sum()
         )
 
-        # Compute fatigue multipliers based on progress through the course
+        # Compute fatigue multipliers based on progress through the course.
+        # Sigmoidal model: use cumulative distance (km) and per-point sleep duration.
+        # Linear model: use progress fraction (0–1).
+        cumulative_distance_km_values = cumulative_distance_m_values / 1000.0
         progress_distance_m_values = np.minimum(
             cumulative_distance_m_values,
             planned_finish_distance_m,
@@ -424,7 +710,17 @@ class PaceCalculator:
             if planned_finish_distance_m > 0
             else np.zeros_like(cumulative_distance_m_values)
         )
-        fatigue_multiplier_values = self.fatigue_multiplier(progress_fraction_values)
+
+        if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            sleep_events = self._build_sleep_events(aid_stations)
+            fatigue_multiplier_values = self.fatigue_multiplier(
+                progress_fraction_values,
+                cumulative_distance_km_values,
+                sleep_events=sleep_events,
+            )
+        else:
+            fatigue_multiplier_values = self.fatigue_multiplier(progress_fraction_values)
+
         altitude_multiplier_values = self.altitude_multiplier(elevation_m_values)
 
         # Effective distance = grade-weighted distance * fatigue * altitude multipliers
@@ -442,12 +738,81 @@ class PaceCalculator:
         if override_total_running_time_s is not None:
             total_running_time_s = float(override_total_running_time_s)
             riegel_method = "target-override"
-            seconds_per_weighted_km = (
-                total_running_time_s / total_effective_weighted_distance_km
-                if total_effective_weighted_distance_km > 0
-                else 0.0
+
+            if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+                # Bisection solver: Find the V_start that yields the target running time
+                v_low = self.fatigue_model_instance.floor_speed_kmh + 0.01
+                v_high = self.fatigue_model_instance.threshold_speed_kmh
+
+                for _ in range(25):
+                    v_mid = (v_low + v_high) / 2.0
+
+                    # Temporarily adjust the fatigue model bounds
+                    self.fatigue_model_instance.start_pct = (
+                        v_mid / self.fatigue_model_instance.threshold_speed_kmh
+                    )
+                    self.fatigue_model_instance._v_start = v_mid
+                    self.fatigue_model_instance._v_delta = (
+                        v_mid - self.fatigue_model_instance.floor_speed_kmh
+                    )
+
+                    # Recompute fatigue arrays with the new start parameter
+                    temp_fatigue = self.fatigue_multiplier(
+                        progress_fraction_values,
+                        cumulative_distance_km_values,
+                        sleep_events,
+                    )
+                    temp_effective_dist = (
+                        point_grade_weighted_distance_km_values
+                        * temp_fatigue
+                        * altitude_multiplier_values
+                    )
+
+                    # Calculate segment times using the candidate V_start
+                    fed_baseline_pace_s_per_km = 3600.0 / v_mid
+                    candidate_point_times_s = temp_effective_dist * fed_baseline_pace_s_per_km
+
+                    simulated_total = float(candidate_point_times_s[planned_point_mask].sum())
+
+                    # Check if total time is within a 30-second tolerance
+                    if abs(simulated_total - total_running_time_s) < 30.0:
+                        point_times_s = candidate_point_times_s
+                        fatigue_multiplier_values = temp_fatigue
+                        break
+                    elif simulated_total > total_running_time_s:
+                        v_low = v_mid  # Too slow, need higher V_start
+                    else:
+                        v_high = v_mid  # Too fast, need lower V_start
+                else:
+                    # Fallback to nearest estimate if tolerance not met within 25 iterations
+                    point_times_s = candidate_point_times_s
+                    fatigue_multiplier_values = temp_fatigue
+            else:
+                # Retain original linear scaling for LinearFatigueModel
+                seconds_per_weighted_km = (
+                    total_running_time_s / total_effective_weighted_distance_km
+                    if total_effective_weighted_distance_km > 0
+                    else 0.0
+                )
+                point_times_s = (
+                    point_effective_weighted_distance_km_values * seconds_per_weighted_km
+                )
+
+        elif isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel):
+            # Bypass Riegel and use absolute sigmoid speeds directly
+            v_start = (
+                self.fatigue_model_instance.threshold_speed_kmh
+                * self.fatigue_model_instance.start_pct
             )
-            point_times_s = point_effective_weighted_distance_km_values * seconds_per_weighted_km
+            fed_baseline_pace_s_per_km = 3600.0 / v_start
+
+            point_times_s = (
+                point_distance_km_values * fed_baseline_pace_s_per_km * grade_correction_factors
+            )
+            point_times_s = point_times_s * fatigue_multiplier_values
+            point_times_s = point_times_s * altitude_multiplier_values
+            riegel_method = "absolute-sigmoid"
+
         elif use_fed:
             # 1) Adjusted-Riegel total approximation on FED distance.
             riegel_running_time_approx_s = self.predict_riegel_race_time_sec(
@@ -577,8 +942,28 @@ class PaceCalculator:
             else "-"
         )
         df.attrs["total_grade_weighted_distance_km"] = total_grade_weighted_distance_km
-        df.attrs["fatigue_total_decay_pct"] = self.fatigue_total_decay_pct
+        df.attrs["fatigue_total_decay_pct"] = (
+            self.fatigue_model_instance.total_decay_pct
+            if isinstance(self.fatigue_model_instance, LinearFatigueModel)
+            else 0.0
+        )
+        df.attrs["fatigue_model_type"] = (
+            "sigmoid"
+            if isinstance(self.fatigue_model_instance, MultiDaySigmoidalFatigueModel)
+            else "linear" if isinstance(self.fatigue_model_instance, LinearFatigueModel) else "none"
+        )
         df.attrs["use_altitude_effects"] = self.use_altitude_effects
         df.attrs["altitude_slowdown_per_vertical_km"] = self.altitude_slowdown_per_vertical_km
+        df.attrs["pace_profile_data"] = self._build_pace_profile_data(
+            point_times_s=point_times_s,
+            point_grade_weighted_distance_km_values=point_grade_weighted_distance_km_values,
+            altitude_multiplier_values=altitude_multiplier_values,
+            cumulative_distance_km_values=cumulative_distance_km_values,
+            cumulative_distance_m_values=cumulative_distance_m_values,
+            elevation_m_values=elevation_m_values,
+            planned_point_mask=planned_point_mask,
+            aid_stations=aid_stations,
+            total_time_s=cumulative_elapsed_time_s,
+        )
 
         return df

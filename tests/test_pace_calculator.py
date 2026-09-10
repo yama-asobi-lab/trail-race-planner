@@ -210,14 +210,16 @@ def test_fatigue_multiplier_zero_decay():
 
 
 def test_fatigue_multiplier_linear_progression():
-    """Fatigue multiplier with 10% decay should rise from 1.0 to 1.1."""
+    """Fatigue multiplier with 10% decay should rise from 1.0 to ~1.111 at finish."""
     calc = PaceCalculator(
         ref_dist_km=42.195,
         ref_time_s=12600,
         fatigue_total_decay_pct=10.0,
     )
     result = calc.fatigue_multiplier(np.array([0.0, 0.5, 1.0]))
-    np.testing.assert_allclose(result, np.array([1.0, 1.05, 1.10]), rtol=1e-10)
+    # LinearFatigueModel uses 1 / (1 - decay_pct/100 * progress)
+    expected = np.array([1.0 / (1.0 - 0.1 * p) for p in [0.0, 0.5, 1.0]])
+    np.testing.assert_allclose(result, expected, rtol=1e-10)
 
 
 def test_fatigue_total_decay_pct_rejects_negative_values():
@@ -365,6 +367,18 @@ def test_calculate_pacing_total_time_attrs(carlos_calc, tgt_course, race_config)
     assert df.attrs["total_time_s"] > 0
     assert "overall_avg_pace_mmss" in df.attrs
     assert "overall_avg_grade_adjusted_pace_mmss" in df.attrs
+
+
+def test_pace_profile_data_exposes_grade_adjusted_pace(carlos_calc, tgt_course, race_config):
+    """The profile payload must distinguish raw race pace from GAP-normalized pace."""
+    aid_stations = race_config["aid_stations"]
+    df = carlos_calc.calculate_pacing(tgt_course, aid_stations)
+    profile = df.attrs["pace_profile_data"]
+
+    assert "actual_pace_min_per_km" in profile
+    assert "grade_adjusted_pace_min_per_km" in profile
+    assert np.isfinite(profile["actual_pace_min_per_km"]).any()
+    assert np.isfinite(profile["grade_adjusted_pace_min_per_km"]).any()
 
 
 def test_calculate_pacing_flat_distance_mode(carlos_calc, tgt_course, race_config):
