@@ -1,28 +1,22 @@
 """Analyze TOR330 2025 pacing strategies from an offline checkpoint snapshot.
 
 This script reads a locally cached JSON snapshot extracted from:
-    https://live.torxtrail.com/rankings/#/race/2025TOR330
+        https://live.torxtrail.com/rankings/#/race/2025TOR330
 
-For each finisher, it computes:
-- Checkpoint elapsed times and checkpoint ranks for:
-  Valgrisenche IN, Cogne IN, Donnas IN, Gressoney IN,
-  Valtournenche IN, Ollomont IN, FINISH.
-- Segment metrics across 7 macro sections:
-  segment time, average pace, average GAP speed.
-- Strategy indexes:
-  donnas_time_ratio,
-  gressoney_time_ratio,
-  second_half_deceleration_ratio_donnas,
-  second_half_deceleration_ratio_gressoney,
-  rank_drift_donnas,
-  rank_drift_gressoney,
-  pace_variation_coefficient.
-
-It also writes correlation-oriented plots to help identify robust pacing patterns.
+Modes:
+- Global mode (default): computes finisher-level pacing indexes and correlation plots.
+- Bib mode (--bib ...): for selected bibs, generates all-checkpoint progression outputs:
+    - position progression
+    - raw pace progression
+    - GAP pace progression using GPX point-by-point grade + altitude corrections
+    The combined figure includes elevation profile in the background and labels with bib,
+    runner name, and total time spent in life bases (sum of OUT-IN across life-base
+    checkpoints).
 
 Usage examples:
-    python analysis/analyze_tor330_pacing_strategies.py
-    python analysis/analyze_tor330_pacing_strategies.py --max-finish-hours 120 --filter-by execution_index --poly-fit
+        python analysis/analyze_tor330_pacing_strategies.py
+        python analysis/analyze_tor330_pacing_strategies.py --max-finish-hours 120 --filter-by execution_index --poly-fit
+        python analysis/analyze_tor330_pacing_strategies.py --max-finish-hours 100 --bib 12 2
 """
 
 from __future__ import annotations
@@ -84,8 +78,9 @@ AID_STATION_CHECKPOINTS = [
 
 RACE_EXECUTION_INDEX_TOP_FILTER = 1.03
 RACE_EXECUTION_INDEX_BOTTOM_FILTER = (
-    0.6  # 0.6 to only filter for extreme outliers, 0.85 to filter for more typical pacing patterns
+    0.8  # 0.6 to only filter for extreme outliers, 0.85 to filter for more typical pacing patterns
 )
+ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM = 0.063
 
 
 def _safe_checkpoint_slug(name: str) -> str:
@@ -300,6 +295,350 @@ def _build_checkpoint_rank_maps(runners: list[dict[str, Any]]) -> dict[str, dict
         rank_maps[cp] = {bib: idx + 1 for idx, (_, bib) in enumerate(arrivals)}
 
     return rank_maps
+
+
+def _build_checkpoint_rank_maps_for_order(
+    runners: list[dict[str, Any]], checkpoint_order: list[str]
+) -> dict[str, dict[int, int]]:
+    rank_maps: dict[str, dict[int, int]] = {}
+
+    for cp in checkpoint_order:
+        arrivals: list[tuple[pd.Timestamp, int]] = []
+        for runner in runners:
+            bib = int(runner.get("bib", -1))
+            ts = _parse_iso(runner.get("checkpoint_times", {}).get(cp))
+            if pd.notna(ts):
+                arrivals.append((ts, bib))
+
+        arrivals.sort(key=lambda x: (x[0], x[1]))
+        rank_maps[cp] = {bib: idx + 1 for idx, (_, bib) in enumerate(arrivals)}
+
+    return rank_maps
+
+
+def _checkpoint_order_from_snapshot(snapshot: dict[str, Any]) -> list[str]:
+    checkpoint_order = snapshot.get("target_checkpoint_order", [])
+    if checkpoint_order and isinstance(checkpoint_order, list):
+        return [str(cp) for cp in checkpoint_order]
+    return CHECKPOINT_ORDER
+
+
+def _checkpoint_meta_from_snapshot(snapshot: dict[str, Any]) -> dict[str, dict[str, float]]:
+    out: dict[str, dict[str, float]] = {}
+    for cp in snapshot.get("checkpoints", []):
+        name = str(cp.get("text", "")).strip()
+        if not name:
+            continue
+        out[name] = {
+            "distance_km": float(cp.get("distance_m", 0.0)) / 1000.0,
+            "elevation_m": float(cp.get("elevation_m", np.nan)),
+        }
+    return out
+
+
+def _runner_display_name(runner: dict[str, Any]) -> str:
+    athlete = runner.get("athlete") or {}
+    first = str(athlete.get("nome") or "").strip()
+    last = str(athlete.get("cognome") or "").strip()
+    return " ".join(part for part in [first, last] if part) or "Unknown Runner"
+
+
+def _safe_filename_component(text: str) -> str:
+    normalized = re.sub(r"[^A-Za-z0-9._-]+", "_", text.strip())
+    normalized = re.sub(r"_+", "_", normalized).strip("_")
+    return normalized or "runner"
+
+
+def _compute_life_base_time_h(checkpoint_times: dict[str, Any]) -> float:
+    total_seconds = 0.0
+
+    for cp_in in AID_STATION_CHECKPOINTS:
+        cp_out = cp_in.replace(" IN", " OUT")
+        ts_in = _parse_iso(checkpoint_times.get(cp_in))
+        ts_out = _parse_iso(checkpoint_times.get(cp_out))
+
+        if pd.notna(ts_in) and pd.notna(ts_out):
+            delta_s = (ts_out - ts_in).total_seconds()
+            if delta_s > 0:
+                total_seconds += float(delta_s)
+
+    return total_seconds / 3600.0
+
+
+def _altitude_multiplier(
+    elevation_m_values: float | np.ndarray, slowdown_per_vertical_km: float
+) -> float | np.ndarray:
+    elevation_m = np.asarray(elevation_m_values, dtype=float)
+    altitude_above_threshold_m = np.maximum(elevation_m - 1000.0, 0.0)
+    multiplier = 1.0 + slowdown_per_vertical_km * (altitude_above_threshold_m / 1000.0)
+    if np.ndim(multiplier) == 0:
+        return float(multiplier)
+    return multiplier
+
+
+def _build_bib_progression_table(
+    runner: dict[str, Any],
+    course: Course,
+    checkpoint_order: list[str],
+    checkpoint_meta: dict[str, dict[str, float]],
+    checkpoint_rank_maps: dict[str, dict[int, int]],
+    pacing_model: PacingModel,
+    altitude_slowdown_per_vertical_km: float,
+) -> pd.DataFrame:
+    checkpoint_times = runner.get("checkpoint_times", {})
+    start_ts = _parse_iso(checkpoint_times.get("START"))
+    if pd.isna(start_ts):
+        return pd.DataFrame()
+
+    bib = int(runner.get("bib", -1))
+    rows: list[dict[str, Any]] = []
+    prev_elapsed_h = np.nan
+    prev_distance_km = np.nan
+    prev_elevation_m = np.nan
+
+    for cp_name in checkpoint_order:
+        cp_ts = _parse_iso(checkpoint_times.get(cp_name))
+        elapsed_h = np.nan
+        if pd.notna(cp_ts):
+            elapsed_h = (cp_ts - start_ts).total_seconds() / 3600.0
+            if elapsed_h < 0:
+                elapsed_h = np.nan
+
+        cp_meta = checkpoint_meta.get(cp_name, {})
+        distance_km = float(cp_meta.get("distance_km", np.nan))
+        elevation_m = float(cp_meta.get("elevation_m", np.nan))
+
+        segment_pace_min_per_km = np.nan
+        segment_gap_pace_min_per_km = np.nan
+        if (
+            pd.notna(elapsed_h)
+            and pd.notna(prev_elapsed_h)
+            and pd.notna(distance_km)
+            and pd.notna(prev_distance_km)
+            and pd.notna(elevation_m)
+            and pd.notna(prev_elevation_m)
+        ):
+            segment_time_h = float(elapsed_h - prev_elapsed_h)
+            segment_distance_km = float(distance_km - prev_distance_km)
+
+            if segment_time_h > 0 and segment_distance_km > 0:
+                actual_speed_kmh = segment_distance_km / segment_time_h
+                if actual_speed_kmh > 0:
+                    segment_pace_min_per_km = 60.0 / actual_speed_kmh
+
+                # Point-by-point correction from GPX profile over this checkpoint segment.
+                segment_df = course.get_segment(start_km=prev_distance_km, end_km=distance_km)
+                if not segment_df.empty:
+                    dist_km_points = segment_df["dist_m"].to_numpy(dtype=float) / 1000.0
+                    grade_decimal_points = segment_df["grade"].to_numpy(dtype=float) / 100.0
+                    elevation_points_m = segment_df["ele_m"].to_numpy(dtype=float)
+
+                    weights = np.clip(dist_km_points, a_min=0.0, a_max=None)
+                    total_weight = float(np.sum(weights))
+                    if total_weight > 0:
+                        gap_correction_points = pacing_model.grade_correction(grade_decimal_points)
+                        altitude_mult_points = _altitude_multiplier(
+                            elevation_points_m,
+                            slowdown_per_vertical_km=altitude_slowdown_per_vertical_km,
+                        )
+                        combined_factor_points = gap_correction_points * altitude_mult_points
+                        avg_combined_factor = float(
+                            np.sum(combined_factor_points * weights) / total_weight
+                        )
+                    else:
+                        avg_combined_factor = 1.0
+                else:
+                    avg_combined_factor = 1.0
+
+                gap_speed_with_altitude_kmh = actual_speed_kmh * avg_combined_factor
+                if gap_speed_with_altitude_kmh > 0:
+                    segment_gap_pace_min_per_km = 60.0 / gap_speed_with_altitude_kmh
+
+        rank_at_checkpoint = checkpoint_rank_maps.get(cp_name, {}).get(bib)
+
+        rows.append(
+            {
+                "checkpoint": cp_name,
+                "distance_km": distance_km,
+                "elevation_m": elevation_m,
+                "elapsed_h": elapsed_h,
+                "rank": float(rank_at_checkpoint) if rank_at_checkpoint is not None else np.nan,
+                "segment_pace_min_per_km": segment_pace_min_per_km,
+                "segment_gap_pace_min_per_km": segment_gap_pace_min_per_km,
+            }
+        )
+
+        if pd.notna(elapsed_h) and pd.notna(distance_km) and pd.notna(elevation_m):
+            prev_elapsed_h = elapsed_h
+            prev_distance_km = distance_km
+            prev_elevation_m = elevation_m
+
+    return pd.DataFrame(rows)
+
+
+def _plot_bibs_progressions_with_elevation_background(
+    bib_progressions: list[tuple[str, pd.DataFrame]],
+    course: Course,
+    output_dir: Path,
+    output_stem: str,
+) -> None:
+    course_distance_km = course.df["cum_dist_m"].to_numpy(dtype=float) / 1000.0
+    course_elevation_m = course.df["ele_m"].to_numpy(dtype=float)
+    course_elevation_floor = float(np.nanmin(course_elevation_m) - 150.0)
+    if not bib_progressions:
+        raise ValueError("No bib progression data available to plot")
+
+    cp_df = bib_progressions[0][1][pd.notna(bib_progressions[0][1]["distance_km"])].copy()
+    cp_distances = cp_df["distance_km"].to_numpy(dtype=float)
+    cp_labels = cp_df["checkpoint"].tolist()
+
+    fig, axes = plt.subplots(3, 1, figsize=(20, 14), sharex=True)
+
+    for axis in axes:
+        axis_ele = axis.twinx()
+        axis_ele.fill_between(
+            course_distance_km,
+            course_elevation_m,
+            course_elevation_floor,
+            color="lightgray",
+            alpha=0.26,
+            zorder=0,
+        )
+        axis_ele.plot(course_distance_km, course_elevation_m, color="gray", linewidth=1.0, zorder=1)
+        axis_ele.set_ylabel("Elevation (m)", color="gray")
+        axis_ele.tick_params(axis="y", colors="gray")
+
+    for label, progression_df in bib_progressions:
+        rank_df = progression_df[
+            pd.notna(progression_df["distance_km"])
+            & pd.notna(progression_df["rank"])
+            & (progression_df["checkpoint"] != "START")
+        ]
+        pace_df = progression_df[
+            pd.notna(progression_df["distance_km"])
+            & pd.notna(progression_df["segment_pace_min_per_km"])
+        ]
+        gap_df = progression_df[
+            pd.notna(progression_df["distance_km"])
+            & pd.notna(progression_df["segment_gap_pace_min_per_km"])
+        ]
+
+        axes[0].plot(
+            rank_df["distance_km"],
+            rank_df["rank"],
+            linewidth=1.8,
+            marker="o",
+            markersize=3,
+            label=label,
+            zorder=4,
+        )
+        axes[1].plot(
+            pace_df["distance_km"],
+            pace_df["segment_pace_min_per_km"],
+            linewidth=1.8,
+            marker="o",
+            markersize=3,
+            label=label,
+            zorder=4,
+        )
+        axes[2].plot(
+            gap_df["distance_km"],
+            gap_df["segment_gap_pace_min_per_km"],
+            linewidth=1.8,
+            marker="o",
+            markersize=3,
+            label=label,
+            zorder=4,
+        )
+
+    for axis in axes:
+        for cp_distance in cp_distances:
+            axis.axvline(cp_distance, color="k", alpha=0.06, linewidth=0.6, zorder=2)
+        axis.grid(True, alpha=0.25)
+
+    axes[0].set_ylabel("Position")
+    axes[0].set_title("Position Progression (All Checkpoints)")
+    axes[0].invert_yaxis()
+
+    axes[1].set_ylabel("Pace (min/km)")
+    axes[1].set_title("Segment Pace Progression (No Adjustment)")
+
+    axes[2].set_ylabel("Adjusted Pace (min/km)")
+    axes[2].set_title("Segment Pace Progression (Grade + Altitude Adjusted)")
+
+    axes[2].set_xticks(cp_distances)
+    axes[2].set_xticklabels(cp_labels, rotation=80, fontsize=7)
+    axes[2].set_xlabel("Checkpoint progression")
+    axes[2].set_xlim(0.0, max(float(np.nanmax(course_distance_km)), float(np.nanmax(cp_distances))))
+
+    for axis in axes:
+        axis.legend(loc="upper right", fontsize=8)
+
+    fig.suptitle("TOR330 Bib Progression Analysis", fontsize=14, fontweight="bold")
+    fig.tight_layout()
+    fig.savefig(output_dir / f"{output_stem}_progressions.png", dpi=180)
+    plt.close(fig)
+
+
+def _run_bib_checkpoint_mode(
+    snapshot: dict[str, Any],
+    course: Course,
+    bibs: list[int],
+    output_dir: Path,
+    altitude_slowdown_per_vertical_km: float,
+) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_order = _checkpoint_order_from_snapshot(snapshot)
+    checkpoint_meta = _checkpoint_meta_from_snapshot(snapshot)
+    runners: list[dict[str, Any]] = snapshot.get("runners", [])
+    rank_maps = _build_checkpoint_rank_maps_for_order(runners, checkpoint_order)
+    runner_by_bib = {int(r.get("bib", -1)): r for r in runners}
+    pacing_model = PacingModel(ref_dist_km=42.195, ref_time_s=3 * 3600)
+
+    not_found = [bib for bib in bibs if bib not in runner_by_bib]
+    if not_found:
+        logger.warning(f"Requested bibs not found in snapshot: {sorted(not_found)}")
+
+    processed = 0
+    bib_progressions: list[tuple[str, pd.DataFrame]] = []
+    for bib in bibs:
+        runner = runner_by_bib.get(bib)
+        if runner is None:
+            continue
+
+        progression_df = _build_bib_progression_table(
+            runner=runner,
+            course=course,
+            checkpoint_order=checkpoint_order,
+            checkpoint_meta=checkpoint_meta,
+            checkpoint_rank_maps=rank_maps,
+            pacing_model=pacing_model,
+            altitude_slowdown_per_vertical_km=altitude_slowdown_per_vertical_km,
+        )
+
+        if progression_df.empty:
+            logger.warning(f"No checkpoint progression data for bib {bib}")
+            continue
+
+        runner_name = _runner_display_name(runner)
+        life_base_time_h = _compute_life_base_time_h(runner.get("checkpoint_times", {}))
+        series_label = f"Bib {bib} | {runner_name} | LB {life_base_time_h:.2f}h"
+        bib_progressions.append((series_label, progression_df))
+        processed += 1
+
+    if processed == 0:
+        raise ValueError("No valid bib checkpoint plots were generated.")
+
+    output_stem = f"bibs_{'_'.join(str(b) for b in bibs)}"
+    _plot_bibs_progressions_with_elevation_background(
+        bib_progressions=bib_progressions,
+        course=course,
+        output_dir=output_dir,
+        output_stem=output_stem,
+    )
+    logger.info(
+        f"Generated one combined bib progression figure for {processed} runner(s) in {output_dir}"
+    )
 
 
 def _section_column_suffix(section: SectionModel) -> str:
@@ -1056,6 +1395,32 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Do a polynomial fit on the scatter plots (2nd degree) to visualize trends",
     )
+    parser.add_argument(
+        "--bib",
+        type=int,
+        nargs="+",
+        default=None,
+        help=(
+            "Checkpoint progression mode for one or more bib numbers. "
+            "When provided, produce per-runner GAP pace and position progression plots "
+            "across all checkpoints with elevation profile background."
+        ),
+    )
+    parser.add_argument(
+        "--bib-output-subdir",
+        type=str,
+        default="by_bib",
+        help="Sub-directory under output-dir where bib-mode plots/tables are written",
+    )
+    parser.add_argument(
+        "--altitude-slowdown-per-vertical-km",
+        type=float,
+        default=ALTITUDE_BASELINE_SLOWDOWN_PER_VERTICAL_KM,
+        help=(
+            "Altitude slowdown coefficient for bib GAP pace adjustment "
+            "(fractional slowdown per vertical-km above 1000 m)."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -1099,41 +1464,50 @@ def main() -> None:
     if runner_df.empty:
         raise ValueError("No finishers left after filtering. Try a larger --max-finish-hours.")
 
-    index_df = _build_index_table(runner_df)
-    section_df = _build_sections_export(sections)
+    if args.bib:
+        _run_bib_checkpoint_mode(
+            snapshot=snapshot,
+            course=course,
+            bibs=args.bib,
+            output_dir=output_dir / args.bib_output_subdir,
+            altitude_slowdown_per_vertical_km=float(args.altitude_slowdown_per_vertical_km),
+        )
+        logger.info(f"Analyzed finishers: {len(runner_df)}")
+    else:
+        index_df = _build_index_table(runner_df)
+        section_df = _build_sections_export(sections)
 
-    runner_csv = output_dir / "tor330_2025_pacing_runner_table.csv"
-    index_csv = output_dir / "tor330_2025_pacing_indexes.csv"
-    section_csv = output_dir / "tor330_2025_section_model.csv"
-    excel_path = output_dir / "tor330_2025_pacing_analysis.xlsx"
+        runner_csv = output_dir / "tor330_2025_pacing_runner_table.csv"
+        index_csv = output_dir / "tor330_2025_pacing_indexes.csv"
+        section_csv = output_dir / "tor330_2025_section_model.csv"
+        excel_path = output_dir / "tor330_2025_pacing_analysis.xlsx"
 
-    runner_df.to_csv(runner_csv, index=False)
-    index_df.to_csv(index_csv, index=False)
-    section_df.to_csv(section_csv, index=False)
+        runner_df.to_csv(runner_csv, index=False)
+        index_df.to_csv(index_csv, index=False)
+        section_df.to_csv(section_csv, index=False)
 
-    with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
-        runner_df.to_excel(writer, sheet_name="runner_table", index=False)
-        index_df.to_excel(writer, sheet_name="indexes", index=False)
-        section_df.to_excel(writer, sheet_name="section_model", index=False)
+        with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
+            runner_df.to_excel(writer, sheet_name="runner_table", index=False)
+            index_df.to_excel(writer, sheet_name="indexes", index=False)
+            section_df.to_excel(writer, sheet_name="section_model", index=False)
 
-    _plot_indexes(runner_df, output_dir, filter_by=args.filter_by, poly_fit=args.poly_fit)
-
-    logger.info(f"Saved runner table to: {runner_csv}")
-    logger.info(f"Saved index table to: {index_csv}")
-    logger.info(f"Saved section model to: {section_csv}")
-    logger.info(f"Saved Excel workbook to: {excel_path}")
-    logger.info(f"Analyzed finishers: {len(runner_df)}")
-    logger.info(
-        "Median strategy profile: "
-        f"donnas_ratio={index_df['donnas_time_ratio'].median():.3f}, "
-        f"gressoney_ratio={index_df['gressoney_time_ratio'].median():.3f}, "
-        f"decel_donnas={index_df['second_half_deceleration_ratio_donnas'].median():.3f}, "
-        f"decel_gressoney={index_df['second_half_deceleration_ratio_gressoney'].median():.3f}, "
-        f"rank_gain_donnas={index_df['rank_gain_donnas'].median():.1f}, "
-        f"pacing_index_donnas={index_df['pacing_index_donnas'].median():.3f}, "
-        f"itra_race_execution_index={index_df['itra_race_execution_index'].median():.3f}, "
-        f"pace_cv={index_df['pace_variation_coefficient'].median():.3f}"
-    )
+        _plot_indexes(runner_df, output_dir, filter_by=args.filter_by, poly_fit=args.poly_fit)
+        logger.info(f"Saved runner table to: {runner_csv}")
+        logger.info(f"Saved index table to: {index_csv}")
+        logger.info(f"Saved section model to: {section_csv}")
+        logger.info(f"Saved Excel workbook to: {excel_path}")
+        logger.info(f"Analyzed finishers: {len(runner_df)}")
+        logger.info(
+            "Median strategy profile: "
+            f"donnas_ratio={index_df['donnas_time_ratio'].median():.3f}, "
+            f"gressoney_ratio={index_df['gressoney_time_ratio'].median():.3f}, "
+            f"decel_donnas={index_df['second_half_deceleration_ratio_donnas'].median():.3f}, "
+            f"decel_gressoney={index_df['second_half_deceleration_ratio_gressoney'].median():.3f}, "
+            f"rank_gain_donnas={index_df['rank_gain_donnas'].median():.1f}, "
+            f"pacing_index_donnas={index_df['pacing_index_donnas'].median():.3f}, "
+            f"itra_race_execution_index={index_df['itra_race_execution_index'].median():.3f}, "
+            f"pace_cv={index_df['pace_variation_coefficient'].median():.3f}"
+        )
 
 
 if __name__ == "__main__":
