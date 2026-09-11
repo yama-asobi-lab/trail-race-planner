@@ -1,4 +1,4 @@
-{
+﻿{
   "source": {
     "page": "https://live.torxtrail.com/rankings/#/race/2025TOR330",
     "fetched_at_utc": "2026-09-10T08:06:49.379Z",
@@ -2059,7 +2059,7 @@
         "Rif. Frassati": "2025-09-17T17:42:29.709+00:00",
         "Rif. Bonatti": "2025-09-17T19:18:18.432+00:00",
         "Rif. Bertone": "2025-09-17T20:29:40.032+00:00",
-        "Parco Bollino": "2025-09-20T10:56:24+00:00",
+        "Parco Bollino": null,
         "FINISH": "2025-09-17T21:05:28+00:00"
       }
     },
